@@ -70,7 +70,7 @@ Source of truth: PRD.md and ARCHITECTURE.md.
 | Column | Type | Notes |
 |---|---|---|
 | user_id | uuid | PK, FK `auth.users` |
-| org_id | uuid | FK organisations. Null only for admin. One user per organisation in MVP |
+| org_id | uuid | FK organisations. Null for admins and for new users before onboarding. One user per organisation in MVP |
 | role | user_role | Default org_user |
 | full_name, designation | text | |
 | phone, email | text | Copied from Auth, unique |

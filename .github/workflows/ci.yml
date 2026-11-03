@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  database:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-16-pgtap
+      - run: sudo systemctl start postgresql.service
+      - run: mkdir -p /tmp/bid-market && cp -r supabase /tmp/bid-market/
+      - run: sudo -u postgres PGHOST=/var/run/postgresql bash /tmp/bid-market/supabase/tests/run.sh
+
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
