@@ -1,0 +1,572 @@
+<title>Bid Market</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a procurement ledger. Rows and figures lead, a deep green band carries the live auction stair. */
+:root{
+  --bg:#F0F5F2;--surface:#FFFFFF;--sunk:#E5EDE8;--ink:#10251D;--muted:#51645B;--line:#D1DDD6;
+  --accent:#0B6B4E;--accent-ink:#FFFFFF;--mark:#8F4E05;--mark-bg:#FCEBC8;--bad:#AE2A1F;--bad-bg:#FBE4E0;
+  --ok:#0B6B4E;--ok-bg:#D9EFE4;--info:#1B5786;--info-bg:#DDEAF5;
+  --band:#0C3B2E;--band-2:#134A3A;--band-ink:#ECF5F0;--band-muted:#A9C8BA;--gold:#F2B84B;--st:var(--accent);
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Instrument Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1714;--surface:#15211C;--sunk:#1B2A24;--ink:#E6EFEA;--muted:#9DB2A8;--line:#2B3B34;
+  --accent:#4CC59A;--accent-ink:#06251A;--mark:#F2B84B;--mark-bg:#3D2C0C;--bad:#F2938A;--bad-bg:#401B18;
+  --ok:#4CC59A;--ok-bg:#12352A;--info:#8CC4F0;--info-bg:#12304A;
+  --band:#0A2A20;--band-2:#103729;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1714;--surface:#15211C;--sunk:#1B2A24;--ink:#E6EFEA;--muted:#9DB2A8;--line:#2B3B34;
+  --accent:#4CC59A;--accent-ink:#06251A;--mark:#F2B84B;--mark-bg:#3D2C0C;--bad:#F2938A;--bad-bg:#401B18;
+  --ok:#4CC59A;--ok-bg:#12352A;--info:#8CC4F0;--info-bg:#12304A;
+  --band:#0A2A20;--band-2:#103729;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.12;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,1.4rem + 2.6vw,3.2rem);font-weight:800}
+h2{font-size:clamp(1.45rem,1.2rem + 1vw,1.95rem);font-weight:700}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}.small{font-size:.875rem}.stack{display:flex;flex-direction:column;gap:12px}.stack-lg{display:flex;flex-direction:column;gap:24px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.between{justify-content:space-between}
+.label{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Header */
+.strip{background:var(--sunk);font-size:.8125rem;color:var(--muted)}
+.strip .wrap{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;align-items:center;padding-block:6px}
+.strip select{font:inherit;padding:3px 6px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:4px}
+.head{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:9}
+.head-main{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding-block:10px}
+.logo{display:flex;gap:8px;align-items:center;text-decoration:none;color:var(--ink);font:800 1.3rem/1 var(--display);letter-spacing:-.02em}
+.logo svg{width:28px;height:28px;color:var(--accent)}
+.search{flex:1 1 240px;min-width:0;display:flex}
+.search input{flex:1;min-width:0;border-right:0;border-radius:6px 0 0 6px}
+.search button{border-radius:0 6px 6px 0}
+nav.main{border-top:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+nav.main .wrap{display:flex;gap:2px;white-space:nowrap}
+nav.main a{padding:9px 12px;text-decoration:none;color:var(--ink);font-size:.9375rem;font-weight:500;border-bottom:2px solid transparent}
+nav.main a[aria-current="page"]{border-color:var(--accent);color:var(--accent)}
+nav.main a:hover{background:var(--sunk)}
+/* Controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;font:600 .9375rem/1.2 var(--body);border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.bad{color:var(--bad);border-color:var(--bad);background:transparent}
+.btn.sm{padding:6px 11px;font-size:.8125rem}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#2B1C00}
+input,select,textarea{font:inherit;width:100%;padding:9px 11px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px}
+input[type=checkbox],input[type=radio]{width:auto}
+input[type=file]{padding:7px}
+textarea{min-height:84px;resize:vertical}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>span:first-child{font-size:.875rem;font-weight:600}
+.hint{font-size:.8125rem;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.check{display:flex;gap:7px;align-items:center;font-size:.9rem}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+legend{font-size:.875rem;font-weight:600;padding:0;margin-bottom:4px}
+/* Pills */
+.pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.warn{background:var(--mark-bg);color:var(--mark)}.pill.bad{background:var(--bad-bg);color:var(--bad)}.pill.info{background:var(--info-bg);color:var(--info)}
+/* Panels and tables */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;min-width:0}
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.9375rem}
+th{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;background:var(--sunk)}
+th,td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+section.block{padding-block:40px;display:flex;flex-direction:column;gap:20px}
+.page{padding-block:28px 48px;display:flex;flex-direction:column;gap:22px}
+.crumb{font-size:.875rem;color:var(--muted)}
+/* Hero */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;padding-block:44px;align-items:center}
+.hero p.lead{font-size:1.1rem;color:var(--band-muted);max-width:52ch}
+.hero .btn:not(.gold){background:transparent;color:var(--band-ink);border-color:var(--band-muted)}
+.board{background:var(--band-2);border-radius:8px;padding:20px;--st:var(--gold);display:flex;flex-direction:column;gap:10px;min-width:0}
+.board .label{color:var(--band-muted)}
+.board a{color:var(--band-ink)}
+.l1{font:600 clamp(2rem,1.5rem + 2vw,2.9rem)/1 var(--mono);color:var(--gold);font-variant-numeric:tabular-nums}
+.stair{width:100%;height:auto;display:block}
+.stair path{fill:none;stroke:var(--st);stroke-width:2.5}
+.stair circle{fill:var(--st)}
+.stair text{font:500 11px var(--mono)}
+.board .stair text{fill:var(--band-muted)}
+.panel .stair text{fill:var(--muted)}
+@keyframes flash{from{opacity:.35}to{opacity:1}}
+.flash{animation:flash .5s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}}
+/* Comparison of methods */
+.methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.methods>div{padding:20px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0}
+/* Catalogue */
+.zones{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:10px}
+.zone{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;text-decoration:none;color:var(--ink)}
+.zone:hover{border-color:var(--accent)}
+.zone svg{width:38px;height:38px;flex:none;color:var(--accent)}
+.zone b{display:block;line-height:1.25}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,215px),1fr));gap:14px}
+.card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;text-decoration:none;color:var(--ink)}
+.card:hover{border-color:var(--accent)}
+.thumb{background:var(--sunk);color:var(--accent);display:grid;place-items:center;aspect-ratio:16/10;max-width:100%}
+.thumb svg{width:44%;height:auto}
+.card .in{padding:12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.card .t{font-weight:600;line-height:1.3}
+.price{font:600 1.05rem var(--mono)}
+.mrp{font:400 .8125rem var(--mono);color:var(--muted);text-decoration:line-through}
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 18px;margin:0}
+.facts div{min-width:0}.facts dt{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}.facts dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:16px;list-style:none;padding:0;margin:0;counter-reset:s}
+.steps li{counter-increment:s;display:flex;flex-direction:column;gap:4px}
+.steps li::before{content:counter(s);font:600 .875rem var(--mono);color:var(--accent)}
+/* Order timeline */
+.track{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.track li{flex:1 1 120px;padding:8px 10px;font-size:.8125rem;border-top:3px solid var(--line);color:var(--muted)}
+.track li.done{border-color:var(--accent);color:var(--ink);font-weight:600}
+/* Dashboard */
+.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.tabs button{font:600 .9375rem var(--body);background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:9px 13px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--accent);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px}
+.stat b{display:block;font:600 1.4rem var(--mono)}
+.todo{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.todo:last-child{border-bottom:0}
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:clamp(18px,4vw,40px);max-width:760px;display:flex;flex-direction:column;gap:18px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+summary{font-weight:600;cursor:pointer}
+details p{margin-top:8px;max-width:68ch}
+.note{background:var(--mark-bg);color:var(--mark);padding:10px 14px;border-radius:6px;font-size:.9rem}
+.note.info{background:var(--info-bg);color:var(--info)}
+footer{background:var(--band);color:var(--band-muted);font-size:.9rem;margin-top:24px}
+footer .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px;padding-block:32px}
+footer a{color:var(--band-ink);text-decoration:none;display:block;padding:2px 0}
+footer b{color:var(--band-ink);font-family:var(--display)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;font-size:.9375rem;max-width:calc(100% - 32px);z-index:20}
+@media (max-width:820px){
+  .hero .wrap,.split{grid-template-columns:minmax(0,1fr)}
+  .filters{grid-template-columns:1fr 1fr}.filters>:first-child{grid-column:1/-1}
+  .head{position:static}
+}
+</style>
+
+<div class="strip"><div class="wrap">
+  <span>Working prototype. Every company, product and price here is an example.</span>
+  <label class="row" style="gap:6px;flex-wrap:nowrap"><span style="white-space:nowrap">Viewing as</span>
+    <select id="role-switch" aria-label="Viewing as">
+      <option value="guest">Visitor</option><option value="buyer">Buyer</option><option value="seller">Seller</option><option value="admin">Admin</option>
+    </select></label>
+</div></div>
+<header class="head">
+  <div class="wrap head-main">
+    <a class="logo" href="#home" aria-label="Bid Market home">
+      <svg viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><rect x="2" y="3" width="6" height="22" rx="1"/><rect x="11" y="10" width="6" height="15" rx="1"/><rect x="20" y="17" width="6" height="8" rx="1"/></svg>
+      Bid Market</a>
+    <form class="search" data-f="search" role="search">
+      <input id="top-search" type="search" placeholder="Search products and categories" aria-label="Search products and categories">
+      <button class="btn pri" type="submit">Search</button>
+    </form>
+    <div class="row" id="head-actions"></div>
+  </div>
+  <nav class="main" aria-label="Main"><div class="wrap" id="nav"></div></nav>
+</header>
+<main id="view"></main>
+<footer><div class="wrap">
+  <div class="stack" style="gap:6px"><b>Bid Market</b><span>A private B2B marketplace for direct orders, tenders and reverse auctions.</span></div>
+  <div><b>Buy and sell</b><a href="#category">Categories</a><a href="#products">Products</a><a href="#bids">Tenders</a><a href="#pricing">Fees and subscription</a></div>
+  <div><b>Learn</b><a href="#how-it-works">How it works</a><a href="#guides">Guides</a><a href="#rules">Platform rules</a></div>
+  <div><b>Help</b><a href="#contact">Raise a ticket</a><a data-a="reset" href="#home">Reset demo data</a></div>
+</div></footer>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const round=n=>Math.round(n*100)/100;
+const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+const H=36e5,D=864e5,KEY='bid-market-demo-v1';
+const dt=t=>new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+const GST_RE=/^\d{2}[A-Z]{5}\d{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/, PAN_RE=/^[A-Z]{5}\d{4}[A-Z]$/;
+const STATES=['Madhya Pradesh','Maharashtra','Gujarat','Rajasthan','Tamil Nadu','Karnataka','Uttar Pradesh','Delhi'];
+const CATS=[
+ {id:'electrical',name:'Electrical and cables',subs:'Cables, switchgear, lighting'},
+ {id:'pipes',name:'Pipes and valves',subs:'GI pipe, HDPE, ball valves'},
+ {id:'safety',name:'Safety and PPE',subs:'Helmets, gloves, boots'},
+ {id:'tools',name:'Tools and hardware',subs:'Power tools, fasteners'},
+ {id:'bearings',name:'Bearings and drives',subs:'Ball bearings, V-belts'},
+ {id:'it',name:'IT and office',subs:'Laptops, printers, chairs'},
+ {id:'packaging',name:'Packaging',subs:'Cartons, stretch film'},
+ {id:'lubes',name:'Lubricants and chemicals',subs:'Gear oil, grease, solvents'}];
+const catName=id=>(CATS.find(c=>c.id===id)||{}).name||id;
+const ART={
+ electrical:'<path d="M6 12c10-8 14 8 24 0s14 8 24 0"/><path d="M6 24c10-8 14 8 24 0s14 8 24 0"/>',
+ pipes:'<rect x="6" y="12" width="48" height="14" rx="2"/><path d="M16 12v14M44 12v14M30 6v6M24 6h12"/>',
+ safety:'<path d="M10 28a20 18 0 0 1 40 0"/><path d="M6 28h48M26 11v9M34 11v9"/>',
+ tools:'<path d="M12 30 34 8l8 8-22 22z"/><path d="M38 12l10-4 4 4-4 10"/>',
+ bearings:'<circle cx="30" cy="20" r="16"/><circle cx="30" cy="20" r="6"/><circle cx="30" cy="9" r="2.5"/><circle cx="30" cy="31" r="2.5"/><circle cx="19" cy="20" r="2.5"/><circle cx="41" cy="20" r="2.5"/>',
+ it:'<rect x="12" y="7" width="36" height="22" rx="2"/><path d="M6 34h48"/>',
+ packaging:'<path d="M8 12 30 4l22 8v20l-22 8-22-8z"/><path d="M8 12l22 8 22-8M30 20v20"/>',
+ lubes:'<path d="M20 12h20v26H20z"/><path d="M26 12V6h8v6M20 22h20"/>'};
+const art=c=>`<svg viewBox="0 0 60 42" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${ART[c]||''}</svg>`;
+
+function seed(){
+ const n=Date.now();
+ const p=(id,title,cat,mrp,disc,unit,stock,sellerId,specs,sales,status='Published')=>({id,title,cat,mrp,disc,unit,stock,sellerId,specs,sales,status,states:STATES.slice(0,5),note:''});
+ return {
+  role:'guest',
+  fees:{direct:.1,tender:.5,gst:18,limitInd:20000,limitOrg:50000,customFixed:1000,subBase:25000,subBaseCr:25,subPerCr:100,decrement:.5,minDisc:10},
+  buyer:{id:'B1',name:'Narmada Foods Pvt Ltd',type:'Company',city:'Bhopal',state:'Madhya Pradesh',gst:'23AABCN1234F1Z5',phone:'+91 90000 00001',email:'purchase@narmadafoods.example'},
+  sellers:[
+   {id:'S1',name:'Vindhya Industrial Supplies',city:'Jabalpur',state:'Madhya Pradesh',strikes:0,blockedUntil:0,maintenance:false,phone:'+91 90000 00002',email:'sales@vindhya.example'},
+   {id:'S2',name:'Konkan Engineering Traders',city:'Thane',state:'Maharashtra',phone:'+91 90000 00003',email:'sales@konkan.example'},
+   {id:'S3',name:'Malwa Power Systems',city:'Indore',state:'Madhya Pradesh',phone:'+91 90000 00004',email:'sales@malwa.example'},
+   {id:'S4',name:'Cauvery Tools and Hardware',city:'Coimbatore',state:'Tamil Nadu',phone:'+91 90000 00005',email:'sales@cauvery.example'},
+   {id:'S5',name:'Aravalli Safetywear LLP',city:'Jaipur',state:'Rajasthan',phone:'+91 90000 00006',email:'sales@aravalli.example'},
+   {id:'S6',name:'Sahyadri Office Solutions',city:'Pune',state:'Maharashtra',phone:'+91 90000 00007',email:'sales@sahyadri.example'}],
+  products:[
+   p('P101','1.1 kV 4-core armoured copper cable, 16 sq mm','electrical',920,14,'m',4800,'S1',{Conductor:'Copper',Insulation:'XLPE',Armour:'GI strip',Standard:'IS 7098'},212),
+   p('P102','MCCB 100 A, 3-pole, 25 kA','electrical',5400,18,'pc',160,'S3',{Poles:'3',Rating:'100 A',Breaking:'25 kA'},96),
+   p('P103','LED high-bay light, 150 W, 5700 K','electrical',6200,22,'pc',310,'S1',{Power:'150 W',Output:'19,500 lm',IP:'IP65'},141),
+   p('P104','GI pipe, medium class, 50 mm, 6 m length','pipes',3350,12,'length',900,'S1',{Class:'Medium',Size:'50 mm',Standard:'IS 1239'},188),
+   p('P105','Forged brass ball valve, 25 mm','pipes',780,15,'pc',2200,'S2',{Size:'25 mm',Pressure:'PN 25',End:'Screwed BSP'},119),
+   p('P106','Industrial safety helmet, ratchet type','safety',340,20,'pc',5200,'S5',{Shell:'HDPE',Suspension:'6-point',Standard:'IS 2925'},260),
+   p('P107','Steel-toe safety boots, size range 6 to 11','safety',1650,16,'pair',1400,'S5',{Toe:'Steel 200 J',Sole:'PU dual density'},175),
+   p('P108','Cotton-nitrile dipped gloves, pack of 12','safety',960,12,'pack',3000,'S5',{Coating:'Nitrile',Cut:'Level 3'},82),
+   p('P109','Angle grinder, 100 mm, 850 W','tools',3100,17,'pc',420,'S4',{Disc:'100 mm',Power:'850 W',Speed:'11,000 rpm'},133),
+   p('P110','Stainless hex bolt set, M12 x 50, box of 100','tools',1850,13,'box',760,'S1',{Grade:'SS 304',Thread:'M12 x 1.75'},74),
+   p('P111','Deep-groove ball bearing 6205, sealed','bearings',260,15,'pc',8000,'S2',{Bore:'25 mm',OD:'52 mm',Seal:'2RS'},149),
+   p('P112','V-belt B-section, B72','bearings',540,11,'pc',1500,'S2',{Section:'B',Length:'B72'},58),
+   p('P113','Business laptop, 14 inch, 16 GB, 512 GB SSD','it',68000,14,'pc',75,'S6',{Memory:'16 GB',Storage:'512 GB SSD',Warranty:'3 years on-site'},67),
+   p('P114','Mesh office chair with lumbar support','it',11400,24,'pc',220,'S6',{Base:'Nylon five-star',Tilt:'Synchro'},91),
+   p('P115','Five-ply corrugated carton, 18 x 12 x 12 in','packaging',72,16,'pc',40000,'S2',{Ply:'5',BurstFactor:'24'},203),
+   p('P116','Gear oil ISO VG 220, 20 L drum','lubes',7600,13,'drum',260,'S3',{Grade:'ISO VG 220',Pack:'20 L'},64),
+   p('P117','Copper lugs, 95 sq mm, pack of 50','electrical',2850,12,'pack',300,'S1',{Size:'95 sq mm',Barrel:'Long'},0,'Pending')],
+  tenders:[
+   {id:'T1',no:'BM/26/RA/00412',title:'4-core armoured copper cable, 95 sq mm',cat:'electrical',kind:'regular',type:'ra',phase:'ra',qty:500,unit:'m',est:640,floor:540,buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Madhya Pradesh',consignee:'Mandideep Plant Stores',specs:{Conductor:'Copper',Insulation:'XLPE',Voltage:'1.1 kV'},minBids:2,ext:1,extUsed:0,ends:n+6*H,elim:[],declined:[],attempts:{},bids:[{s:'S2',p:640,t:n-5*H},{s:'S3',p:632,t:n-4*H},{s:'S2',p:621,t:n-3*H},{s:'S3',p:614,t:n-2*H},{s:'S2',p:608,t:n-H}],fee:'paid'},
+   {id:'T2',no:'BM/26/BR/00418',title:'HDPE pipe PE100, 90 mm, PN 10',cat:'pipes',kind:'custom',type:'bid2ra',phase:'bid',qty:1200,unit:'m',est:310,floor:255,buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Maharashtra',consignee:'Nagpur Depot',specs:{Material:'PE100',Size:'90 mm',Pressure:'PN 10'},minBids:2,ext:1,extUsed:0,ends:n+2*D,elim:[],declined:[],attempts:{},bids:[{s:'S2',p:302,t:n-6*H}],fee:'paid'},
+   {id:'T3',no:'BM/26/BD/00397',title:'Heavy-duty impact wrench, 1/2 inch drive',cat:'tools',kind:'regular',type:'bid',phase:'eval',qty:40,unit:'pc',est:9800,floor:8000,buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Madhya Pradesh',consignee:'Mandideep Plant Stores',specs:{Drive:'1/2 inch',Torque:'450 Nm'},minBids:2,ext:0,extUsed:0,ends:n-3*H,elim:[],declined:[],attempts:{S1:1},bids:[{s:'S4',p:9320,t:n-D},{s:'S1',p:9250,t:n-20*H},{s:'S2',p:9540,t:n-12*H}],fee:'paid'},
+   {id:'T4',no:'BM/26/BD/00421',title:'Desktop computers, i5, 16 GB, for branch offices',cat:'it',kind:'custom',type:'bid',phase:'bid',qty:25,unit:'pc',est:52000,floor:44000,buyer:'Rewa Dairy Cooperative',mine:false,state:'Madhya Pradesh',consignee:'Rewa Head Office',specs:{Processor:'Core i5',Memory:'16 GB'},minBids:2,ext:1,extUsed:0,ends:n+4*D,elim:[],declined:[],attempts:{},bids:[{s:'S6',p:50400,t:n-2*H}],fee:'paid'},
+   {id:'T5',no:'BM/26/RA/00388',title:'LED street light, 90 W',cat:'electrical',kind:'regular',type:'ra',phase:'award',qty:120,unit:'pc',est:4200,floor:3500,buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Madhya Pradesh',consignee:'Pithampur Unit',specs:{Power:'90 W',IP:'IP66'},minBids:2,ext:0,extUsed:0,ends:n-D,elim:[],declined:[],attempts:{},bids:[{s:'S3',p:3990,t:n-2*D},{s:'S1',p:3875,t:n-30*H},{s:'S3',p:3910,t:n-28*H}],awardTo:'S1',awardAt:n-H,fee:'paid'}],
+  orders:[
+   {id:'O1',no:'BMO-26-1042',source:'Direct order',title:'Industrial safety helmet, ratchet type',cat:'safety',qty:120,unit:'pc',price:272,sellerId:'S5',buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Madhya Pradesh',consignee:'Mandideep Plant Stores',status:'Completed',log:[['Placed',n-20*D],['Accepted',n-19*D],['Dispatched',n-16*D],['Completed',n-13*D]],docs:{bill:'INV/2223',eway:'3210 8877 4410',lr:'LR-55102'},proof:'received-helmets.jpg'},
+   {id:'O2',no:'BMO-26-1057',source:'Direct order',title:'LED high-bay light, 150 W, 5700 K',cat:'electrical',qty:7,unit:'pc',price:4836,sellerId:'S1',buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Madhya Pradesh',consignee:'Mandideep Plant Stores',status:'Dispatched',log:[['Placed',n-5*D],['Accepted',n-4*D],['Dispatched',n-D]],docs:{bill:'VIS/887',eway:'3210 9012 7765',lr:'LR-66210'}},
+   {id:'O3',no:'BMO-26-1061',source:'Direct order',title:'GI pipe, medium class, 50 mm, 6 m length',cat:'pipes',qty:12,unit:'length',price:2948,sellerId:'S1',buyer:'Narmada Foods Pvt Ltd',mine:true,state:'Madhya Pradesh',consignee:'Pithampur Unit',status:'Awaiting seller',log:[['Placed',n-3*H]],docs:{}}],
+  ledger:{buyer:[{l:'Fee on BMO-26-1042',a:38.5,s:'Paid',t:n-20*D},{l:'Fee on BMO-26-1057',a:39.9,s:'On hold',t:n-5*D},{l:'Fee on BM/26/RA/00412',a:3776,s:'On hold',t:n-D},{l:'Released from cancelled tender',a:1000,s:'Available',t:n-9*D}],seller:[{l:'Fee on BMO-26-1057',a:39.9,s:'Paid',t:n-4*D},{l:'Annual subscription',a:29500,s:'Paid',t:n-60*D}]},
+  incidents:[{id:'INC-2041',ref:'BMO-26-1042',by:'Narmada Foods Pvt Ltd',against:'Aravalli Safetywear LLP',text:'Six helmets arrived with cracked suspension clips.',status:'Open',t:n-6*D}],
+  tickets:[{id:'TKT-3307',type:'Payment issue',text:'Platform fee receipt is not showing for my last order.',by:'Vindhya Industrial Supplies',status:'Open',t:n-D}],
+  signups:[{id:'A1',role:'Buyer',name:'Satpura Agro Processing',type:'Partnership',pan:'AAIFS1234K',gst:'23AAIFS1234K1Z2'},{id:'A2',role:'Buyer',name:'Tapti Textiles Ltd',type:'Company',pan:'AACCT9876L',gst:'27AACCT9876L1Z7'}],
+  seq:1100};
+}
+let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.products) S=seed();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const U={tab:{},q:'',cat:'',state:'',sort:'popular',tf:'all',lastL1:null};
+
+const seller=id=>S.sellers.find(s=>s.id===id)||{name:'Unknown seller'};
+const net=p=>round(p.mrp*(1-p.disc/100));
+const feeOf=(b,pct)=>round(b*pct/100*(1+S.fees.gst/100));
+const led=(w,l,a,s)=>S.ledger[w].unshift({l,a:round(a),s,t:Date.now()});
+const ledMove=(w,match,to)=>S.ledger[w].forEach(e=>{if(e.l.includes(match)&&e.s==='On hold')e.s=to});
+const nid=pre=>pre+(++S.seq);
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3800)}
+const pill=(t,k='')=>`<span class="pill ${k}">${esc(t)}</span>`;
+const TYPE={bid:'Bid',ra:'Reverse auction',bid2ra:'Bid to RA'};
+const PH={bid:['Bidding open','info'],eval:['Under evaluation','warn'],ra:['Auction live','warn'],award:['Awaiting seller','warn'],ordered:['Order placed','ok'],cancelled:['Cancelled','bad']};
+const ST={'Awaiting seller':'warn',Accepted:'info',Dispatched:'info',Completed:'ok',Cancelled:'bad',Published:'ok',Pending:'warn',Notify:'warn',Rejected:'bad',Unpublished:'',Open:'warn',Closed:'ok',Paid:'ok','On hold':'warn',Available:'info'};
+const stPill=s=>pill(s,ST[s]||'');
+const cd=t=>{const m=t-Date.now();if(m<=0)return 'Ended';const d=Math.floor(m/D),h=Math.floor(m%D/H),mi=Math.floor(m%H/6e4),s=Math.floor(m%6e4/1e3);return d?`${d}d ${h}h`:`${h}h ${String(mi).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`};
+
+/* Tender logic */
+function standing(t){const m={};t.bids.forEach(b=>{m[b.s]=b});return Object.values(m).filter(b=>!t.elim.includes(b.s)&&!t.declined.includes(b.s)).sort((a,b)=>a.p-b.p||a.t-b.t)}
+const l1=t=>{const s=standing(t);return s.length?s[0].p:null};
+const eligible=t=>S.products.some(p=>p.sellerId==='S1'&&p.cat===t.cat&&p.status==='Published')&&!S.sellers[0].maintenance;
+const blocked=()=>{const u=S.sellers[0].blockedUntil;return u&&u>Date.now()?u:0};
+function cancelTender(t,why){t.phase='cancelled';t.why=why;if(t.mine){S.ledger.buyer.forEach(e=>{if(e.l.includes(t.no)&&e.s==='On hold')e.s='Available'})}}
+function closePhase(t){
+ const n=standing(t).length;
+ if(n<t.minBids&&t.extUsed<t.ext){t.extUsed++;t.ends=Date.now()+2*H;return `Only ${n} of ${t.minBids} required bids received. Extended by 2 hours.`}
+ if(n<t.minBids||!n){cancelTender(t,'Minimum bids not reached after all extensions.');return 'Tender cancelled: minimum bids not reached.'}
+ if(t.phase==='bid'){t.phase='eval';return 'Bidding closed. Tender is under evaluation.'}
+ t.phase='award';t.awardTo=standing(t)[0].s;t.awardAt=Date.now();return `Auction closed. ${seller(t.awardTo).name} is L1.`;
+}
+function createTenderOrder(t){
+ const w=standing(t).find(b=>b.s===t.awardTo),total=round(w.p*t.qty),f=feeOf(total,S.fees.tender);
+ const o={id:nid('O'),no:'BMO-26-'+S.seq,source:TYPE[t.type]+' '+t.no,title:t.title,cat:t.cat,qty:t.qty,unit:t.unit,price:w.p,sellerId:t.awardTo,buyer:t.buyer,mine:t.mine,state:t.state,consignee:t.consignee,status:'Accepted',log:[['Placed',Date.now()],['Accepted',Date.now()]],docs:{},tender:t.id};
+ S.orders.unshift(o);t.phase='ordered';t.orderId=o.id;
+ if(t.awardTo==='S1')led('seller','Fee on '+t.no,f,'Paid');
+ if(t.mine&&t.kind==='custom')led('buyer','Balance fee on '+t.no,Math.max(0,f-S.fees.customFixed),'On hold');
+ return o;
+}
+function strike(){const s=S.sellers[0];s.strikes=(s.strikes||0)+1;const days=[30,60,180][s.strikes-1];s.blockedUntil=days?Date.now()+days*D:8.64e15;return days?`Blocked for ${days} days.`:'Blocked permanently.'}
+function rivalsFor(cat){const r=[...new Set(S.products.filter(p=>p.cat===cat&&p.sellerId!=='S1'&&p.status==='Published').map(p=>p.sellerId))];S.sellers.forEach(s=>{if(s.id!=='S1'&&r.length<3&&!r.includes(s.id))r.push(s.id)});return r}
+
+/* Shared fragments */
+function productCard(p){const s=seller(p.sellerId);return `<a class="card" href="#product-${p.id}"><div class="thumb">${art(p.cat)}</div><div class="in"><span class="t">${esc(p.title)}</span><span class="small muted">${esc(s.city)}, ${esc(s.state)}</span><span class="row" style="gap:8px;margin-top:auto"><span class="price">${inr(net(p))}</span><span class="mrp">${inr(p.mrp)}</span></span><span class="small muted">per ${esc(p.unit)}, all-inclusive</span></div></a>`}
+function tenderRows(list){if(!list.length)return '<div class="empty">No tenders match this view.</div>';
+ return `<table><thead><tr><th>Tender</th><th>Requirement</th><th>Method</th><th class="r">Qty</th><th>Status</th><th>Closes</th></tr></thead><tbody>${list.map(t=>`<tr><td class="mono small"><a href="#tender-${t.id}">${esc(t.no)}</a></td><td>${esc(t.title)}<div class="small muted">${esc(t.buyer)}, ${esc(t.state)}</div></td><td>${TYPE[t.type]}</td><td class="r num">${t.qty.toLocaleString('en-IN')} ${esc(t.unit)}</td><td>${pill(...PH[t.phase])}</td><td class="num small">${t.phase==='bid'||t.phase==='ra'?`<span data-cd="${t.ends}">${cd(t.ends)}</span>`:'—'}</td></tr>`).join('')}</tbody></table>`}
+function stair(t){const bs=[...t.bids].sort((a,b)=>a.t-b.t);if(bs.length<2)return '';let m=Infinity;const pts=bs.map(b=>m=Math.min(m,b.p));
+ const W=440,Ht=130,L=8,R=62,T=12,B=12,hi=pts[0],lo=pts[pts.length-1],span=hi-lo||1,x=i=>L+i*(W-L-R)/(pts.length-1),y=v=>T+(hi-v)/span*(Ht-T-B);
+ let d=`M${x(0).toFixed(1)} ${y(pts[0]).toFixed(1)}`;pts.forEach((v,i)=>{if(i)d+=`H${x(i).toFixed(1)}V${y(v).toFixed(1)}`});
+ return `<svg class="stair" viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Lowest price fell from ${inr(hi)} to ${inr(lo)} across ${pts.length} bids"><path d="${d}"/><circle cx="${x(pts.length-1).toFixed(1)}" cy="${y(lo).toFixed(1)}" r="4.5"/><text x="${x(0)+6}" y="${Math.min(y(hi)+16,Ht-4)}">${inr(hi)}</text><text x="${x(pts.length-1)+9}" y="${Math.max(y(lo)+4,14)}">${inr(lo)}</text></svg>`}
+function heroBoard(){const t=S.tenders.find(x=>x.phase==='ra');if(!t)return `<span class="label">Live reverse auction</span><p>No auction is running. <a href="#bids">Browse open tenders</a> or use Reset demo data in the footer.</p>`;
+ const v=l1(t),drop=round((1-v/t.bids[0].p)*100);
+ return `<div class="row between"><span class="label">Live reverse auction</span><span class="small mono" data-cd="${t.ends}">${cd(t.ends)}</span></div>
+ <a href="#tender-${t.id}" style="font-weight:600">${esc(t.title)}</a>
+ <div class="row between" style="align-items:flex-end"><div><span class="label">Current L1, per ${esc(t.unit)}</span><div class="l1 flash" id="hero-l1">${inr(v)}</div></div><div class="small" style="color:var(--band-muted)">${t.bids.length} bids<br>${drop}% below opening</div></div>${stair(t)}
+ <span class="small mono" style="color:var(--band-muted)">${esc(t.no)} · ${t.qty} ${esc(t.unit)} · example data</span>`}
+
+/* Views */
+const V={};
+V.home=()=>{const pop=S.products.filter(p=>p.status==='Published').sort((a,b)=>b.sales-a.sales).slice(0,8),open=S.tenders.filter(t=>t.phase==='bid'||t.phase==='ra').slice(0,4);
+ return `<div class="hero"><div class="wrap"><div class="stack-lg" style="gap:18px"><h1>Buy for your business at the price sellers compete to give you.</h1><p class="lead">Order directly from verified sellers, invite bids, or run a reverse auction. Every order ends with a contract and an acceptance report you can audit.</p><div class="row"><a class="btn gold" href="#tender-new">Create a tender</a><a class="btn" href="#signup">Sell on Bid Market</a></div></div><div class="board" id="hero-board">${heroBoard()}</div></div></div>
+ <div class="wrap"><section class="block"><h2>Four ways to buy</h2><div class="methods">
+  <div><h3>Direct order</h3><p class="muted">For small, repeat purchases. Pick a listed product and order at the published price.</p><p class="small">Up to <b class="num">${inr(S.fees.limitOrg)}</b> per order. Fee <b class="num">${S.fees.direct}%</b>.</p></div>
+  <div><h3>Bid</h3><p class="muted">Sellers send sealed prices against your requirement. You review them after closing and choose one.</p><p class="small">Any value. Fee <b class="num">${S.fees.tender}%</b>.</p></div>
+  <div><h3>Reverse auction</h3><p class="muted">Sellers undercut each other live. The lowest valid bid at close becomes L1 and gets the first offer.</p><p class="small">Any value. Fee <b class="num">${S.fees.tender}%</b>.</p></div>
+  <div><h3>Bid to RA</h3><p class="muted">Collect sealed bids first, remove the costliest sellers, then run an auction among those left.</p><p class="small">Any value. Fee <b class="num">${S.fees.tender}%</b>.</p></div></div></section>
+ <section class="block" style="padding-top:0"><div class="row between"><h2>Open tenders</h2><a href="#bids">View all tenders</a></div><div class="tablebox">${tenderRows(open)}</div></section>
+ <section class="block" style="padding-top:0"><div class="row between"><h2>Browse by category</h2><a href="#category">All categories</a></div><div class="zones">${CATS.map(zone).join('')}</div></section>
+ <section class="block" style="padding-top:0"><div class="row between"><h2>Most ordered products</h2><a href="#products">All products</a></div><div class="cards">${pop.map(productCard).join('')}</div></section>
+ <section class="block" style="padding-top:0"><h2>How an order runs</h2><ol class="steps">${[['Verify','Buyers and sellers pass PAN, GSTIN and bank checks.'],['Source','Order directly, or publish a tender and collect prices.'],['Accept','The seller accepts and pays the platform fee. Contact details open up.'],['Deliver','The seller dispatches with bill, e-way bill and LR number.'],['Close','The consignee confirms receipt. An acceptance report closes the order.']].map(s=>`<li><h3>${s[0]}</h3><span class="muted small">${s[1]}</span></li>`).join('')}</ol></section></div>`};
+const zone=c=>{const n=S.products.filter(p=>p.cat===c.id&&p.status==='Published').length;return `<a class="zone" href="#cat-${c.id}">${art(c.id)}<span><b>${esc(c.name)}</b><span class="small muted">${esc(c.subs)} · ${n} listed</span></span></a>`};
+V.category=()=>`<div class="wrap page"><h1>Categories</h1><p class="muted">Each category sets the specifications that buyers filter on and sellers must fill in.</p><div class="zones">${CATS.map(zone).join('')}</div></div>`;
+function plist(){let l=S.products.filter(p=>p.status==='Published'&&!(p.sellerId==='S1'&&S.sellers[0].maintenance));const q=U.q.toLowerCase();
+ if(q)l=l.filter(p=>(p.title+' '+catName(p.cat)).toLowerCase().includes(q));if(U.cat)l=l.filter(p=>p.cat===U.cat);if(U.state)l=l.filter(p=>p.states.includes(U.state));
+ l.sort(U.sort==='low'?(a,b)=>net(a)-net(b):U.sort==='high'?(a,b)=>net(b)-net(a):(a,b)=>b.sales-a.sales);
+ return `<p class="small muted">${l.length} product${l.length===1?'':'s'}</p>${l.length?`<div class="cards">${l.map(productCard).join('')}</div>`:'<div class="empty panel">No products match. Clear a filter or search for a broader term.</div>'}`}
+V.products=()=>`<div class="wrap page"><h1>Products</h1><div class="filters">
+ <input id="f-q" type="search" placeholder="Filter by name" aria-label="Filter by name" value="${esc(U.q)}">
+ <select id="f-cat" aria-label="Category"><option value="">All categories</option>${CATS.map(c=>`<option value="${c.id}" ${U.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+ <select id="f-state" aria-label="Delivery state"><option value="">Any delivery state</option>${STATES.map(s=>`<option ${U.state===s?'selected':''}>${s}</option>`).join('')}</select>
+ <select id="f-sort" aria-label="Sort"><option value="popular">Most ordered</option><option value="low" ${U.sort==='low'?'selected':''}>Price, low to high</option><option value="high" ${U.sort==='high'?'selected':''}>Price, high to low</option></select>
+ </div><div id="plist" class="stack">${plist()}</div></div>`;
+function V_product(id){const p=S.products.find(x=>x.id===id);if(!p)return notFound();const s=seller(p.sellerId);
+ const act=S.role==='buyer'?`<a class="btn pri" href="#order-new-${p.id}">Order directly</a><a class="btn" href="#tender-new-${p.id}">Create tender</a>`:S.role==='seller'?'<p class="note">Seller accounts cannot buy. Switch to a buyer account to place orders.</p>':S.role==='admin'?'':`<a class="btn pri" href="#login">Log in as buyer to order</a>`;
+ return `<div class="wrap page"><div class="crumb"><a href="#products">Products</a> / <a href="#cat-${p.cat}">${esc(catName(p.cat))}</a></div><div class="split"><div class="stack-lg"><div class="thumb" style="border-radius:8px;aspect-ratio:21/9">${art(p.cat)}</div><div class="stack"><h1 style="font-size:1.8rem">${esc(p.title)}</h1><p class="small mono muted">${esc(p.id)}</p></div>
+ <div class="tablebox"><table><thead><tr><th>Specification</th><th>Value</th></tr></thead><tbody>${Object.entries(p.specs).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</tbody></table></div></div>
+ <aside class="panel stack"><div><div class="row"><span class="price" style="font-size:1.6rem">${inr(net(p))}</span><span class="mrp">${inr(p.mrp)}</span>${pill(p.disc+'% off MRP','ok')}</div><p class="small muted">Per ${esc(p.unit)}. Price includes taxes, packing and delivery.</p></div>
+ <dl class="facts"><div><dt>Stock</dt><dd class="num">${p.stock.toLocaleString('en-IN')} ${esc(p.unit)}</dd></div><div><dt>Seller location</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd></div></dl>
+ <div><span class="label">Delivers to</span><p class="small">${p.states.map(esc).join(', ')}</p></div>
+ <p class="small muted">The seller's name stays hidden until an order is accepted.</p><div class="row">${act}</div></aside></div></div>`}
+V.bids=()=>{const f=U.tf,l=S.tenders.filter(t=>f==='all'?t.phase==='bid'||t.phase==='ra':f==='closed'?!['bid','ra'].includes(t.phase):t.type===f&&['bid','ra'].includes(t.phase));
+ return `<div class="wrap page"><div class="row between"><h1>Tenders</h1><a class="btn pri" href="#tender-new">Create a tender</a></div><div class="tabs" role="tablist">${[['all','Open now'],['bid','Bid'],['ra','Reverse auction'],['bid2ra','Bid to RA'],['closed','Closed']].map(x=>`<button role="tab" aria-selected="${f===x[0]}" data-a="tf" data-v="${x[0]}">${x[1]}</button>`).join('')}</div><div class="tablebox">${tenderRows(l)}</div></div>`};
+function raLive(t){const st=standing(t),mine=st.find(b=>b.s==='S1'),v=l1(t);
+ if(S.role==='buyer'&&t.mine)return `<span class="label">Bids received</span><div class="price" style="font-size:1.6rem">${t.bids.length}</div><p class="small muted">Prices stay hidden from the buyer until the auction closes.</p>`;
+ return `<span class="label">Current L1, per ${esc(t.unit)}</span><div class="price" style="font-size:1.9rem" id="ra-l1">${v?inr(v):'No bids yet'}</div>${S.role==='seller'&&mine?`<p class="small">Your last bid: <b class="num">${inr(mine.p)}</b>. You are ${pill(st[0]===mine?'L1':'L'+(st.indexOf(mine)+1),st[0]===mine?'ok':'warn')}</p>`:''}${stair(t)}`}
+function V_tender(id){const t=S.tenders.find(x=>x.id===id);if(!t)return notFound();const st=standing(t);let panel='',b='';
+ if(S.role==='guest'||S.role==='admin'){panel=S.role==='guest'?'<p>Log in as a verified seller to take part.</p><a class="btn pri" href="#login">Log in</a>':'<p class="muted">Admin view. Sellers bid and buyers evaluate from their own accounts.</p>'}
+ if(S.role==='seller'){const my=st.find(x=>x.s==='S1'),att=t.attempts.S1||0,bl=blocked();
+  if(t.declined.includes('S1'))panel='<p class="note">You declined this tender and can no longer take part.</p>';
+  else if(t.elim.includes('S1'))panel='<p class="note">You were removed at the bid stage of this tender.</p>';
+  else if(bl)panel=`<p class="note">Your account is blocked from bidding until ${dt(bl)}.</p>`;
+  else if(t.phase==='award'&&t.awardTo==='S1'){const w=st.find(x=>x.s==='S1'),tot=round(w.p*t.qty);panel=`<h3>You are the selected seller</h3><p>Order value <b class="num">${inr(tot)}</b> at ${inr(w.p)} per ${esc(t.unit)}. Accepting charges a fee of <b class="num">${inr(feeOf(tot,S.fees.tender))}</b> including GST.</p><div class="row"><button class="btn pri" data-a="tAccept" data-id="${t.id}">Accept and pay fee (demo)</button><button class="btn bad" data-a="tReject" data-id="${t.id}">Reject</button></div><p class="small muted">Rejecting offers the tender to the next seller and blocks your account: 30 days the first time, then 60, 180, then permanently.</p>`}
+  else if(!eligible(t)&&['bid','ra'].includes(t.phase))panel=`<p class="note">You need a published product in ${esc(catName(t.cat))} to take part${S.sellers[0].maintenance?', and your profile must be out of maintenance':''}.</p>`;
+  else if(t.phase==='bid')panel=`<h3>Sealed bid</h3><p class="small muted">Other sellers cannot see your price. Attempt ${Math.min(att+1,3)} of 3.</p>${my?`<p class="small">Your current bid: <b class="num">${inr(my.p)}</b></p>`:''}${att>=3?'<p class="note">You have used all 3 attempts on this tender.</p>':`<form data-f="bid" data-id="${t.id}" class="stack"><label class="field"><span>Price per ${esc(t.unit)}, all-inclusive (₹)</span><input id="bid-price" type="number" min="1" step="0.01" required></label><button class="btn pri">${my?'Replace bid':'Submit bid'}</button></form>`}${my?`<button class="btn sm bad" data-a="withdraw" data-id="${t.id}">Withdraw bid</button>`:''}`;
+  else if(t.phase==='ra'){const v=l1(t),mx=v?round(v*(1-S.fees.decrement/100)):t.est;panel=`<h3>Place a lower bid</h3><form data-f="ra" data-id="${t.id}" class="stack"><label class="field"><span>Your price per ${esc(t.unit)} (₹)</span><input id="ra-price" type="number" step="0.01" min="1" required placeholder="${mx}"><span class="hint">Must beat your own last bid. Bids at or above L1 are allowed, but only the lowest wins.</span></label><button class="btn pri">Submit bid</button></form>`}
+  else if(t.phase==='ordered'&&t.awardTo==='S1')panel=`<a class="btn pri" href="#order-${t.orderId}">Open order</a>`;
+  else panel=`<p class="muted">This tender is ${PH[t.phase][0].toLowerCase()}.</p>`}
+ if(S.role==='buyer'){
+  if(!t.mine)panel=`<p class="muted">Only ${esc(t.buyer)} can manage this tender. Buyers cannot bid.</p>`;
+  else if(t.phase==='bid')panel=`<p>${t.bids.length} seller bid${t.bids.length===1?'':'s'} received. Sealed until closing.</p><button class="btn" data-a="close" data-id="${t.id}">End bidding now (demo)</button>`;
+  else if(t.phase==='ra')panel=`<p class="muted">Auction closes automatically at the set time.</p><button class="btn" data-a="close" data-id="${t.id}">End auction now (demo)</button>`;
+  else if(t.phase==='eval'&&t.type==='bid')panel=`<h3>Choose a seller</h3><div class="tablebox"><table><thead><tr><th>Rank</th><th>Seller</th><th class="r">Unit price</th><th></th></tr></thead><tbody>${st.map((x,i)=>`<tr><td class="num">L${i+1}</td><td>${esc(seller(x.s).name)}</td><td class="r num">${inr(x.p)}</td><td class="r"><button class="btn sm pri" data-a="award" data-id="${t.id}" data-s="${x.s}">Select</button></td></tr>`).join('')}</tbody></table></div>`;
+  else if(t.phase==='eval'){const n=st.length;panel=`<h3>Shortlist for the auction</h3><div class="tablebox"><table><thead><tr><th>Rank</th><th>Seller</th><th class="r">Unit price</th></tr></thead><tbody>${st.map((x,i)=>`<tr><td class="num">L${i+1}</td><td>${esc(seller(x.s).name)}</td><td class="r num">${inr(x.p)}</td></tr>`).join('')}</tbody></table></div><div class="row"><button class="btn" data-a="elim" data-id="${t.id}" data-m="one" ${n<2?'disabled':''}>Remove highest bidder</button><button class="btn" data-a="elim" data-id="${t.id}" data-m="half" ${n<2?'disabled':''}>Remove highest 50%</button></div><button class="btn pri" data-a="startRa" data-id="${t.id}" ${t.elimDone?'':'disabled'}>Start reverse auction</button>`}
+  else if(t.phase==='award')panel=`<p>Offered to <b>${esc(seller(t.awardTo).name)}</b> at <b class="num">${inr(st.find(x=>x.s===t.awardTo).p)}</b>. Waiting for the seller to accept.</p>`;
+  else if(t.phase==='ordered')panel=`<a class="btn pri" href="#order-${t.orderId}">Open order</a>`;
+  else panel=`<p class="muted">${esc(t.why||'Tender cancelled.')}</p>`}
+ if(t.phase==='ra')b=`<div class="panel stack" id="ra-live" data-t="${t.id}">${raLive(t)}</div>`;
+ const ph=PH[t.phase];
+ return `<div class="wrap page"><div class="crumb"><a href="#bids">Tenders</a> / <span class="mono">${esc(t.no)}</span></div><div class="stack"><div class="row">${pill(TYPE[t.type])}${pill(ph[0],ph[1])}${pill(t.kind==='custom'?'Custom tender':'Regular tender')}${['bid','ra'].includes(t.phase)?`<span class="small mono">Closes in <span data-cd="${t.ends}">${cd(t.ends)}</span></span>`:''}</div><h1 style="font-size:1.9rem">${esc(t.title)}</h1></div>
+ <div class="split"><div class="stack-lg"><div class="panel"><dl class="facts"><div><dt>Buyer</dt><dd>${esc(t.buyer)}</dd></div><div><dt>Quantity</dt><dd class="num">${t.qty.toLocaleString('en-IN')} ${esc(t.unit)}</dd></div><div><dt>Consignee</dt><dd>${esc(t.consignee)}, ${esc(t.state)}</dd></div><div><dt>Category</dt><dd>${esc(catName(t.cat))}</dd></div><div><dt>Minimum bids</dt><dd class="num">${t.minBids}</dd></div><div><dt>Extensions left</dt><dd class="num">${t.ext-t.extUsed}</dd></div></dl></div>
+ <div class="tablebox"><table><thead><tr><th>Required specification</th><th>Value</th></tr></thead><tbody>${Object.entries(t.specs).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</tbody></table></div></div>
+ <aside class="stack">${b}<div class="panel stack">${panel}</div></aside></div></div>`}
+function V_orderNew(id){if(S.role!=='buyer')return gate('buyer');const p=S.products.find(x=>x.id===id);if(!p)return notFound();
+ const min=new Date(Date.now()+5*D).toISOString().slice(0,10);
+ return `<div class="wrap page"><div class="crumb"><a href="#product-${p.id}">${esc(p.title)}</a> / Direct order</div><h1 style="font-size:1.9rem">Place a direct order</h1><div class="split"><form class="panel stack" data-f="order" data-id="${p.id}"><div class="grid2"><label class="field"><span>Quantity (${esc(p.unit)})</span><input id="o-qty" type="number" min="1" max="${p.stock}" value="10" required></label><label class="field"><span>Expected delivery</span><input id="o-date" type="date" min="${min}" value="${min}" required><span class="hint">At least 5 days from today.</span></label><label class="field"><span>Consignee</span><input id="o-cons" value="Mandideep Plant Stores" required></label><label class="field"><span>Delivery state</span><select id="o-state">${p.states.map(s=>`<option ${s===S.buyer.state?'selected':''}>${s}</option>`).join('')}</select></label><label class="field"><span>Consignee GSTIN</span><input id="o-gst" class="mono" value="${S.buyer.gst}" required></label></div><button class="btn pri">Pay platform fee and place order (demo)</button><p class="small muted">No money moves in this prototype. The goods price is settled directly with the seller, outside the platform.</p></form>
+ <aside class="panel stack" id="o-sum">${orderSum(p,10)}</aside></div></div>`}
+function orderSum(p,q){const tot=round(net(p)*q),lim=S.fees.limitOrg,over=tot>=lim;return `<h3>Summary</h3><dl class="facts"><div><dt>Unit price</dt><dd class="num">${inr(net(p))}</dd></div><div><dt>Order value</dt><dd class="num">${inr(tot)}</dd></div><div><dt>Fee ${S.fees.direct}% + GST</dt><dd class="num">${inr(feeOf(tot,S.fees.direct))}</dd></div></dl>${over?`<p class="note">Direct orders must stay under ${inr(lim)}. <a href="#tender-new-${p.id}">Create a tender</a> for this quantity.</p>`:''}`}
+function V_tenderNew(pid){if(S.role!=='buyer')return gate('buyer');const p=pid?S.products.find(x=>x.id===pid):null;
+ return `<div class="wrap page"><h1 style="font-size:1.9rem">Create a tender</h1><p class="muted">${p?`Regular tender for <b>${esc(p.title)}</b>. The fee of ${S.fees.tender}% plus GST is paid when you publish.`:`Custom tender from your own specification. You pay ${inr(S.fees.customFixed)} to publish and the rest of the ${S.fees.tender}% fee after L1 is selected.`}</p>
+ <form class="panel stack" data-f="tender" data-p="${p?p.id:''}" style="max-width:820px"><fieldset><legend>Method</legend><div class="checks">${Object.entries(TYPE).map(([k,v],i)=>`<label class="check"><input type="radio" name="t-type" value="${k}" ${k==='ra'?'checked':''}>${v}</label>`).join('')}</div></fieldset>
+ <div class="grid2">${p?'':`<label class="field"><span>Requirement title</span><input id="t-title" required placeholder="Copper bus bar, 40 x 5 mm"></label><label class="field"><span>Category</span><select id="t-cat">${CATS.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>`}
+ <label class="field"><span>Quantity</span><input id="t-qty" type="number" min="1" value="100" required></label><label class="field"><span>Unit</span><input id="t-unit" value="${p?esc(p.unit):'pc'}" ${p?'readonly':''} required></label>
+ <label class="field"><span>Estimated unit price (₹)</span><input id="t-est" type="number" min="1" step="0.01" value="${p?net(p):''}" required></label><label class="field"><span>Delivery state</span><select id="t-state">${STATES.map(s=>`<option ${s===S.buyer.state?'selected':''}>${s}</option>`).join('')}</select></label>
+ <label class="field"><span>Consignee</span><input id="t-cons" value="Mandideep Plant Stores" required></label><label class="field"><span>Consignee GSTIN</span><input id="t-gst" class="mono" value="${S.buyer.gst}" required></label>
+ <label class="field"><span>Minimum bids</span><input id="t-min" type="number" min="1" max="10" value="2" required></label><label class="field"><span>Automatic extensions</span><input id="t-ext" type="number" min="0" max="3" value="1" required></label>
+ <label class="field"><span>Open for (hours)</span><input id="t-hrs" type="number" min="1" max="720" value="48" required></label><label class="field"><span>Extra terms (optional)</span><input id="t-atc" type="file"></label></div>
+ ${p?'':'<label class="field"><span>Specifications, one per line as Name: Value</span><textarea id="t-specs" placeholder="Material: Electrolytic copper&#10;Size: 40 x 5 mm"></textarea></label>'}
+ <button class="btn pri">Pay fee and publish (demo)</button></form></div>`}
+function V_order(id){const o=S.orders.find(x=>x.id===id);if(!o)return notFound();const isB=S.role==='buyer'&&o.mine,isS=S.role==='seller'&&o.sellerId==='S1',adm=S.role==='admin';if(!isB&&!isS&&!adm)return gate('buyer');
+ const tot=round(o.price*o.qty),flow=['Placed','Accepted','Dispatched','Completed'],done=flow.filter(f=>o.log.some(l=>l[0]===f)),open=['Accepted','Dispatched','Completed'].includes(o.status),s=seller(o.sellerId);let act='';
+ if(isS&&o.status==='Awaiting seller')act=`<h3>Accept this order?</h3><p>Accepting binds you to supply and charges a fee of <b class="num">${inr(feeOf(tot,S.fees.direct))}</b> including GST.</p><div class="row"><button class="btn pri" data-a="oAccept" data-id="${o.id}">Accept and pay fee (demo)</button><button class="btn bad" data-a="oReject" data-id="${o.id}">Reject</button></div>`;
+ if(isS&&o.status==='Accepted')act=`<h3>Mark as dispatched</h3><p class="small muted">Dispatch only after the buyer's payment reaches you.</p><form data-f="dispatch" data-id="${o.id}" class="stack"><label class="field"><span>Product bill number</span><input id="d-bill" required></label><label class="field"><span>E-way bill number</span><input id="d-eway" required></label><label class="field"><span>Transport LR number</span><input id="d-lr" required></label><button class="btn pri">Mark dispatched</button></form>`;
+ if(isB&&o.status==='Awaiting seller')act='<p class="muted">Waiting for the seller to accept.</p>';
+ if(isB&&o.status==='Accepted')act='<p class="muted">The seller is preparing dispatch. Settle the goods payment directly with the seller.</p>';
+ if(isB&&o.status==='Dispatched')act=`<h3>Confirm receipt</h3><form data-f="receive" data-id="${o.id}" class="stack"><label class="field"><span>Photo of received goods</span><input id="r-proof" type="file" accept="image/*" required></label><button class="btn pri">Order received</button></form>`;
+ if(o.status==='Completed')act=`<a class="btn pri" href="#report-${o.id}">View acceptance report</a>`;
+ const inc=(isB||isS)&&o.status!=='Cancelled'?`<details><summary>Raise an incident</summary><form data-f="incident" data-id="${o.id}" class="stack" style="margin-top:10px"><label class="field"><span>What went wrong?</span><textarea id="i-text" required></textarea></label><button class="btn">Submit incident</button></form></details>`:'';
+ return `<div class="wrap page"><div class="crumb"><a href="#dashboard">Dashboard</a> / <span class="mono">${esc(o.no)}</span></div><div class="stack"><div class="row">${stPill(o.status)}${pill(o.source)}</div><h1 style="font-size:1.9rem">${esc(o.title)}</h1></div>${o.status==='Cancelled'?'':`<ol class="track">${flow.map(f=>`<li class="${done.includes(f)?'done':''}">${f}</li>`).join('')}</ol>`}
+ <div class="split"><div class="panel"><dl class="facts"><div><dt>Quantity</dt><dd class="num">${o.qty.toLocaleString('en-IN')} ${esc(o.unit)}</dd></div><div><dt>Unit price</dt><dd class="num">${inr(o.price)}</dd></div><div><dt>Order value</dt><dd class="num">${inr(tot)}</dd></div><div><dt>Consignee</dt><dd>${esc(o.consignee)}, ${esc(o.state)}</dd></div><div><dt>Buyer</dt><dd>${esc(o.buyer)}${open?`<div class="small muted">${esc(S.buyer.phone)}</div>`:''}</dd></div><div><dt>Seller</dt><dd>${open?`${esc(s.name)}<div class="small muted">${esc(s.phone)}</div>`:'Hidden until accepted'}</dd></div>${o.docs.bill?`<div><dt>Bill</dt><dd class="mono small">${esc(o.docs.bill)}</dd></div><div><dt>E-way bill</dt><dd class="mono small">${esc(o.docs.eway)}</dd></div><div><dt>LR number</dt><dd class="mono small">${esc(o.docs.lr)}</dd></div>`:''}</dl></div><aside class="stack"><div class="panel stack">${act||'<p class="muted">No action needed.</p>'}</div>${inc}</aside></div></div>`}
+function V_report(id){const o=S.orders.find(x=>x.id===id);if(!o||o.status!=='Completed')return notFound();const tot=round(o.price*o.qty),s=seller(o.sellerId),last=o.log[o.log.length-1];
+ return `<div class="wrap page"><div class="crumb"><a href="#order-${o.id}">${esc(o.no)}</a> / Acceptance report</div><article class="doc"><div class="row between"><h1 style="font-size:1.5rem">Acceptance report</h1><span class="mono small">${esc(o.no)}</span></div><p>${esc(o.consignee)} confirmed receipt of the goods below on ${dt(last[1])}.</p><dl class="facts"><div><dt>Buyer</dt><dd>${esc(o.buyer)}</dd></div><div><dt>Seller</dt><dd>${esc(s.name)}</dd></div><div><dt>Procurement</dt><dd>${esc(o.source)}</dd></div><div><dt>Proof of delivery</dt><dd class="small">${esc(o.proof||'On file')}</dd></div></dl><div class="tablebox"><table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Value</th></tr></thead><tbody><tr><td>${esc(o.title)}</td><td class="r num">${o.qty} ${esc(o.unit)}</td><td class="r num">${inr(o.price)}</td><td class="r num">${inr(tot)}</td></tr></tbody></table></div><p class="small muted">Example document generated by the prototype. Goods payment is settled directly between buyer and seller.</p></article></div>`}
+function V_newProduct(){if(S.role!=='seller')return gate('seller');return `<div class="wrap page"><h1 style="font-size:1.9rem">Add a product</h1><form class="panel stack" data-f="product" style="max-width:820px"><div class="grid2"><label class="field"><span>Title, without brand or model names</span><input id="n-title" required></label><label class="field"><span>Category</span><select id="n-cat">${CATS.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label><label class="field"><span>MRP per unit (₹)</span><input id="n-mrp" type="number" min="1" step="0.01" required></label><label class="field"><span>Discount (%)</span><input id="n-disc" type="number" min="${S.fees.minDisc}" max="90" value="${S.fees.minDisc}" required><span class="hint">Minimum ${S.fees.minDisc}% off MRP.</span></label><label class="field"><span>Stock</span><input id="n-stock" type="number" min="1" required></label><label class="field"><span>Unit</span><input id="n-unit" value="pc" required></label></div>
+ <fieldset><legend>Sells in</legend><div class="checks">${STATES.map((s,i)=>`<label class="check"><input type="checkbox" name="n-st" value="${s}" ${i<2?'checked':''}>${s}</label>`).join('')}</div></fieldset>
+ <label class="field"><span>Specifications, one per line as Name: Value</span><textarea id="n-specs" required placeholder="Material: Stainless steel&#10;Size: 25 mm"></textarea></label><label class="field"><span>Three product images</span><input id="n-img" type="file" accept="image/*" multiple required><span class="hint">Exactly 3, with no logos or watermarks. Files stay in your browser in this prototype.</span></label><button class="btn pri">Submit for verification</button></form></div>`}
+const gate=r=>`<div class="wrap page"><div class="panel stack" style="max-width:520px"><h2>Log in to continue</h2><p class="muted">This page needs a ${r} account.</p><a class="btn pri" href="#login">Choose a demo account</a></div></div>`;
+const notFound=()=>`<div class="wrap page"><div class="panel stack" style="max-width:520px"><h2>That page does not exist</h2><p class="muted">The link may be out of date, or the demo data was reset.</p><a class="btn" href="#home">Go to home</a></div></div>`;
+V.login=()=>`<div class="wrap page"><h1>Choose a demo account</h1><p class="muted">The prototype has no passwords. Pick a role to see its dashboard.</p><div class="zones">${[['buyer',S.buyer.name,'Place orders, publish tenders, evaluate bids'],['seller',S.sellers[0].name,'List products, bid, fulfil orders'],['admin','Bid Market operations','Verify accounts and products, settle incidents']].map(r=>`<button class="zone" style="text-align:left;cursor:pointer;font:inherit" data-a="login" data-r="${r[0]}"><span><b>${esc(r[1])}</b><span class="small muted">${r[0][0].toUpperCase()+r[0].slice(1)}. ${esc(r[2])}</span></span></button>`).join('')}</div><p><a href="#signup">New to Bid Market? See the registration form.</a></p></div>`;
+V.signup=()=>{const r=U.signRole||'seller';return `<div class="wrap page"><h1>Register your organisation</h1><p class="note">Use made-up details here. This prototype does not verify anything, and it stores your entry only in this browser.</p><div class="tabs">${['seller','buyer'].map(x=>`<button aria-selected="${r===x}" data-a="signRole" data-v="${x}">${x==='seller'?'Seller':'Buyer'}</button>`).join('')}</div>
+ <form class="panel stack" data-f="signup" style="max-width:760px"><div class="grid2"><label class="field"><span>Organisation name</span><input id="s-name" required></label><label class="field"><span>Organisation type</span><select id="s-type">${(r==='buyer'?['Individual']:[]).concat(['Proprietorship','Partnership','Trust or society','LLP','Company']).map(x=>`<option>${x}</option>`).join('')}</select></label><label class="field"><span>Business PAN</span><input id="s-pan" class="mono" placeholder="AAAAA0000A" required></label><label class="field"><span>GSTIN${r==='buyer'?' (optional)':''}</span><input id="s-gst" class="mono" placeholder="22AAAAA0000A1Z5" ${r==='seller'?'required':''}></label>${r==='seller'?`<label class="field"><span>Total turnover, last 3 years (₹ crore)</span><input id="s-to" type="number" min="0" step="1" value="30" required></label><div class="field"><span>Annual subscription</span><b class="num" id="s-fee" style="font-size:1.2rem">${inr(subFee(30))}</b><span class="hint">Plus GST. Your account goes live after payment.</span></div>`:''}</div><button class="btn pri">${r==='seller'?'Pay and register (demo)':'Submit for review'}</button></form>${r==='buyer'?'<p class="small muted">Buyer registration is free. An admin reviews every buyer account before it can trade.</p>':''}</div>`};
+const subFee=cr=>{const f=S.fees;return f.subBase+Math.max(0,Math.ceil(cr-f.subBaseCr))*f.subPerCr};
+V.pricing=()=>{const f=S.fees;return `<div class="wrap page"><h1>Fees and subscription</h1><div class="tablebox"><table><thead><tr><th>Who pays</th><th>For</th><th class="r">Rate</th></tr></thead><tbody><tr><td>Buyer</td><td>Registration</td><td class="r num">Free</td></tr><tr><td>Buyer and seller</td><td>Direct order, each side</td><td class="r num">${f.direct}% + GST</td></tr><tr><td>Buyer</td><td>Publishing a regular tender</td><td class="r num">${f.tender}% + GST</td></tr><tr><td>Buyer</td><td>Publishing a custom tender</td><td class="r num">${inr(f.customFixed)}, balance after L1</td></tr><tr><td>Seller</td><td>Accepting a tender</td><td class="r num">${f.tender}% + GST</td></tr><tr><td>Seller</td><td>Annual subscription</td><td class="r num">from ${inr(f.subBase)} + GST</td></tr></tbody></table></div>
+ <div class="panel stack" style="max-width:520px"><h2>Subscription calculator</h2><label class="field"><span>Total turnover, last 3 years (₹ crore)</span><input id="calc-to" type="number" min="0" value="40"></label><p>Your annual fee: <b class="num" id="calc-out">${inr(subFee(40))}</b> plus GST</p><p class="small muted">${inr(f.subBase)} covers turnover up to ₹${f.subBaseCr} crore. Each further ₹1 crore adds ${inr(f.subPerCr)}.</p></div></div>`};
+V['how-it-works']=()=>`<div class="wrap page"><h1>How it works</h1><div class="split"><div class="panel stack"><h2>For buyers</h2><ol class="steps" style="grid-template-columns:1fr">${['Register free and pass admin verification.','Order directly, or publish a tender with your specification.','Evaluate bids or let the auction find L1.','Pay the seller directly and confirm receipt with a photo.'].map(s=>`<li>${s}</li>`).join('')}</ol></div><div class="panel stack"><h2>For sellers</h2><ol class="steps" style="grid-template-columns:1fr">${['Register with PAN, GSTIN and turnover, then pay the subscription.','List products. An admin verifies each one.','Bid on tenders that match your categories.','Accept, dispatch with documents, and collect payment from the buyer.'].map(s=>`<li>${s}</li>`).join('')}</ol></div></div><p class="note info">Bid Market connects buyers and sellers. The contract for goods is between them, and the platform does not hold goods or the goods payment.</p></div>`;
+V.guides=()=>`<div class="wrap page"><h1>Guides</h1><div class="stack" style="max-width:760px">${[['Which buying method should I use?','Use a direct order for small purchases you know well. Use a bid when you want to judge sellers on more than price. Use a reverse auction when the specification is fixed and price is the only variable.'],['What does L1 mean?','L1 is the lowest valid price. L2 is the next lowest. If L1 declines an award, the offer moves down the list.'],['Why run Bid to RA?','The bid stage gives you an honest price range and removes outliers. The auction then pushes the serious sellers against each other.'],['How can a seller win more tenders?','Keep all relevant categories listed and in stock, price delivery into your first bid, and only bid what you can fulfil. Rejecting an award costs you time off the platform.']].map(g=>`<details><summary>${g[0]}</summary><p class="muted">${g[1]}</p></details>`).join('')}</div></div>`;
+V.rules=()=>{const f=S.fees;return `<div class="wrap page"><h1>Platform rules</h1><p class="note">Plain-language summary for the prototype. Have a lawyer draft the real terms, privacy, refund and cancellation policies before launch.</p><div class="panel" style="max-width:760px"><ul class="stack" style="margin:0;padding-left:20px">${[`Direct orders stay under ${inr(f.limitInd)} for individuals and ${inr(f.limitOrg)} for organisations.`,'Listed and quoted prices include taxes, packing and delivery.',`Sellers offer at least ${f.minDisc}% off MRP.`,'Delivery dates are at least 5 days after the order.','A seller may submit up to 3 bids on one sealed tender.','Buyers cannot see prices in a live auction.','Each seller who rejects an award is blocked for 30, 60 or 180 days, then permanently.','Contact details open only after a seller accepts and pays the fee.','Disputes go through incidents. Technical problems go through tickets.'].map(r=>`<li>${r}</li>`).join('')}</ul></div></div>`};
+V.contact=()=>`<div class="wrap page"><h1>Raise a ticket</h1><p class="muted">For technical and account problems. For a dispute about an order, raise an incident from that order.</p><form class="panel stack" data-f="ticket" style="max-width:640px"><label class="field"><span>Type</span><select id="c-type"><option>Technical issue</option><option>Account issue</option><option>Payment issue</option><option>Order issue</option></select></label><label class="field"><span>Describe the problem</span><textarea id="c-text" required></textarea></label><button class="btn pri">Submit ticket</button></form></div>`;
+function ledgerView(w){const l=S.ledger[w],sum=k=>round(l.filter(e=>e.s===k).reduce((a,e)=>a+e.a,0));return `<div class="stats">${[['Available','Available'],['On hold','On hold'],['Paid to platform','Paid']].map(x=>`<div class="stat"><span class="label">${x[0]}</span><b>${inr(sum(x[1]))}</b></div>`).join('')}</div><div class="tablebox"><table><thead><tr><th>Entry</th><th>Date</th><th>Status</th><th class="r">Amount</th></tr></thead><tbody>${l.map(e=>`<tr><td>${esc(e.l)}</td><td class="small">${dt(e.t)}</td><td>${stPill(e.s)}</td><td class="r num">${inr(e.a)}</td></tr>`).join('')}</tbody></table></div>`}
+function orderTable(l){if(!l.length)return '<div class="empty">No orders yet.</div>';return `<table><thead><tr><th>Order</th><th>Item</th><th class="r">Value</th><th>Status</th></tr></thead><tbody>${l.map(o=>`<tr><td class="mono small"><a href="#order-${o.id}">${esc(o.no)}</a></td><td>${esc(o.title)}<div class="small muted">${esc(o.source)}</div></td><td class="r num">${inr(round(o.price*o.qty))}</td><td>${stPill(o.status)}</td></tr>`).join('')}</tbody></table>`}
+const incTable=l=>l.length?`<table><thead><tr><th>Ref</th><th>Order</th><th>Issue</th><th>Status</th></tr></thead><tbody>${l.map(i=>`<tr><td class="mono small">${esc(i.id)}</td><td class="mono small">${esc(i.ref)}</td><td>${esc(i.text)}${i.out?`<div class="small muted">Decision: ${esc(i.out)}</div>`:''}</td><td>${stPill(i.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No incidents.</div>';
+const todos=l=>l.length?`<div class="tablebox">${l.map(x=>`<div class="todo"><span>${x[0]}</span><a class="btn sm" href="#${x[1]}">${x[2]}</a></div>`).join('')}</div>`:'<div class="panel empty">Nothing needs your attention.</div>';
+const tabs=(id,list)=>{U.tab[id]=U.tab[id]||list[0][0];return `<div class="tabs" role="tablist">${list.map(x=>`<button role="tab" aria-selected="${U.tab[id]===x[0]}" data-a="tab" data-k="${id}" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>`};
+V.dashboard=()=>{if(S.role==='guest')return gate('buyer or seller');return S.role==='buyer'?dashBuyer():S.role==='seller'?dashSeller():dashAdmin()};
+function dashBuyer(){const o=S.orders.filter(x=>x.mine),t=S.tenders.filter(x=>x.mine),tabHtml=tabs('b',[['now','Overview'],['orders','Orders'],['tenders','Tenders'],['wallet','Wallet'],['inc','Incidents']]),k=U.tab.b;let c='';
+ if(k==='now'){const td=[];o.filter(x=>x.status==='Dispatched').forEach(x=>td.push([`Confirm receipt of <b>${esc(x.title)}</b>`,'order-'+x.id,'Confirm']));t.filter(x=>x.phase==='eval').forEach(x=>td.push([`Evaluate bids on <b>${esc(x.title)}</b>`,'tender-'+x.id,'Evaluate']));
+  c=`<div class="stats">${[['Open orders',o.filter(x=>!['Completed','Cancelled'].includes(x.status)).length],['Live tenders',t.filter(x=>['bid','ra','eval','award'].includes(x.phase)).length],['Completed orders',o.filter(x=>x.status==='Completed').length]].map(x=>`<div class="stat"><span class="label">${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div><h2>Needs your attention</h2>${todos(td)}`}
+ if(k==='orders')c=`<div class="tablebox">${orderTable(o)}</div>`;
+ if(k==='tenders')c=`<div class="row"><a class="btn pri" href="#tender-new">Create a custom tender</a><a class="btn" href="#products">Pick a product</a></div><div class="tablebox">${tenderRows(t)}</div>`;
+ if(k==='wallet')c=ledgerView('buyer');
+ if(k==='inc')c=`<div class="tablebox">${incTable(S.incidents.filter(i=>i.by===S.buyer.name))}</div>`;
+ return `<div class="wrap page"><div><span class="label">Buyer dashboard</span><h1 style="font-size:1.9rem">${esc(S.buyer.name)}</h1></div>${tabHtml}<div class="stack-lg" style="gap:16px">${c}</div></div>`}
+function dashSeller(){const me=S.sellers[0],o=S.orders.filter(x=>x.sellerId==='S1'),pr=S.products.filter(p=>p.sellerId==='S1'),el=S.tenders.filter(t=>['bid','ra'].includes(t.phase)&&eligible(t)),app=S.tenders.filter(t=>t.bids.some(b=>b.s==='S1')),won=S.tenders.filter(t=>t.awardTo==='S1'),tabHtml=tabs('s',[['now','Overview'],['tenders','Tenders'],['orders','Orders'],['products','Products'],['wallet','Wallet'],['inc','Incidents']]),k=U.tab.s;let c='';
+ if(k==='now'){const td=[];o.filter(x=>x.status==='Awaiting seller').forEach(x=>td.push([`New order for <b>${esc(x.title)}</b>`,'order-'+x.id,'Review']));o.filter(x=>x.status==='Accepted').forEach(x=>td.push([`Dispatch <b>${esc(x.title)}</b>`,'order-'+x.id,'Dispatch']));S.tenders.filter(t=>t.phase==='award'&&t.awardTo==='S1').forEach(t=>td.push([`You won <b>${esc(t.title)}</b>`,'tender-'+t.id,'Respond']));S.tenders.filter(t=>t.phase==='ra'&&eligible(t)).forEach(t=>td.push([`Auction live: <b>${esc(t.title)}</b>`,'tender-'+t.id,'Bid']));pr.filter(p=>p.status==='Notify').forEach(p=>td.push([`Fix <b>${esc(p.title)}</b>: ${esc(p.note)}`,'dashboard','Open Products']));
+  c=`${blocked()?`<p class="note">Your account is blocked from bidding until ${dt(blocked())}. Strike ${me.strikes} of 4.</p>`:''}<div class="stats">${[['Eligible tenders',el.length],['Applied',app.length],['Won',won.length],['Published products',pr.filter(p=>p.status==='Published').length]].map(x=>`<div class="stat"><span class="label">${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div><h2>Needs your attention</h2>${todos(td)}<label class="check"><input type="checkbox" id="maint" ${me.maintenance?'checked':''}> Set profile to maintenance. Your products and bidding pause until you turn this off.</label>`}
+ if(k==='tenders')c=`<h2>Eligible</h2><div class="tablebox">${tenderRows(el)}</div><h2>Applied</h2><div class="tablebox">${tenderRows(app)}</div>`;
+ if(k==='orders')c=`<div class="tablebox">${orderTable(o)}</div>`;
+ if(k==='products')c=`<div class="row"><a class="btn pri" href="#product-new">Add a product</a></div><div class="tablebox"><table><thead><tr><th>Product</th><th class="r">Price</th><th class="r">Stock</th><th>Status</th><th></th></tr></thead><tbody>${pr.map(p=>`<tr><td>${esc(p.title)}${p.note?`<div class="small muted">Admin note: ${esc(p.note)}</div>`:''}</td><td class="r num">${inr(net(p))}</td><td class="r num">${p.stock}</td><td>${stPill(p.status)}</td><td class="r">${p.status==='Published'?`<button class="btn sm" data-a="pub" data-id="${p.id}">Unpublish</button>`:p.status==='Unpublished'?`<button class="btn sm" data-a="pub" data-id="${p.id}">Publish</button>`:p.status==='Notify'?`<button class="btn sm" data-a="resubmit" data-id="${p.id}">Resubmit</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+ if(k==='wallet')c=ledgerView('seller');
+ if(k==='inc')c=`<div class="tablebox">${incTable(S.incidents.filter(i=>i.by===me.name||i.against===me.name))}</div>`;
+ return `<div class="wrap page"><div><span class="label">Seller dashboard</span><h1 style="font-size:1.9rem">${esc(me.name)}</h1></div>${tabHtml}<div class="stack-lg" style="gap:16px">${c}</div></div>`}
+function dashAdmin(){const pend=S.products.filter(p=>p.status==='Pending'),tabHtml=tabs('a',[['approve',`Approvals (${pend.length+S.signups.length})`],['inc','Incidents'],['tix','Tickets'],['sellers','Sellers'],['fees','Fees and limits']]),k=U.tab.a,f=S.fees;let c='';
+ if(k==='approve')c=`<div class="stats">${[['Live tenders',S.tenders.filter(t=>['bid','ra'].includes(t.phase)).length],['Orders',S.orders.length],['Published products',S.products.filter(p=>p.status==='Published').length],['Fees collected',inr(S.ledger.buyer.concat(S.ledger.seller).filter(e=>e.s==='Paid').reduce((a,e)=>a+e.a,0))]].map(x=>`<div class="stat"><span class="label">${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div><h2>Products to verify</h2><div class="tablebox">${pend.length?`<table><tbody>${pend.map(p=>`<tr><td>${esc(p.title)}<div class="small muted">${esc(seller(p.sellerId).name)}, ${inr(net(p))}, ${esc(catName(p.cat))}</div></td><td class="r"><div class="row" style="justify-content:flex-end"><button class="btn sm pri" data-a="pv" data-id="${p.id}" data-v="Published">Publish</button><button class="btn sm" data-a="pv" data-id="${p.id}" data-v="Notify">Send back</button><button class="btn sm bad" data-a="pv" data-id="${p.id}" data-v="Rejected">Reject</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Queue is clear.</div>'}</div><h2>Accounts to verify</h2><div class="tablebox">${S.signups.length?`<table><tbody>${S.signups.map(a=>`<tr><td>${esc(a.name)}<div class="small muted">${esc(a.role)}, ${esc(a.type)}, <span class="mono">${esc(a.pan)}</span></div></td><td class="r"><div class="row" style="justify-content:flex-end"><button class="btn sm pri" data-a="av" data-id="${a.id}" data-v="1">Approve</button><button class="btn sm bad" data-a="av" data-id="${a.id}">Reject</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Queue is clear.</div>'}</div>`;
+ if(k==='inc')c=`<div class="tablebox">${S.incidents.length?`<table><thead><tr><th>Ref</th><th>Issue</th><th>Status</th><th></th></tr></thead><tbody>${S.incidents.map(i=>`<tr><td class="mono small">${esc(i.id)}<div>${esc(i.ref)}</div></td><td>${esc(i.text)}<div class="small muted">${esc(i.by)} against ${esc(i.against)}</div>${i.out?`<div class="small muted">Decision: ${esc(i.out)}</div>`:''}</td><td>${stPill(i.status)}</td><td class="r">${i.status==='Open'?`<div class="row" style="justify-content:flex-end"><button class="btn sm" data-a="iv" data-id="${i.id}" data-v="Warning issued">Warn seller</button><button class="btn sm" data-a="iv" data-id="${i.id}" data-v="No action needed">No action</button></div>`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No incidents.</div>'}</div>`;
+ if(k==='tix')c=`<div class="tablebox">${S.tickets.length?`<table><thead><tr><th>Ref</th><th>Problem</th><th>Status</th><th></th></tr></thead><tbody>${S.tickets.map(i=>`<tr><td class="mono small">${esc(i.id)}</td><td>${esc(i.text)}<div class="small muted">${esc(i.type)}, ${esc(i.by)}</div></td><td>${stPill(i.status)}</td><td class="r">${i.status==='Open'?`<button class="btn sm" data-a="tix" data-id="${i.id}">Mark resolved</button>`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No tickets.</div>'}</div>`;
+ if(k==='sellers')c=`<div class="tablebox"><table><thead><tr><th>Seller</th><th>Location</th><th class="r">Strikes</th><th></th></tr></thead><tbody>${S.sellers.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.city)}, ${esc(s.state)}</td><td class="r num">${s.strikes||0}</td><td class="r">${s.blockedUntil>Date.now()?`<button class="btn sm" data-a="unblock" data-id="${s.id}">Lift block</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+ if(k==='fees')c=`<form class="panel stack" data-f="fees" style="max-width:640px"><div class="grid2">${[['direct','Direct order fee (%)',f.direct],['tender','Tender fee (%)',f.tender],['gst','GST on fees (%)',f.gst],['limitInd','Direct limit, individual (₹)',f.limitInd],['limitOrg','Direct limit, organisation (₹)',f.limitOrg],['customFixed','Custom tender deposit (₹)',f.customFixed],['subBase','Base subscription (₹)',f.subBase],['subPerCr','Added per ₹1 crore (₹)',f.subPerCr],['minDisc','Minimum discount on MRP (%)',f.minDisc]].map(x=>`<label class="field"><span>${x[1]}</span><input id="fee-${x[0]}" data-k="${x[0]}" type="number" min="0" step="0.01" value="${x[2]}" required></label>`).join('')}</div><button class="btn pri">Save fees and limits</button></form>`;
+ return `<div class="wrap page"><div><span class="label">Admin</span><h1 style="font-size:1.9rem">Bid Market operations</h1></div>${tabHtml}<div class="stack-lg" style="gap:16px">${c}</div></div>`}
+
+/* Router */
+function route(){const h=location.hash.slice(1)||'home';let m,html;
+ if(m=h.match(/^product-(P\d+)$/))html=V_product(m[1]);
+ else if(h==='product-new')html=V_newProduct();
+ else if(m=h.match(/^cat-(\w+)$/)){U.cat=m[1];U.q='';html=V.products()}
+ else if(m=h.match(/^tender-new(?:-(P\d+))?$/))html=V_tenderNew(m[1]);
+ else if(m=h.match(/^tender-(T\d+)$/))html=V_tender(m[1]);
+ else if(m=h.match(/^order-new-(P\d+)$/))html=V_orderNew(m[1]);
+ else if(m=h.match(/^order-(O\d+)$/))html=V_order(m[1]);
+ else if(m=h.match(/^report-(O\d+)$/))html=V_report(m[1]);
+ else html=V[h]?V[h]():notFound();
+ $('#view').innerHTML=html;
+ const nav=[['home','Home'],['category','Categories'],['products','Products'],['bids','Tenders'],['how-it-works','How it works'],['guides','Guides'],['pricing','Fees'],['contact','Support']];
+ const cur=h.startsWith('cat-')||h.startsWith('product')?'products':h.startsWith('tender')?'bids':h;
+ $('#nav').innerHTML=nav.map(n=>`<a href="#${n[0]}" ${cur===n[0]?'aria-current="page"':''}>${n[1]}</a>`).join('');
+ $('#role-switch').value=S.role;
+ $('#head-actions').innerHTML=S.role==='guest'?'<a class="btn" href="#login">Log in</a><a class="btn pri" href="#signup">Sign up</a>':'<a class="btn pri" href="#dashboard">Dashboard</a><button class="btn" data-a="logout">Log out</button>';
+}
+function render(){const y=window.scrollY;route();window.scrollTo(0,y)}
+function commit(msg){save();render();if(msg)toast(msg)}
+window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0)});
+
+/* Actions */
+const A={
+ login(e){S.role=e.dataset.r;save();location.hash='dashboard';toast('Logged in.')},
+ logout(){S.role='guest';save();location.hash='home';render()},
+ reset(){S=seed();Object.assign(U,{tab:{},q:'',cat:'',state:''});save();render();toast('Demo data reset.')},
+ tab(e){U.tab[e.dataset.k]=e.dataset.v;render()},
+ tf(e){U.tf=e.dataset.v;render()},
+ signRole(e){U.signRole=e.dataset.v;render()},
+ close(e){const t=S.tenders.find(x=>x.id===e.dataset.id);commit(closePhase(t))},
+ award(e){const t=S.tenders.find(x=>x.id===e.dataset.id);t.phase='award';t.awardTo=e.dataset.s;t.awardAt=Date.now();commit(`Offer sent to ${seller(t.awardTo).name}.`)},
+ elim(e){const t=S.tenders.find(x=>x.id===e.dataset.id),st=standing(t),n=e.dataset.m==='half'?Math.floor(st.length/2):1;st.slice(-n).forEach(b=>t.elim.push(b.s));t.elimDone=true;commit(`${n} seller${n>1?'s':''} removed.`)},
+ startRa(e){const t=S.tenders.find(x=>x.id===e.dataset.id);t.phase='ra';t.ends=Date.now()+3*H;commit('Reverse auction started.')},
+ withdraw(e){const t=S.tenders.find(x=>x.id===e.dataset.id);t.bids=t.bids.filter(b=>b.s!=='S1');commit('Bid withdrawn.')},
+ tAccept(e){const t=S.tenders.find(x=>x.id===e.dataset.id),o=createTenderOrder(t);save();location.hash='order-'+o.id;toast('Tender accepted. Order created.')},
+ tReject(e){const t=S.tenders.find(x=>x.id===e.dataset.id);t.declined.push('S1');const m=strike(),nx=standing(t)[0];if(nx){t.awardTo=nx.s;t.awardAt=Date.now()}else cancelTender(t,'All sellers declined.');commit('Tender rejected. '+m)},
+ oAccept(e){const o=S.orders.find(x=>x.id===e.dataset.id);o.status='Accepted';o.log.push(['Accepted',Date.now()]);led('seller','Fee on '+o.no,feeOf(o.price*o.qty,S.fees.direct),'Paid');commit('Order accepted. Buyer contact details are now visible.')},
+ oReject(e){const o=S.orders.find(x=>x.id===e.dataset.id);o.status='Cancelled';ledMove('buyer',o.no,'Available');commit('Order rejected. The buyer has been told.')},
+ pub(e){const p=S.products.find(x=>x.id===e.dataset.id);p.status=p.status==='Published'?'Unpublished':'Published';commit('Product '+p.status.toLowerCase()+'.')},
+ resubmit(e){const p=S.products.find(x=>x.id===e.dataset.id);p.status='Pending';p.note='';commit('Sent for verification.')},
+ pv(e){const p=S.products.find(x=>x.id===e.dataset.id),v=e.dataset.v;p.status=v;p.note=v==='Notify'?'Add a clearer specification sheet.':v==='Rejected'?'Does not meet listing rules.':'';commit(v==='Published'?'Product published.':v==='Notify'?'Sent back to the seller.':'Product rejected.')},
+ av(e){const a=S.signups.find(x=>x.id===e.dataset.id);S.signups=S.signups.filter(x=>x!==a);commit(e.dataset.v?a.name+' approved.':a.name+' rejected.')},
+ iv(e){const i=S.incidents.find(x=>x.id===e.dataset.id);i.status='Closed';i.out=e.dataset.v;commit('Incident closed.')},
+ tix(e){S.tickets.find(x=>x.id===e.dataset.id).status='Closed';commit('Ticket resolved.')},
+ unblock(e){const s=S.sellers.find(x=>x.id===e.dataset.id);s.blockedUntil=0;commit('Block lifted.')}
+};
+const F={
+ search(f){const q=$('#top-search').value.trim();U.q=q;U.cat='';if(location.hash==='#products')render();else location.hash='products'},
+ bid(f){const t=S.tenders.find(x=>x.id===f.dataset.id),p=+$('#bid-price').value;t.attempts.S1=(t.attempts.S1||0)+1;t.bids=t.bids.filter(b=>b.s!=='S1');t.bids.push({s:'S1',p,t:Date.now()});commit('Bid submitted.')},
+ ra(f){const t=S.tenders.find(x=>x.id===f.dataset.id),p=+$('#ra-price').value,mine=[...t.bids].reverse().find(b=>b.s==='S1');if(mine&&p>=mine.p)return toast(`Enter less than your last bid of ${inr(mine.p)}.`);t.bids.push({s:'S1',p,t:Date.now()});$('#ra-price').value='';save();live();toast('Bid recorded.')},
+ order(f){const p=S.products.find(x=>x.id===f.dataset.id),q=+$('#o-qty').value,tot=round(net(p)*q),g=$('#o-gst').value.trim().toUpperCase();if(tot>=S.fees.limitOrg)return toast(`Direct orders must stay under ${inr(S.fees.limitOrg)}. Create a tender instead.`);if(!GST_RE.test(g))return toast('Enter a 15-character GSTIN, for example 23AABCN1234F1Z5.');
+  const o={id:nid('O'),no:'BMO-26-'+S.seq,source:'Direct order',title:p.title,cat:p.cat,qty:q,unit:p.unit,price:net(p),sellerId:p.sellerId,buyer:S.buyer.name,mine:true,state:$('#o-state').value,consignee:$('#o-cons').value,status:'Awaiting seller',log:[['Placed',Date.now()]],docs:{},placedAt:Date.now()};
+  S.orders.unshift(o);p.stock-=q;p.sales+=q;led('buyer','Fee on '+o.no,feeOf(tot,S.fees.direct),'On hold');save();location.hash='order-'+o.id;toast('Fee paid. Order sent to the seller.')},
+ tender(f){const pid=f.dataset.p,p=pid?S.products.find(x=>x.id===pid):null,g=$('#t-gst').value.trim().toUpperCase();if(!GST_RE.test(g))return toast('Enter a 15-character GSTIN, for example 23AABCN1234F1Z5.');
+  const type=$('input[name=t-type]:checked').value,qty=+$('#t-qty').value,est=+$('#t-est').value,specs=p?p.specs:parseSpecs($('#t-specs').value),hrs=+$('#t-hrs').value;
+  const no=`BM/26/${type==='ra'?'RA':type==='bid'?'BD':'BR'}/${String(++S.seq).padStart(5,'0')}`,cat=p?p.cat:$('#t-cat').value;
+  const t={id:nid('T'),no,title:p?p.title:$('#t-title').value,cat,kind:p?'regular':'custom',type,phase:type==='ra'?'ra':'bid',qty,unit:$('#t-unit').value,est,floor:round(est*.84),buyer:S.buyer.name,mine:true,state:$('#t-state').value,consignee:$('#t-cons').value,specs,minBids:+$('#t-min').value,ext:+$('#t-ext').value,extUsed:0,ends:Date.now()+hrs*H,elim:[],declined:[],attempts:{},bids:[]};
+  rivalsFor(cat).slice(0,3).forEach((s,i)=>t.bids.push({s,p:round(est*(.99-i*.025)),t:Date.now()-(3-i)*1e3}));
+  S.tenders.unshift(t);led('buyer','Fee on '+no,p?feeOf(qty*est,S.fees.tender):S.fees.customFixed,'On hold');save();location.hash='tender-'+t.id;toast('Tender published. Example sellers have joined.')},
+ dispatch(f){const o=S.orders.find(x=>x.id===f.dataset.id);o.docs={bill:$('#d-bill').value,eway:$('#d-eway').value,lr:$('#d-lr').value};o.status='Dispatched';o.log.push(['Dispatched',Date.now()]);commit('Order marked as dispatched.')},
+ receive(f){const o=S.orders.find(x=>x.id===f.dataset.id);o.proof=$('#r-proof').files[0].name;o.status='Completed';o.log.push(['Completed',Date.now()]);ledMove('buyer',o.no,'Paid');const t=S.tenders.find(x=>x.id===o.tender);if(t)ledMove('buyer',t.no,'Paid');commit('Receipt confirmed. Acceptance report ready.')},
+ incident(f){const o=S.orders.find(x=>x.id===f.dataset.id),id=nid('INC-');S.incidents.unshift({id,ref:o.no,by:S.role==='buyer'?S.buyer.name:S.sellers[0].name,against:S.role==='buyer'?seller(o.sellerId).name:o.buyer,text:$('#i-text').value,status:'Open',t:Date.now()});commit(`Incident ${id} raised.`)},
+ ticket(f){const id=nid('TKT-');S.tickets.unshift({id,type:$('#c-type').value,text:$('#c-text').value,by:S.role==='buyer'?S.buyer.name:S.role==='seller'?S.sellers[0].name:'Visitor',status:'Open',t:Date.now()});commit(`Ticket ${id} logged. Track it from Admin in this demo.`)},
+ product(f){const imgs=$('#n-img').files,st=$$('input[name=n-st]:checked').map(x=>x.value);if(imgs.length!==3)return toast(`Add exactly 3 images. You selected ${imgs.length}.`);if(!st.length)return toast('Select at least one state.');
+  const p={id:'P'+(++S.seq),title:$('#n-title').value,cat:$('#n-cat').value,mrp:+$('#n-mrp').value,disc:+$('#n-disc').value,unit:$('#n-unit').value,stock:+$('#n-stock').value,sellerId:'S1',specs:parseSpecs($('#n-specs').value),sales:0,status:'Pending',states:st,note:''};S.products.push(p);U.tab.s='products';save();location.hash='dashboard';render();toast('Submitted. An admin will verify it.')},
+ signup(f){const r=U.signRole||'seller',pan=$('#s-pan').value.trim().toUpperCase(),g=$('#s-gst').value.trim().toUpperCase();if(!PAN_RE.test(pan))return toast('PAN must be 10 characters, for example AAAAA0000A.');if(g&&!GST_RE.test(g))return toast('GSTIN must be 15 characters, for example 22AAAAA0000A1Z5.');
+  S.signups.push({id:nid('A'),role:r==='seller'?'Seller':'Buyer',name:$('#s-name').value,type:$('#s-type').value,pan,gst:g});save();location.hash='home';toast(r==='seller'?'Registration received. See it in Admin approvals.':'Submitted for admin review.')},
+ fees(f){$$('input[data-k]',f).forEach(i=>S.fees[i.dataset.k]=+i.value);commit('Fees and limits saved.')}
+};
+const parseSpecs=s=>{const o={};s.split('\n').forEach(l=>{const i=l.indexOf(':');if(i>0)o[l.slice(0,i).trim()]=l.slice(i+1).trim()});if(!Object.keys(o).length&&s.trim())o.Details=s.trim();return o};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&!b.disabled){if(b.tagName==='A')e.preventDefault();A[b.dataset.a](b)}});
+document.addEventListener('submit',e=>{const f=e.target.closest('[data-f]');if(f){e.preventDefault();F[f.dataset.f](f)}});
+document.addEventListener('input',e=>{const t=e.target;
+ if(t.id==='f-q'){U.q=t.value;$('#plist').innerHTML=plist()}
+ if(t.id==='calc-to')$('#calc-out').textContent=inr(subFee(+t.value||0));
+ if(t.id==='s-to')$('#s-fee').textContent=inr(subFee(+t.value||0));
+ if(t.id==='o-qty'){const p=S.products.find(x=>x.id===$('form[data-f=order]').dataset.id);$('#o-sum').innerHTML=orderSum(p,+t.value||0)}});
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.id==='role-switch'){S.role=t.value;save();render();toast(t.value==='guest'?'Viewing as a visitor.':'Viewing as '+t.value+'.')}
+ if(t.id==='f-cat'){U.cat=t.value;$('#plist').innerHTML=plist()}
+ if(t.id==='f-state'){U.state=t.value;$('#plist').innerHTML=plist()}
+ if(t.id==='f-sort'){U.sort=t.value;$('#plist').innerHTML=plist()}
+ if(t.id==='maint'){S.sellers[0].maintenance=t.checked;commit(t.checked?'Maintenance on. Products hidden.':'Maintenance off. Products visible.')}});
+
+/* Live loop: countdowns, simulated rival bids and rival sellers */
+function live(){const hb=$('#hero-board');if(hb)hb.innerHTML=heroBoard();const box=$('#ra-live');if(box){const t=S.tenders.find(x=>x.id===box.dataset.t);if(t&&t.phase==='ra')box.innerHTML=raLive(t)}}
+let beat=0;
+setInterval(()=>{beat++;$$('[data-cd]').forEach(el=>el.textContent=cd(+el.dataset.cd));let changed=false,msg='',bids=false;const n=Date.now();
+ S.tenders.forEach(t=>{
+  if((t.phase==='bid'||t.phase==='ra')&&n>=t.ends){msg=closePhase(t);changed=true}
+  if(t.phase==='ra'&&beat%8===0&&Math.random()<.7){const v=l1(t),pool=[...new Set(t.bids.map(b=>b.s))].filter(s=>s!=='S1'&&!t.elim.includes(s));if(v&&pool.length){const p=round(v*(1-S.fees.decrement/100*(1+Math.random())));if(p>=t.floor){t.bids.push({s:pool[Math.floor(Math.random()*pool.length)],p,t:n});bids=true}}}
+  if(t.phase==='award'&&t.awardTo!=='S1'&&n-t.awardAt>3000){createTenderOrder(t);changed=true;msg=seller(t.awardTo).name+' accepted the tender.'}});
+ S.orders.forEach(o=>{const last=o.log[o.log.length-1][1];
+  if(o.sellerId!=='S1'&&o.status==='Awaiting seller'&&n-last>4000){o.status='Accepted';o.log.push(['Accepted',n]);changed=true;msg='The seller accepted your order.'}
+  else if(o.sellerId!=='S1'&&o.status==='Accepted'&&n-last>5000){o.status='Dispatched';o.docs={bill:'EX-'+o.no.slice(-4),eway:'3210 5500 '+o.no.slice(-4),lr:'LR-'+o.no.slice(-4)};o.log.push(['Dispatched',n]);changed=true;msg='The seller dispatched your order.'}});
+ if(changed)commit(msg);else if(bids){save();live()}
+},1000);
+route();
+</script>

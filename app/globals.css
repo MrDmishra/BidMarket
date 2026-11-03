@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/* Tokens come from docs/DESIGN.md section 2. Components use the Tailwind names below. */
+:root {
+  --bg: #f0f5f2;
+  --surface: #ffffff;
+  --sunk: #e5ede8;
+  --ink: #10251d;
+  --muted: #51645b;
+  --line: #d1ddd6;
+  --accent: #0b6b4e;
+  --accent-ink: #ffffff;
+  --band: #0c3b2e;
+  --band-2: #134a3a;
+  --band-ink: #ecf5f0;
+  --band-muted: #a9c8ba;
+  --gold: #f2b84b;
+  --gold-ink: #2b1c00;
+  --ok: #0b6b4e;
+  --ok-bg: #d9efe4;
+  --warn: #8f4e05;
+  --warn-bg: #fcebc8;
+  --bad: #ae2a1f;
+  --bad-bg: #fbe4e0;
+  --info: #1b5786;
+  --info-bg: #ddeaf5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1714;
+    --surface: #15211c;
+    --sunk: #1b2a24;
+    --ink: #e6efea;
+    --muted: #9db2a8;
+    --line: #2b3b34;
+    --accent: #4cc59a;
+    --accent-ink: #06251a;
+    --band: #0a2a20;
+    --band-2: #103729;
+    --ok: #4cc59a;
+    --ok-bg: #12352a;
+    --warn: #f2b84b;
+    --warn-bg: #3d2c0c;
+    --bad: #f2938a;
+    --bad-bg: #401b18;
+    --info: #8cc4f0;
+    --info-bg: #12304a;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0e1714;
+  --surface: #15211c;
+  --sunk: #1b2a24;
+  --ink: #e6efea;
+  --muted: #9db2a8;
+  --line: #2b3b34;
+  --accent: #4cc59a;
+  --accent-ink: #06251a;
+  --band: #0a2a20;
+  --band-2: #103729;
+  --ok: #4cc59a;
+  --ok-bg: #12352a;
+  --warn: #f2b84b;
+  --warn-bg: #3d2c0c;
+  --bad: #f2938a;
+  --bad-bg: #401b18;
+  --info: #8cc4f0;
+  --info-bg: #12304a;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-band: var(--band);
+  --color-band-2: var(--band-2);
+  --color-band-ink: var(--band-ink);
+  --color-band-muted: var(--band-muted);
+  --color-gold: var(--gold);
+  --color-gold-ink: var(--gold-ink);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-bad: var(--bad);
+  --color-bad-bg: var(--bad-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+
+  --font-display: "Bricolage Grotesque Variable", "Trebuchet MS", system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+
+  --radius-pill: 4px;
+  --radius-control: 6px;
+  --radius-panel: 8px;
+}
+
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .page-wrap {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+}
