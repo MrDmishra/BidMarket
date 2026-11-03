@@ -39,6 +39,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** None.
 - **Tests:** Accessibility checks, phone-width screenshots.
 - **Done when:** Every component shows all its states on an internal preview page.
+- **Status:** Complete. Signed-in navigation moves to Phase 2, because it needs login and roles. The contact form moves to Phase 9.
 
 ## Phase 2: Accounts and authorization
 

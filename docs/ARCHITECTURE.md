@@ -16,7 +16,7 @@ The one hard technical problem is the auction. Bids must be ordered correctly, d
 | Framework | Next.js 16.4, App Router | Combines public SEO pages, authenticated app and API. |
 | Styling | Tailwind CSS with DESIGN.md tokens | Fast and consistent, with no runtime cost. |
 | Fonts | Self-hosted through Fontsource packages | No request to Google from user browsers, and builds work without font network access. |
-| UI primitives | Radix UI, only for dialog, menu, tabs and sheet | Accessible behaviour without a heavy kit. |
+| UI primitives | Native HTML first, such as `dialog` and `details`. Add Radix UI only when a component needs it | Accessible behaviour with no extra dependency. |
 | Validation | Zod | One schema shared by forms and API. |
 | Database | PostgreSQL via Supabase | Transactions, row locks and row-level security solve the core problem. |
 | Auth | Supabase Auth | Phone and password, OTP hooks, MFA and secure sessions. |
