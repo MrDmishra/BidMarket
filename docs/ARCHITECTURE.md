@@ -161,7 +161,7 @@ Two private channels exist for each live auction.
 
 **Authentication**
 
-- Log in with phone and password, plus Turnstile.
+- Log in with email and password until MSG91 and Turnstile accounts exist. The target is phone and password, plus Turnstile.
 - Phone OTP goes through the Supabase Send SMS hook to MSG91. Email OTP and password reset go through Resend.
 - OTP rules from F-2 are enforced in the hook and in `otp_attempts`.
 - Sessions use secure, HttpOnly, SameSite cookies through the Supabase SSR helper.

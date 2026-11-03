@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { AppError } from "@/lib/errors/app-error";
 import { getServerEnv } from "@/lib/env/server";
+import type { Database } from "@/lib/supabase/database.types";
 
 /** Runs as the signed-in user, so row-level security applies to every query. */
 export async function createUserClient() {
@@ -13,7 +14,7 @@ export async function createUserClient() {
   }
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {
@@ -25,7 +26,7 @@ export async function createUserClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Server Components cannot set cookies. Session refresh happens in a later phase.
+            // Server Components cannot set cookies. proxy.ts refreshes the session instead.
           }
         },
       },

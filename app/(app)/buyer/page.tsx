@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import { NoticePage } from "@/components/ui/notice-page";
+import { DashboardPage } from "@/components/layout/dashboard-page";
+import { requireOrganisation } from "@/lib/auth/account";
 
 export const metadata: Metadata = { title: "Buyer dashboard" };
 
-export default function BuyerDashboardPage() {
+export default async function BuyerDashboardPage() {
+  const { organisation } = await requireOrganisation("buyer");
   return (
-    <NoticePage
+    <DashboardPage
       title="Buyer dashboard"
-      body="The buyer dashboard is not available yet."
-      action={{ href: "/", label: "Go to home" }}
+      organisationName={organisation.legalName}
+      status={organisation.status}
     />
   );
 }

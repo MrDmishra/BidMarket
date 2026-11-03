@@ -35,7 +35,7 @@ test("an explicit light theme overrides a dark system setting", async ({ page })
   expect(background).toBe("rgb(240, 245, 242)");
 });
 
-for (const path of ["/login", "/signup", "/buyer", "/seller", "/admin", "/forbidden"]) {
+for (const path of ["/login", "/signup", "/forbidden"]) {
   test(`base route ${path} loads`, async ({ page }) => {
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);

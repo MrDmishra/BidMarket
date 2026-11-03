@@ -97,7 +97,7 @@ The server stores the first response for each organisation and key for 24 hours.
 | PATCH | `/organisation/maintenance` | Seller | Turn maintenance on or off |
 | DELETE | `/organisation` | User | Delete if eligible under F-61 |
 
-Sign-up, log-in, log-out, OTP and password reset use Supabase Auth client methods through Turnstile-protected server handlers. Session helpers stay out of `/api/v1`.
+Sign-up, log-in, log-out, OTP and password reset use Supabase Auth through server actions in `modules/accounts`. Email and password work now. Turnstile and phone OTP follow when their accounts exist. Session helpers stay out of `/api/v1`.
 
 **Example:** `POST /onboarding/pan`
 
