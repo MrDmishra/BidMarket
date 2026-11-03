@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("home page shows the brand and design tokens", async ({ page }) => {
+test("home page shows the brand and an example auction", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("sellers compete");
-  await expect(page.getByText("₹1,25,000 example value")).toBeVisible();
+  await expect(page.getByText("Illustration with example prices")).toBeVisible();
   const fonts = await page.evaluate(() =>
     document.fonts.ready.then(() => document.fonts.check('16px "Instrument Sans Variable"')),
   );
