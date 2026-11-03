@@ -84,8 +84,7 @@ The server stores the first response for each organisation and key for 24 hours.
 |---|---|---|---|
 | POST | `/onboarding/organisation` | User | Create organisation with kind, type and name |
 | PATCH | `/onboarding/organisation` | User | Update draft details |
-| POST | `/onboarding/pan` | User | Verify business PAN |
-| POST | `/onboarding/gstin` | User | Verify GSTIN and match to PAN |
+| POST | `/onboarding/pan` | User | Save business PAN and GSTIN for review |
 | POST | `/onboarding/identity/start` | User | Start identity check, returns provider URL |
 | POST | `/onboarding/submit` | User | Submit for review, or move seller to payment |
 | GET | `/me` | User | Current user, organisation, status and blocks |
@@ -254,8 +253,7 @@ All routes require Admin with MFA. Every write requires a `reason` and is audit 
 | GET | `/admin/overview` | Queue counts and key figures |
 | GET | `/admin/organisations` | Search and filter |
 | GET | `/admin/organisations/{id}` | Detail. Identity reads are logged |
-| POST | `/admin/organisations/{id}/approve` | Approve |
-| POST | `/admin/organisations/{id}/reject` | Reject |
+| POST | `/admin/organisations/{id}/review` | Approve or reject, with a reason |
 | POST | `/admin/organisations/{id}/suspend` | Suspend |
 | POST | `/admin/organisations/{id}/reinstate` | Reinstate |
 | POST | `/admin/organisations/{id}/block` | Apply block |
@@ -362,8 +360,6 @@ Never commit real values. `NEXT_PUBLIC_` values are visible to browsers.
 | `MSG91_OTP_TEMPLATE_ID` | Server | DLT template |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Server | Email |
 | `TURNSTILE_SECRET_KEY` | Server | Captcha |
-| `FIELD_ENCRYPTION_KEYS` | Server | Versioned AES keys |
-| `HMAC_LOOKUP_KEY` | Server | Blind index |
 | `INTERNAL_JOB_SECRET` | Server | Job runner |
 | `SENTRY_DSN`, `SENTRY_AUTH_TOKEN` | Server or CI | Error tracking |
 | `MALWARE_SCAN_*` | Server | Set after A-2 |

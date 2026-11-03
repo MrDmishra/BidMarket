@@ -22,3 +22,13 @@ grant execute on function auth.uid() to anon, authenticated, service_role;
 
 -- Mirrors Supabase's default grants, which the migration must remove.
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+
+-- Supabase keeps pgcrypto in the extensions schema and secrets in Vault.
+create schema extensions;
+create extension pgcrypto schema extensions;
+create schema vault;
+create table vault.secrets (name text primary key, decrypted_secret text not null);
+create view vault.decrypted_secrets as select name, decrypted_secret from vault.secrets;
+create function vault.create_secret(p_secret text, p_name text) returns void language sql as $$
+  insert into vault.secrets (name, decrypted_secret) values (p_name, p_secret);
+$$;

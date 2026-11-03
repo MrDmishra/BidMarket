@@ -220,7 +220,7 @@ Environments: local, preview, production, selected with `APP_ENV`. Production re
 | App to database | Row-level security and function checks. |
 | Sealed bids | Readable only by the bidder until close, enforced through RLS and API. Staff with direct database access could still read them, so limit that access and log it. Encrypting bids until opening is a later option. |
 | Files | Private buckets, type and size limits, signature sniffing, images re-encoded, short-lived signed links. Documents reach other parties only after scanning. [A-2] |
-| Sensitive data | Bank numbers and PAN are encrypted at application level with AES-256-GCM. Lookup uses an HMAC. |
+| Sensitive data | Bank numbers and PAN are encrypted inside Postgres functions with AES-256. Keys stay in Supabase Vault, and lookup uses an HMAC. |
 | Webhooks | Raw-body HMAC check and event-ID de-duplication. |
 | Abuse | Rate limits in API.md, Turnstile and account lockout. |
 | Browser hardening | Strict CSP, HSTS, frame denial. CSRF is covered by SameSite cookies plus Origin checks on writes. |

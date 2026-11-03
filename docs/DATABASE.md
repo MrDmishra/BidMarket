@@ -391,7 +391,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 | Data | Handling |
 |---|---|
-| Bank account number, PAN | AES-256-GCM in the app. Keys in env, with a key version prefix for rotation. |
+| Bank account number, PAN | Encrypted with pgcrypto AES-256 inside Postgres functions. Keys stay in Supabase Vault. Key rotation still needs a procedure. |
 | Aadhaar | Never stored. Provider returns a pass or fail reference (D-4). |
 | Passwords, OTPs | Handled by Supabase Auth. OTP is never logged. |
 | Provider responses | Masked fields only. Raw responses are not stored. |

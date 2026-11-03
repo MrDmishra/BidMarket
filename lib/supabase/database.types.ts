@@ -24,7 +24,12 @@ export type Database = {
         kind: OrgKind;
         legal_name: string;
         status: OrgStatus;
+        pan_last4: string | null;
+        gstin: string | null;
       }>;
+      org_addresses: Table<{ id: string; city: string; pincode: string }>;
+      bank_accounts: Table<{ id: string; account_last4: string; ifsc: string }>;
+      turnover_declarations: Table<{ financial_year: string }>;
       profiles: Table<{
         user_id: string;
         org_id: string | null;
@@ -42,6 +47,45 @@ export type Database = {
           p_policy_version: string;
         };
         Returns: string;
+      };
+      save_business_identity: {
+        Args: { p_pan: string; p_gstin: string; p_incorporated_on?: string };
+        Returns: undefined;
+      };
+      add_registered_address: {
+        Args: {
+          p_line1: string;
+          p_line2: string;
+          p_city: string;
+          p_state_code: string;
+          p_pincode: string;
+        };
+        Returns: string;
+      };
+      add_bank_account: {
+        Args: { p_holder_name: string; p_account_no: string; p_ifsc: string };
+        Returns: string;
+      };
+      save_turnover: {
+        Args: { p_years: { financialYear: string; amountPaise: number }[] };
+        Returns: undefined;
+      };
+      submit_organisation: { Args: Record<never, never>; Returns: OrgStatus };
+      admin_pending_organisations: {
+        Args: Record<never, never>;
+        Returns: {
+          id: string;
+          kind: OrgKind;
+          entity_type: EntityType;
+          legal_name: string;
+          pan_last4: string | null;
+          gstin: string | null;
+          created_at: string;
+        }[];
+      };
+      admin_review_organisation: {
+        Args: { p_org_id: string; p_approve: boolean; p_reason: string };
+        Returns: undefined;
       };
     };
     Enums: Record<never, never>;

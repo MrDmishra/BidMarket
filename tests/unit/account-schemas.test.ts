@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { logInSchema, organisationSchema, signUpSchema } from "@/modules/accounts/schemas";
+import {
+  addressSchema,
+  bankAccountSchema,
+  businessIdentitySchema,
+  logInSchema,
+  organisationSchema,
+  reviewSchema,
+  signUpSchema,
+} from "@/modules/accounts/schemas";
 import { toAppError } from "@/lib/errors/database";
+import { recentFinancialYears } from "@/lib/time/financial-year";
 
 const organisation = {
   kind: "buyer",
@@ -70,5 +79,51 @@ describe("toAppError", () => {
     const error = toAppError({ message: 'relation "secret" does not exist' });
     expect(error.code).toBe("INTERNAL_ERROR");
     expect(error.message).not.toContain("secret");
+  });
+});
+
+describe("verification schemas", () => {
+  it("normalises PAN and GSTIN to uppercase", () => {
+    expect(businessIdentitySchema.parse({ pan: "aabcb1234f", gstin: "" }).pan).toBe("AABCB1234F");
+  });
+
+  it("rejects a bad GSTIN but allows it blank", () => {
+    expect(businessIdentitySchema.safeParse({ pan: "AABCB1234F", gstin: "BAD" }).success).toBe(
+      false,
+    );
+    expect(businessIdentitySchema.safeParse({ pan: "AABCB1234F", gstin: "" }).success).toBe(true);
+  });
+
+  it("checks bank details", () => {
+    const valid = { holderName: "Org", accountNumber: "123456789012", ifsc: "hdfc0001234" };
+    expect(bankAccountSchema.parse(valid).ifsc).toBe("HDFC0001234");
+    expect(bankAccountSchema.safeParse({ ...valid, accountNumber: "12" }).success).toBe(false);
+  });
+
+  it("checks PIN codes", () => {
+    const valid = {
+      line1: "1 Road",
+      line2: "",
+      city: "Bhopal",
+      stateCode: "23",
+      pincode: "462001",
+    };
+    expect(addressSchema.safeParse(valid).success).toBe(true);
+    expect(addressSchema.safeParse({ ...valid, pincode: "062001" }).success).toBe(false);
+  });
+
+  it("requires a reason for review decisions", () => {
+    expect(reviewSchema.safeParse({ approve: true, reason: " " }).success).toBe(false);
+  });
+});
+
+describe("recentFinancialYears", () => {
+  it("lists completed years before April", () => {
+    expect(recentFinancialYears(new Date(2027, 2, 31))).toEqual(["2025-26", "2024-25", "2023-24"]);
+  });
+
+  it("moves forward from April", () => {
+    expect(recentFinancialYears(new Date(2026, 10, 4))).toEqual(["2025-26", "2024-25", "2023-24"]);
+    expect(recentFinancialYears(new Date(2027, 3, 1))).toEqual(["2026-27", "2025-26", "2024-25"]);
   });
 });

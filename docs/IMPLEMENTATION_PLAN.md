@@ -51,7 +51,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Section 3.1 tables, `audit_log`. API section 2.
 - **Tests:** RLS tests, unverified-account blocks, OTP limits, provider failure leading to manual review.
 - **Done when:** A buyer can be approved and a seller reaches the payment step, with admin routes protected by MFA.
-- **Status:** In progress. Identity schema, row-level security and database tests are complete. Supabase is connected. Email sign-up, login, password reset, protected dashboards and the first onboarding step are built. PAN, GSTIN, bank checks, phone OTP, Turnstile and the admin queue remain.
+- **Status:** In progress. Identity schema, row-level security and database tests are complete. Supabase is connected. Email sign-up, login, password reset, protected dashboards and the first onboarding step are built. Manual verification and the admin queue are built. Automatic PAN, GSTIN and bank checks, phone OTP, Turnstile and admin MFA remain.
 
 ## Phase 3: Files and catalogue
 

@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/layout/app-header";
 import { Banner } from "@/components/ui/banner";
+import { ButtonLink } from "@/components/ui/button";
 import { StatusPill, type PillTone } from "@/components/ui/status-pill";
 import type { OrgStatus } from "@/lib/supabase/database.types";
 
@@ -7,9 +8,13 @@ const STATUS: Record<OrgStatus, { label: string; tone: PillTone; note: string }>
   draft: {
     label: "Draft",
     tone: "neutral",
-    note: "Add your PAN, GSTIN and bank details to get verified. These steps open soon.",
+    note: "Add your business details to get verified.",
   },
-  pending_payment: { label: "Pending", tone: "warn", note: "Pay your subscription to go live." },
+  pending_payment: {
+    label: "Pending",
+    tone: "warn",
+    note: "Your details are saved. Subscription payment opens soon.",
+  },
   pending_review: { label: "Pending", tone: "warn", note: "An admin is reviewing your account." },
   active: { label: "Active", tone: "ok", note: "Your account is verified." },
   suspended: {
@@ -37,6 +42,11 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
           <StatusPill tone={details.tone} label={details.label} />
         </div>
         <Banner>{details.note}</Banner>
+        {status === "draft" ? (
+          <div>
+            <ButtonLink href="/onboarding/verify">Complete verification</ButtonLink>
+          </div>
+        ) : null}
       </main>
     </>
   );
