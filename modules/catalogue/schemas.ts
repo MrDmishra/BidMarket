@@ -56,3 +56,47 @@ export const productReviewSchema = z.object({
 export const testActivationSchema = z.object({
   reason: z.string().trim().min(3, "Enter a reason of at least 3 characters."),
 });
+
+export const categoryRequestSchema = z.object({
+  name: z.string().trim().min(2, "Enter a category name.").max(100, "Use 100 characters or fewer."),
+  details: z
+    .string()
+    .trim()
+    .min(5, "Say what this category would hold.")
+    .max(1000, "Use 1,000 characters or fewer."),
+});
+
+export const categoryRequestReviewSchema = z.object({
+  approve: z.boolean(),
+  note: z.string().trim().min(3, "Enter a note of at least 3 characters."),
+});
+
+const yesNo = z
+  .enum(["yes", "no"], { error: "Choose yes or no." })
+  .transform((value) => value === "yes");
+
+export const categorySchema = z.object({
+  name: z.string().trim().min(2, "Enter a name.").max(100, "Use 100 characters or fewer."),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers and hyphens."),
+  description: z.string().trim().max(300, "Use 300 characters or fewer.").default(""),
+  parentId: z.preprocess(
+    (value) => (value === "" ? null : value),
+    z.uuid().nullable().default(null),
+  ),
+  isActive: yesNo,
+  sortOrder: z.coerce
+    .number("Enter a number.")
+    .int("Enter a whole number.")
+    .min(0, "Enter 0 or more."),
+});
+
+export const specSchema = z.object({
+  label: z.string().trim().min(2, "Enter a label.").max(60, "Use 60 characters or fewer."),
+  kind: z.enum(["text", "number"], { error: "Choose a type." }),
+  unit: z.string().trim().max(20, "Use 20 characters or fewer.").default(""),
+  isKey: yesNo,
+  isRequired: yesNo,
+});

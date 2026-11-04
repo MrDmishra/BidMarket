@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 import { Button, type ButtonVariant } from "@/components/ui/button";
 
 type ConfirmDialogProps = {
@@ -22,6 +22,7 @@ export function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   return (
     <>
@@ -30,10 +31,10 @@ export function ConfirmDialog({
       </Button>
       <dialog
         ref={dialog}
-        aria-labelledby="confirm-title"
+        aria-labelledby={titleId}
         className="m-auto max-w-md rounded-panel border border-line bg-surface p-5 text-ink shadow-lg backdrop:bg-ink/50"
       >
-        <h2 id="confirm-title" className="text-xl font-bold">
+        <h2 id={titleId} className="text-xl font-bold">
           {title}
         </h2>
         <div className="my-3 text-muted">{consequence}</div>

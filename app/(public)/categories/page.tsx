@@ -9,6 +9,8 @@ export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
   const categories = await listCategories();
+  const topLevel = categories.filter((category) => !category.parent_id);
+  const subCount = (id: string) => categories.filter((item) => item.parent_id === id).length;
 
   return (
     <ContentPage
@@ -19,14 +21,17 @@ export default async function CategoriesPage() {
         <EmptyState message="Categories appear here when the catalogue opens." />
       ) : (
         <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => (
+          {topLevel.map((category) => (
             <Link
               key={category.id}
               href={`/products?category=${category.slug}`}
               className="flex flex-col gap-1 rounded-panel border border-line bg-surface p-4 text-ink no-underline hover:border-accent"
             >
               <span className="font-semibold">{category.name}</span>
-              <span className="text-sm text-muted">{category.description}</span>
+              <span className="text-sm text-muted">
+                {category.description}
+                {subCount(category.id) > 0 ? ` · ${subCount(category.id)} sub-categories` : ""}
+              </span>
             </Link>
           ))}
         </div>

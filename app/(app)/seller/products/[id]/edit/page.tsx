@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/layout/app-header";
 import { requireOrganisation } from "@/lib/auth/account";
 import { listCategories, listSellerProducts, listSpecDefinitions } from "@/modules/catalogue";
 import { ProductForm } from "@/modules/catalogue/product-form";
+import { ProductImages } from "@/modules/catalogue/product-images";
 
 export const metadata: Metadata = { title: "Edit product" };
 
@@ -23,6 +24,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       <AppHeader name={organisation.legalName} />
       <main className="page-wrap flex flex-col gap-4 py-8">
         <h1 className="text-3xl font-bold">Edit product</h1>
+        <ProductImages productId={product.id} images={product.images} />
         <ProductForm
           categories={categories}
           specs={specs}

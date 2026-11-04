@@ -40,6 +40,22 @@ export default async function SellerProductsPage() {
         {!active ? (
           <Banner tone="warn">You can list products once your account is active.</Banner>
         ) : null}
+        {active ? (
+          <details className="rounded-panel border border-line bg-surface px-4 py-3">
+            <summary className="cursor-pointer font-semibold">Request a new category</summary>
+            <div className="mt-3 max-w-md">
+              <ApiForm
+                id="category-request"
+                endpoint="/api/v1/seller/category-requests"
+                submitLabel="Send request"
+                fields={[
+                  { name: "name", label: "Category name" },
+                  { name: "details", label: "What would it hold?" },
+                ]}
+              />
+            </div>
+          </details>
+        ) : null}
         {products.length === 0 ? (
           <EmptyState message="Your products appear here after you add them." />
         ) : null}
@@ -68,7 +84,11 @@ export default async function SellerProductsPage() {
                 ]}
               />
               <div className="flex flex-wrap items-start gap-3">
-                <ProductActions id={product.id} status={product.status} />
+                <ProductActions
+                  id={product.id}
+                  status={product.status}
+                  canDelete={Number(product.stock_qty) === 0 && product.status !== "pending"}
+                />
                 {editable ? <Link href={`/seller/products/${product.id}/edit`}>Edit</Link> : null}
               </div>
               {live ? (

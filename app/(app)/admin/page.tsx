@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/layout/app-header";
 import { Banner } from "@/components/ui/banner";
+import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FactList } from "@/components/ui/fact-list";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -9,24 +10,31 @@ import { formatInr } from "@/lib/money";
 import { listPaymentPendingSellers, listPendingOrganisations } from "@/modules/accounts";
 import { ReviewActions } from "@/modules/accounts/review-queue";
 import { TestActivation } from "@/modules/accounts/test-activation";
-import { listPendingProducts } from "@/modules/catalogue";
+import { listPendingCategoryRequests, listPendingProducts } from "@/modules/catalogue";
+import { CategoryRequestReview } from "@/modules/catalogue/category-request-review";
 import { ProductReview } from "@/modules/catalogue/product-review";
 
 export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminPage() {
   const account = await requireAdmin();
-  const [pending, products, sellers] = await Promise.all([
+  const [pending, products, sellers, requests] = await Promise.all([
     listPendingOrganisations(),
     listPendingProducts(),
     listPaymentPendingSellers(),
+    listPendingCategoryRequests(),
   ]);
 
   return (
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <h1 className="text-3xl font-bold">Account verification</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl font-bold">Account verification</h1>
+          <ButtonLink href="/admin/categories" variant="secondary">
+            Manage categories
+          </ButtonLink>
+        </div>
         {pending.length === 0 ? <EmptyState message="No accounts are waiting for review." /> : null}
         {pending.map((organisation) => (
           <section
@@ -78,6 +86,21 @@ export default async function AdminPage() {
               ]}
             />
             <ProductReview productId={product.id} />
+          </section>
+        ))}
+
+        <h2 className="pt-4 text-2xl font-bold">Category requests</h2>
+        {requests.length === 0 ? <EmptyState message="No category requests are waiting." /> : null}
+        {requests.map((request) => (
+          <section
+            key={request.id}
+            aria-label={request.name}
+            className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-5"
+          >
+            <h3 className="text-xl font-bold">{request.name}</h3>
+            <p>{request.details}</p>
+            <p className="text-sm text-muted">Requested by {request.seller_name}</p>
+            <CategoryRequestReview requestId={request.id} />
           </section>
         ))}
 

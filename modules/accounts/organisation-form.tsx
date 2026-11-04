@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { apiWrite } from "@/lib/api/client";
 import { SelectField, TextField } from "@/components/ui/field";
 import Link from "next/link";
 
@@ -32,15 +33,13 @@ export function OrganisationForm() {
     setError("");
     setFields({});
     try {
-      const response = await fetch("/api/v1/onboarding/organisation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const response = await apiWrite("/api/v1/onboarding/organisation", {
+        json: {
           kind,
           entityType: form.get("entityType"),
           legalName: form.get("legalName"),
           acceptedTerms: form.get("acceptedTerms") === "on",
-        }),
+        },
       });
       if (response.ok) {
         router.push(`/${kind}`);

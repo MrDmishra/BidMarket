@@ -1,16 +1,6 @@
-import { createRequestId, jsonError, jsonOk } from "@/lib/api/response";
-import { AppError } from "@/lib/errors/app-error";
-import { createOrganisation, fieldErrors, organisationSchema } from "@/modules/accounts";
+import { handleJson } from "@/lib/api/route";
+import { createOrganisation, organisationSchema } from "@/modules/accounts";
 
-export async function POST(request: Request) {
-  const requestId = createRequestId();
-  try {
-    const input = organisationSchema.safeParse(await request.json().catch(() => null));
-    if (!input.success) {
-      throw new AppError("VALIDATION_FAILED", { fields: fieldErrors(input.error) });
-    }
-    return jsonOk(await createOrganisation(input.data), requestId, { status: 201 });
-  } catch (error) {
-    return jsonError(error, requestId);
-  }
+export function POST(request: Request) {
+  return handleJson(request, organisationSchema, createOrganisation, 201);
 }

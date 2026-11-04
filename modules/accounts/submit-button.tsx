@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { apiWrite } from "@/lib/api/client";
 
 export function SubmitVerificationButton({ ready }: { ready: boolean }) {
   const router = useRouter();
@@ -13,7 +14,7 @@ export function SubmitVerificationButton({ ready }: { ready: boolean }) {
   async function submit() {
     setPending(true);
     setError("");
-    const response = await fetch("/api/v1/onboarding/submit", { method: "POST" }).catch(() => null);
+    const response = await apiWrite("/api/v1/onboarding/submit").catch(() => null);
     if (response?.ok) {
       router.push("/onboarding");
       router.refresh();

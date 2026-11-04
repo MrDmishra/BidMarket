@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { apiWrite } from "@/lib/api/client";
 import { TextField } from "@/components/ui/field";
 
 export function TestActivation({ organisationId }: { organisationId: string }) {
@@ -15,10 +16,8 @@ export function TestActivation({ organisationId }: { organisationId: string }) {
   async function activate() {
     setPending(true);
     setError("");
-    const response = await fetch(`/api/v1/admin/organisations/${organisationId}/test-activate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason }),
+    const response = await apiWrite(`/api/v1/admin/organisations/${organisationId}/test-activate`, {
+      json: { reason },
     }).catch(() => null);
     setPending(false);
     if (response?.ok) router.refresh();

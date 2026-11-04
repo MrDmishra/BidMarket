@@ -5,6 +5,7 @@ import { ContentPage } from "@/components/layout/content-page";
 import { ActionPanel } from "@/components/ui/action-panel";
 import { FactList } from "@/components/ui/fact-list";
 import { StatusPill } from "@/components/ui/status-pill";
+import { productImageUrl } from "@/lib/files/public-url";
 import { stateName } from "@/lib/india/states";
 import { formatInr } from "@/lib/money";
 import { getProduct } from "@/modules/catalogue";
@@ -27,6 +28,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       </p>
       <div className="grid items-start gap-5 md:grid-cols-[3fr_2fr]">
         <div className="flex min-w-0 flex-col gap-4">
+          {product.image_paths.length > 0 ? (
+            <div className="grid grid-cols-3 gap-2">
+              {product.image_paths.map((path, index) => (
+                <div
+                  key={path}
+                  role="img"
+                  aria-label={`${product.title}, image ${index + 1}`}
+                  className="aspect-square rounded-control bg-sunk bg-cover bg-center"
+                  style={{ backgroundImage: `url(${productImageUrl(path)})` }}
+                />
+              ))}
+            </div>
+          ) : null}
           {product.description ? <p className="max-w-[65ch]">{product.description}</p> : null}
           <FactList
             facts={product.specs.map((spec) => ({

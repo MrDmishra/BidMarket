@@ -28,6 +28,7 @@ export type SellerProduct = {
   description: string | null;
   state_codes: string[];
   specs: Record<string, string>;
+  images: { id: string; path: string }[];
 };
 
 export type PendingProduct = {
@@ -44,6 +45,16 @@ export type PendingProduct = {
   unit: string;
 };
 
+export type AdminCategory = {
+  id: string;
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_active: boolean;
+  sort_order: number;
+};
+
 export type PublicProduct = {
   id: string;
   display_no: string;
@@ -56,6 +67,7 @@ export type PublicProduct = {
   unit: string;
   city: string | null;
   state_code: string | null;
+  image_path: string | null;
 };
 
 export type PublicProductDetail = PublicProduct & {
@@ -63,6 +75,7 @@ export type PublicProductDetail = PublicProduct & {
   stock_qty: number;
   delivery_states: string[];
   specs: { label: string; value: string; unit: string | null }[];
+  image_paths: string[];
 };
 
 type Table<Row> = {
@@ -79,6 +92,7 @@ export type Database = {
         id: string;
         name: string;
         slug: string;
+        parent_id: string | null;
         description: string | null;
         sort_order: number;
       }>;
@@ -110,6 +124,56 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      api_begin: {
+        Args: { p_key: string; p_route: string; p_hash: string };
+        Returns: { status: number; body: unknown } | null;
+      };
+      api_finish: {
+        Args: { p_key: string; p_status: number; p_body: unknown };
+        Returns: undefined;
+      };
+      health_check: { Args: Record<never, never>; Returns: boolean };
+      current_org_id: { Args: Record<never, never>; Returns: string };
+      add_product_image: { Args: { p_id: string; p_path: string }; Returns: string };
+      remove_product_image: { Args: { p_media_id: string }; Returns: string };
+      delete_product: { Args: { p_id: string }; Returns: string[] };
+      category_spec_values: {
+        Args: { p_category_slug: string };
+        Returns: { spec_id: string; label: string; value: string }[];
+      };
+      request_category: { Args: { p_name: string; p_details: string }; Returns: string };
+      admin_pending_category_requests: {
+        Args: Record<never, never>;
+        Returns: { id: string; name: string; details: string; seller_name: string }[];
+      };
+      admin_review_category_request: {
+        Args: { p_id: string; p_approve: boolean; p_note: string };
+        Returns: undefined;
+      };
+      admin_categories: { Args: Record<never, never>; Returns: AdminCategory[] };
+      admin_save_category: {
+        Args: {
+          p_id: string | null;
+          p_parent_id: string | null;
+          p_name: string;
+          p_slug: string;
+          p_description: string;
+          p_is_active: boolean;
+          p_sort_order: number;
+        };
+        Returns: string;
+      };
+      admin_add_spec: {
+        Args: {
+          p_category_id: string;
+          p_label: string;
+          p_kind: "text" | "number" | "enum";
+          p_unit: string;
+          p_is_key: boolean;
+          p_is_required: boolean;
+        };
+        Returns: string;
+      };
       save_product: {
         Args: {
           p_id: string | null;
@@ -153,6 +217,8 @@ export type Database = {
           p_sort?: string;
           p_limit?: number;
           p_offset?: number;
+          p_spec_id?: string;
+          p_spec_value?: string;
         };
         Returns: PublicProduct[];
       };

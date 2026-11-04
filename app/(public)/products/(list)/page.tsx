@@ -5,10 +5,18 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SelectField, TextField } from "@/components/ui/field";
 import { ProductCard } from "@/components/ui/product-card";
 import { INDIAN_STATES, stateName } from "@/lib/india/states";
-import { listCategories, PAGE_SIZE, searchProducts } from "@/modules/catalogue";
+import { productImageUrl } from "@/lib/files/public-url";
+import {
+  listCategories,
+  listCategorySpecValues,
+  PAGE_SIZE,
+  searchProducts,
+} from "@/modules/catalogue";
 
 export const metadata: Metadata = { title: "Products" };
 export const dynamic = "force-dynamic";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type ProductsPageProps = {
   searchParams: Promise<{
@@ -17,6 +25,7 @@ type ProductsPageProps = {
     state?: string;
     sort?: string;
     page?: string;
+    spec?: string;
   }>;
 };
 
@@ -27,17 +36,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     state = "",
     sort = "popular",
     page: pageParam,
+    spec = "",
   } = await searchParams;
   const page = Math.max(Number.parseInt(pageParam ?? "1", 10) || 1, 1);
-  const [categories, results] = await Promise.all([
+  const [specId = "", specValue = ""] = spec.split("|");
+  const [categories, specValues, results] = await Promise.all([
     listCategories(),
-    searchProducts({ query: q, categorySlug: category, stateCode: state, sort, page }),
+    listCategorySpecValues(category),
+    searchProducts({
+      query: q,
+      categorySlug: category,
+      stateCode: state,
+      sort,
+      page,
+      specId: UUID.test(specId) ? specId : undefined,
+      specValue,
+    }),
   ]);
   const products = results.slice(0, PAGE_SIZE);
-  const hasFilters = Boolean(q || category || state);
+  const hasFilters = Boolean(q || category || state || spec);
 
   const pageLink = (target: number) => {
-    const params = new URLSearchParams({ q, category, state, sort, page: String(target) });
+    const params = new URLSearchParams({ q, category, state, sort, spec, page: String(target) });
     return `/products?${params}`;
   };
 
@@ -49,7 +69,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <option value="">All categories</option>
           {categories.map((item) => (
             <option key={item.id} value={item.slug}>
-              {item.name}
+              {item.parent_id ? `— ${item.name}` : item.name}
             </option>
           ))}
         </SelectField>
@@ -66,6 +86,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <option value="price_low">Price, low to high</option>
           <option value="price_high">Price, high to low</option>
         </SelectField>
+        {specValues.length > 0 ? (
+          <SelectField id="filter-spec" name="spec" label="Specification" defaultValue={spec}>
+            <option value="">Any specification</option>
+            {specValues.map((item) => (
+              <option key={`${item.spec_id}|${item.value}`} value={`${item.spec_id}|${item.value}`}>
+                {item.label}: {item.value}
+              </option>
+            ))}
+          </SelectField>
+        ) : null}
         <Button type="submit">Apply filters</Button>
       </form>
 
@@ -96,6 +126,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               mrpPaise={product.mrp_paise}
               discountPercent={Math.round(product.discount_bps / 100)}
               unit={product.unit}
+              imageUrl={productImageUrl(product.image_path)}
             />
           ))}
         </div>

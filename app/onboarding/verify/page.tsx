@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { StatusPill } from "@/components/ui/status-pill";
 import { Wordmark } from "@/components/ui/wordmark";
 import { getAccount } from "@/lib/auth/account";
+import { INDIAN_STATES } from "@/lib/india/states";
 import { recentFinancialYears } from "@/lib/time/financial-year";
 import { getVerificationProgress } from "@/modules/accounts";
 import { ApiForm } from "@/modules/accounts/api-form";
@@ -12,16 +13,7 @@ import { SubmitVerificationButton } from "@/modules/accounts/submit-button";
 export const metadata: Metadata = { title: "Complete verification" };
 export const dynamic = "force-dynamic";
 
-const STATES = [
-  ["07", "Delhi"],
-  ["08", "Rajasthan"],
-  ["09", "Uttar Pradesh"],
-  ["23", "Madhya Pradesh"],
-  ["24", "Gujarat"],
-  ["27", "Maharashtra"],
-  ["29", "Karnataka"],
-  ["33", "Tamil Nadu"],
-].map(([value, label]) => ({ value: value as string, label: label as string }));
+const STATES = INDIAN_STATES.map(([value, label]) => ({ value, label }));
 
 function Step({
   title,

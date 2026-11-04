@@ -11,6 +11,8 @@ export type ProductFilters = {
   stateCode?: string;
   sort?: string;
   page?: number;
+  specId?: string;
+  specValue?: string;
 };
 
 export async function listCategories() {
@@ -18,7 +20,7 @@ export async function listCategories() {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, slug, description, sort_order")
+    .select("id, parent_id, name, slug, description, sort_order")
     .order("sort_order");
   if (error) throw new AppError("SERVICE_UNAVAILABLE", { cause: error });
   return data;
@@ -35,12 +37,24 @@ export async function listSpecDefinitions() {
   return data;
 }
 
+export async function listCategorySpecValues(categorySlug: string) {
+  const supabase = createPublicClient();
+  if (!supabase || !categorySlug) return [];
+  const { data, error } = await supabase.rpc("category_spec_values", {
+    p_category_slug: categorySlug,
+  });
+  if (error) throw new AppError("SERVICE_UNAVAILABLE", { cause: error });
+  return data;
+}
+
 export async function searchProducts({
   query,
   categorySlug,
   stateCode,
   sort,
   page = 1,
+  specId,
+  specValue,
 }: ProductFilters) {
   const supabase = createPublicClient();
   if (!supabase) return [];
@@ -51,6 +65,8 @@ export async function searchProducts({
     p_sort: sort || undefined,
     p_limit: PAGE_SIZE + 1,
     p_offset: (Math.max(page, 1) - 1) * PAGE_SIZE,
+    p_spec_id: specId || undefined,
+    p_spec_value: specValue || undefined,
   });
   if (error) throw new AppError("SERVICE_UNAVAILABLE", { cause: error });
   return data;

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { apiWrite } from "@/lib/api/client";
 import { SelectField, TextField } from "@/components/ui/field";
 
 export type ApiFormField = {
@@ -34,16 +35,12 @@ export function ApiForm({ id, endpoint, fields, submitLabel, method = "POST" }: 
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const body = JSON.stringify(Object.fromEntries(new FormData(event.currentTarget)));
+    const json = Object.fromEntries(new FormData(event.currentTarget));
     setPending(true);
     setError("");
     setFieldMessages({});
     try {
-      const response = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body,
-      });
+      const response = await apiWrite(endpoint, { method, json });
       if (response.ok) {
         router.refresh();
       } else {
@@ -68,11 +65,13 @@ export function ApiForm({ id, endpoint, fields, submitLabel, method = "POST" }: 
             name={field.name}
             label={field.label}
             error={fieldMessages[field.name]}
-            defaultValue=""
+            defaultValue={field.defaultValue ?? ""}
           >
-            <option value="" disabled>
-              Choose
-            </option>
+            {field.options.some((option) => option.value === "") ? null : (
+              <option value="" disabled>
+                Choose
+              </option>
+            )}
             {field.options.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}

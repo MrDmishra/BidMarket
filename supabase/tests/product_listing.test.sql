@@ -1,5 +1,5 @@
 begin;
-select plan(22);
+select plan(25);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000c1', 'seller@example.com'),
@@ -58,6 +58,10 @@ select save_product(id, category_id, title, description, mrp_paise, 1500, stock_
   jsonb_build_array(jsonb_build_object('specId', test_helpers.spec('hardware', 'material'), 'value', 'Brass')))
 from seller_products();
 select is((select net_paise from seller_products()), 66300::bigint, 'saving a draft recalculates the net price');
+select throws_ok($$select submit_product((select id from seller_products() limit 1))$$, 'P0001', 'VALIDATION_FAILED', 'submission needs three images');
+select add_product_image(id, 'c0000000-0000-0000-0000-000000000001/' || id || '/' || n || '.webp') from seller_products(), generate_series(1, 3) as n;
+select throws_ok($$select add_product_image(id, 'c0000000-0000-0000-0000-000000000001/' || id || '/4.webp') from seller_products()$$, 'P0001', 'LIMIT_EXCEEDED', 'a product has at most three images');
+select throws_ok($$select add_product_image(id, 'someone-else/' || id || '/x.webp') from seller_products()$$, 'P0001', 'FORBIDDEN', 'images must sit in the seller folder');
 select lives_ok($$select submit_product((select id from seller_products() limit 1))$$, 'a complete product can be submitted');
 select throws_ok($$select save_product(id, category_id, 'Changed', '', 100, 1000, 1, 'pc', array['08'], '[]') from seller_products()$$, 'P0001', 'INVALID_STATE', 'pending products cannot be edited');
 

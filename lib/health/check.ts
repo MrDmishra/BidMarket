@@ -21,8 +21,10 @@ async function checkSupabase({
 }: HealthInput): Promise<SupabaseHealth> {
   if (!supabaseUrl || !publishableKey) return "not_configured";
   try {
-    const response = await fetchImpl(new URL("/auth/v1/health", supabaseUrl), {
-      headers: { apikey: publishableKey },
+    const response = await fetchImpl(new URL("/rest/v1/rpc/health_check", supabaseUrl), {
+      method: "POST",
+      headers: { apikey: publishableKey, "Content-Type": "application/json" },
+      body: "{}",
       signal: AbortSignal.timeout(timeoutMs),
       cache: "no-store",
     });

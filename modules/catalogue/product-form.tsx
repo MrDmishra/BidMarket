@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { apiWrite } from "@/lib/api/client";
 import { SelectField, TextareaField, TextField } from "@/components/ui/field";
 import { INDIAN_STATES } from "@/lib/india/states";
 
 const RAJASTHAN = "08";
 
-type Category = { id: string; name: string };
+type Category = { id: string; name: string; parent_id: string | null };
 type Spec = {
   id: string;
   category_id: string;
@@ -41,6 +42,10 @@ export function ProductForm({ categories, specs, product }: ProductFormProps) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const categoryLabel = (category: Category) => {
+    const parent = categories.find((item) => item.id === category.parent_id);
+    return parent ? `${parent.name} › ${category.name}` : category.name;
+  };
   const categorySpecs = specs.filter((spec) => spec.category_id === categoryId);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -52,12 +57,11 @@ export function ProductForm({ categories, specs, product }: ProductFormProps) {
     setPending(true);
     setError("");
     setFields({});
-    const response = await fetch(
+    const response = await apiWrite(
       product ? `/api/v1/seller/products/${product.id}` : "/api/v1/seller/products",
       {
         method: product ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        json: {
           categoryId,
           title: form.get("title"),
           description: form.get("description"),
@@ -67,7 +71,7 @@ export function ProductForm({ categories, specs, product }: ProductFormProps) {
           unit: form.get("unit"),
           states: form.getAll("states"),
           specs: specValues,
-        }),
+        },
       },
     ).catch(() => null);
 
@@ -108,7 +112,7 @@ export function ProductForm({ categories, specs, product }: ProductFormProps) {
           </option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.name}
+              {categoryLabel(category)}
             </option>
           ))}
         </SelectField>

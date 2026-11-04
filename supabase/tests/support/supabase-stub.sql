@@ -35,3 +35,15 @@ create view vault.decrypted_secrets as select name, decrypted_secret from vault.
 create function vault.create_secret(p_secret text, p_name text) returns void language sql as $$
   insert into vault.secrets (name, decrypted_secret) values (p_name, p_secret);
 $$;
+
+-- Supabase Storage.
+create schema storage;
+grant usage on schema storage to anon, authenticated, service_role;
+create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
+alter table storage.objects enable row level security;
+create function storage.foldername(p_name text) returns text[] language sql immutable as $$
+  select (string_to_array(p_name, '/'))[1 : cardinality(string_to_array(p_name, '/')) - 1];
+$$;
+grant execute on function storage.foldername(text) to anon, authenticated;
+grant select, insert, delete on storage.objects to authenticated;

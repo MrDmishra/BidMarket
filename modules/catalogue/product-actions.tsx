@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { apiWrite } from "@/lib/api/client";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ProductStatus } from "@/lib/supabase/database.types";
 
 const FAILED: Record<string, string> = {
@@ -11,7 +13,9 @@ const FAILED: Record<string, string> = {
   unpublish: "We could not unpublish this. Refresh and try again.",
 };
 
-export function ProductActions({ id, status }: { id: string; status: ProductStatus }) {
+type ProductActionsProps = { id: string; status: ProductStatus; canDelete: boolean };
+
+export function ProductActions({ id, status, canDelete }: ProductActionsProps) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -23,14 +27,22 @@ export function ProductActions({ id, status }: { id: string; status: ProductStat
         : status === "unpublished"
           ? { name: "publish", label: "Publish" }
           : null;
-  if (!action) return null;
+
+  async function remove() {
+    setPending(true);
+    setError("");
+    const response = await apiWrite(`/api/v1/seller/products/${id}`, { method: "DELETE" }).catch(
+      () => null,
+    );
+    setPending(false);
+    if (response?.ok) router.refresh();
+    else setError("We could not delete this. Set stock to zero, then try again.");
+  }
 
   async function run(name: string) {
     setPending(true);
     setError("");
-    const response = await fetch(`/api/v1/seller/products/${id}/${name}`, { method: "POST" }).catch(
-      () => null,
-    );
+    const response = await apiWrite(`/api/v1/seller/products/${id}/${name}`).catch(() => null);
     setPending(false);
     if (response?.ok) router.refresh();
     else setError(FAILED[name] ?? "That did not work. Try again.");
@@ -38,9 +50,27 @@ export function ProductActions({ id, status }: { id: string; status: ProductStat
 
   return (
     <div className="flex flex-col items-start gap-1">
-      <Button size="small" variant="secondary" loading={pending} onClick={() => run(action.name)}>
-        {action.label}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        {action ? (
+          <Button
+            size="small"
+            variant="secondary"
+            loading={pending}
+            onClick={() => run(action.name)}
+          >
+            {action.label}
+          </Button>
+        ) : null}
+        {canDelete ? (
+          <ConfirmDialog
+            triggerLabel="Delete"
+            title="Delete this product?"
+            consequence="This removes the product and its images permanently."
+            confirmLabel="Delete product"
+            onConfirm={remove}
+          />
+        ) : null}
+      </div>
       {error ? <p className="text-sm font-medium text-bad">{error}</p> : null}
     </div>
   );
