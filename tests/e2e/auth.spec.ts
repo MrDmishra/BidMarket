@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-for (const path of ["/buyer", "/seller", "/admin", "/onboarding", "/onboarding/verify"]) {
+for (const path of [
+  "/buyer",
+  "/seller",
+  "/admin",
+  "/admin/security",
+  "/onboarding",
+  "/onboarding/verify",
+]) {
   test(`${path} sends visitors to log in`, async ({ page }) => {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login$/);

@@ -1,5 +1,5 @@
 begin;
-select plan(22);
+select plan(23);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000b1', 'buyer@example.com'),
@@ -43,6 +43,8 @@ select is(
 
 set local role authenticated;
 select pg_temp.act_as('00000000-0000-0000-0000-0000000000a1');
+select throws_ok($$select admin_pending_organisations()$$, 'P0001', 'FORBIDDEN', 'admins need two-step login');
+select set_config('request.jwt.claims', '{"aal":"aal2"}', true);
 select is((select count(*) from admin_pending_organisations()), 1::bigint, 'admin sees the queue');
 select throws_ok($$select admin_review_organisation((select id from admin_pending_organisations()), true, '')$$, 'P0001', 'VALIDATION_FAILED', 'a reason is required');
 select lives_ok($$select admin_review_organisation((select id from admin_pending_organisations()), true, 'Documents match')$$, 'admin approves');

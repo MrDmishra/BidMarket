@@ -27,7 +27,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Supabase project connected. `/api/health`.
 - **Tests:** Smoke test, CI pipeline.
 - **Done when:** A preview URL loads the design tokens in both themes and health passes.
-- **Status:** Code complete and verified locally. The preview URL waits on hosting accounts. Connect a Supabase project and confirm `/api/health` reports `ok`.
+- **Status:** Complete. The site is deployed on Vercel, and `/api/health` reports `ok` with Supabase connected.
 
 ## Phase 1: Design system and public shell
 
@@ -51,7 +51,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Section 3.1 tables, `audit_log`. API section 2.
 - **Tests:** RLS tests, unverified-account blocks, OTP limits, provider failure leading to manual review.
 - **Done when:** A buyer can be approved and a seller reaches the payment step, with admin routes protected by MFA.
-- **Status:** In progress. Identity schema, row-level security and database tests are complete. Supabase is connected. Email sign-up, login, password reset, protected dashboards and the first onboarding step are built. Manual verification and the admin queue are built. Automatic PAN, GSTIN and bank checks, phone OTP, Turnstile and admin MFA remain.
+- **Status:** In progress. Identity schema, row-level security and database tests are complete. Supabase is connected. Email sign-up, login, password reset, protected dashboards and the first onboarding step are built. Manual verification and the admin queue are built. Admin access now needs two-step login in both the app and database. Automatic PAN, GSTIN and bank checks, phone OTP and Turnstile remain.
 
 ## Phase 3: Files and catalogue
 

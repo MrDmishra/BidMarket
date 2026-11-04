@@ -53,9 +53,18 @@ export async function requireOrganisation(kind: OrgKind) {
   return { ...account, organisation: account.organisation };
 }
 
-export async function requireAdmin() {
+/** Admin role without the second factor. Only the security page may use this. */
+export async function requireAdminRole() {
   const account = await getAccount();
   if (!account) redirect("/login");
   if (account.role !== "admin") redirect("/forbidden");
+  return account;
+}
+
+export async function requireAdmin() {
+  const account = await requireAdminRole();
+  const supabase = await createUserClient();
+  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (data?.currentLevel !== "aal2") redirect("/admin/security");
   return account;
 }

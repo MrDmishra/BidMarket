@@ -1,5 +1,5 @@
 begin;
-select plan(24);
+select plan(25);
 
 insert into auth.users (id, phone, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-00000000000a', '+919000000001', 'a@example.com', '{"role":"admin"}'),
@@ -60,6 +60,8 @@ reset role;
 
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000c';
+select is((select count(*) from audit_log), 0::bigint, 'admins without two-step login cannot read the audit log');
+set local request.jwt.claims = '{"aal":"aal2"}';
 select is((select count(*) from audit_log), 1::bigint, 'admins can read the audit log');
 reset role;
 
