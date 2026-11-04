@@ -16,8 +16,8 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Main" className="overflow-x-auto border-t border-line">
-      <div className="page-wrap flex gap-0.5 whitespace-nowrap">
+    <nav aria-label="Main" className="min-w-0 flex-1 overflow-x-auto">
+      <div className="flex gap-0.5 whitespace-nowrap">
         {LINKS.map((link) => {
           const active = pathname === link.href;
           return (

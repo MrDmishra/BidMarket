@@ -56,3 +56,24 @@ test("health endpoint uses the API envelope", async ({ request }) => {
   expect(body.data).toEqual({ status: "ok", app: "ok", supabase: "not_configured" });
   expect(body.meta.requestId).toMatch(/^req_/);
 });
+
+test("the day and night button works and is remembered", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const day = await background();
+
+  await page.getByRole("button", { name: "Switch to night mode" }).click();
+  await expect(page.getByRole("button", { name: "Switch to day mode" })).toBeVisible();
+  const night = await background();
+  expect(night).not.toBe(day);
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Switch to day mode" })).toBeVisible();
+  expect(await background()).toBe(night);
+});
+
+test("the day and night button shows on the login page", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.getByRole("button", { name: /Switch to (night|day) mode/ })).toBeVisible();
+});

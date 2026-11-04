@@ -53,7 +53,7 @@ All colors are semantic tokens. Components never use raw values.
 
 - Highlight is reserved for live auction information and the single primary action on a band. The band is light in the light theme, so text on it uses `band-ink`.
 - Status always pairs color with text. Color alone never carries meaning.
-- Support light and dark themes, following the system setting, with a manual override in the profile.
+- Support light and dark themes, following the system setting, with a day and night button in the header. The choice is saved on that device.
 
 **Logo.** A navy B with a white gavel cut out of it, beside the name "Bid Market" in the display face. The browser tab uses a simplified white B and thicker gavel on a navy square, because the full mark loses detail at 16 px. The logo uses no sky blue or amber.
 
