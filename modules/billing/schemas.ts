@@ -72,6 +72,13 @@ export const razorpayEventSchema = z.object({
 
 export function emailForTemplate(template: string, payload: unknown) {
   const details = z.object({ endsOn: z.string() }).safeParse(payload);
+  const order = z.object({ orderNo: z.string() }).safeParse(payload);
+  if (template === "order_update" && order.success) {
+    return {
+      subject: `Update on order ${order.data.orderNo}`,
+      text: `There is an update on order ${order.data.orderNo}. Log in to Bid Market to see it.`,
+    };
+  }
   if (template === "subscription_expiring" && details.success) {
     return {
       subject: "Your Bid Market subscription is ending",

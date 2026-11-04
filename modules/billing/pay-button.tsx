@@ -71,7 +71,7 @@ export function PayButton({ chargeId, label }: PayButtonProps) {
       const body = (await response?.json().catch(() => null)) as {
         data?: { status?: string };
       } | null;
-      if (body?.data?.status === "paid") {
+      if (body?.data?.status && body.data.status !== "pending") {
         router.refresh();
         return;
       }

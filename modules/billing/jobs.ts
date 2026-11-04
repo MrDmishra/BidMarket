@@ -64,5 +64,7 @@ export async function runBillingJobs() {
   const emailed = await sendOutbox();
   const { data: expired, error } = await supabase.rpc("expire_subscriptions");
   if (error) throw toAppError(error);
-  return { reconciled, emailed, expired };
+  const unpaid = await supabase.rpc("expire_unpaid_orders");
+  if (unpaid.error) throw toAppError(unpaid.error);
+  return { reconciled, emailed, expired, unpaidOrdersCancelled: unpaid.data };
 }

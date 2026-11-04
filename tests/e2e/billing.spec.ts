@@ -17,3 +17,15 @@ test("sends visitors away from billing", async ({ page }) => {
   await page.goto("/seller/billing");
   await expect(page).toHaveURL(/\/login$/);
 });
+
+test("sends visitors away from orders", async ({ page }) => {
+  await page.goto("/buyer/orders");
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test("protects order documents from visitors", async ({ request }) => {
+  const id = "11111111-1111-4111-8111-111111111111";
+  const response = await request.get(`/api/v1/orders/${id}/documents/contract`);
+  expect(response.ok()).toBe(false);
+  expect(response.headers()["content-type"]).not.toContain("application/pdf");
+});

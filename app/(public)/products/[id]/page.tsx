@@ -1,3 +1,4 @@
+import { ButtonLink } from "@/components/ui/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -74,7 +75,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             {product.delivery_states.map(stateName).filter(Boolean).join(", ") || "selected states"}
             .
           </p>
-          <p className="text-sm text-muted">Direct orders and tenders open in a later release.</p>
+          <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
+            Order this product
+          </ButtonLink>
         </ActionPanel>
       </div>
     </ContentPage>

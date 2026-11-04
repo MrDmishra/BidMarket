@@ -111,7 +111,7 @@ AGENTS.md stays at the repository root.
 3. The signed webhook marks the payment paid. The order moves to `awaiting_seller`, and the fee moves to On hold.
 4. The seller accepts and pays. Contact details unlock. The order moves to `accepted`.
 5. The seller dispatches with documents.
-6. The buyer confirms receipt with a photo. The order moves to `completed`, held fees become Paid, and a PDF job is queued.
+6. The buyer confirms receipt with a photo. The order moves to `completed`, and held fees become Paid with tax invoices. PDFs are built on request.
 
 ### 6.2 Reverse auction bid
 

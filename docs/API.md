@@ -132,26 +132,26 @@ The submit, publish and unpublish routes share one handler. `seller_products` an
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/files` | User | Validate type and size, return signed upload URL |
-| POST | `/files/{id}/complete` | User | Confirm upload and queue scanning |
-| GET | `/files/{id}/url` | Party | Get a signed link valid for 5 minutes |
+| POST | `/orders/files` | Party | Upload one file as multipart form data. The server checks its type from the bytes |
+| GET | `/orders/{id}/files/{kind}` | Party | Redirect to a signed link valid for 5 minutes |
 
-Limits: images up to 5 MB (JPEG, PNG, WebP), documents up to 10 MB (PDF), video up to 50 MB (MP4). Limits are proposals.
+Limits: 4 MB, which fits the hosting request limit. Images are re-encoded to WebP and are ready at once. PDFs stay hidden from the other party until a scanner marks them clean (A-2). Buyers can upload images only.
 
 ## 5. Direct orders
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | POST | `/orders/quote` | Buyer | Calculate value, fee and tax. No record created |
-| POST | `/orders` | Buyer | Create unpaid order and return payment details |
-| GET | `/orders` | User | Own orders, filter by status |
-| GET | `/orders/{id}` | Party | Order detail |
-| GET | `/orders/{id}/contacts` | Party | Contact details after unlock, otherwise 403 |
-| POST | `/orders/{id}/accept` | Seller | Create seller fee and payment details |
-| POST | `/orders/{id}/reject` | Seller | Reject with reason |
-| POST | `/orders/{id}/dispatch` | Seller | Attach documents, mark dispatched |
-| POST | `/orders/{id}/receive` | Buyer | Attach proof, confirm receipt |
-| GET | `/orders/{id}/documents` | Party | List generated documents |
+| POST | `/orders` | Buyer | Create an unpaid order and its fee charge |
+| POST | `/orders/{id}/accept` | Seller | Create the seller fee charge |
+| POST | `/orders/{id}/reject` | Seller | Reject with a reason. The buyer fee returns to the wallet |
+| POST | `/orders/{id}/cancel` | Buyer | Cancel before the seller accepts. The fee returns to the wallet |
+| POST | `/orders/{id}/dispatch` | Seller | Attach documents and mark dispatched |
+| POST | `/orders/{id}/receive` | Buyer | Attach a delivery photo and confirm receipt |
+| GET | `/orders/{id}/documents/{kind}` | Party | Download `contract`, `acceptance_report` or `received_invoice` as a PDF |
+| GET | `/invoices/{id}/pdf` | Party | Download a tax invoice as a PDF |
+
+Order pages read through the `list_orders`, `get_order` and `get_order_contacts` functions. Fees are paid through `/payments/{chargeId}/checkout`.
 
 **Example:** `POST /orders`
 

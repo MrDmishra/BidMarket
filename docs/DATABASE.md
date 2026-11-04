@@ -221,9 +221,9 @@ Check constraints ensure dates fit the tender type and run in order.
 
 **order_events:** `id`, `order_id` FK, `status`, `actor_id`, `note`, `created_at`. Append-only.
 
-**order_documents:** `id`, `order_id` FK, `kind` (product_bill, eway_bill, transport_bill, delivery_proof), `file_id` FK nullable, `reference_no`, `not_applicable_reason`. Check: needs a file or a reason. A product bill always needs a file (D-13).
+**order_documents:** `id`, `order_id` FK, `kind` (product_bill, eway_bill, transport_bill, delivery_proof), `file_id` FK nullable, `reference_no`, `not_applicable_reason`. One per kind per order. Check: needs a file or a reason. A product bill always needs a file (D-13).
 
-**generated_documents:** `id`, `kind` (contract, acceptance_report, received_invoice), `order_id` FK, `file_id` FK, `version`, `created_at`. Unique (`order_id`, `kind`, `version`).
+**generated documents:** no table. Contracts, acceptance reports and received invoices are built on request from the frozen order record and its events, so every download is identical (decision 0006).
 
 ### 3.5 Billing
 
@@ -254,7 +254,7 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 **wallet_entries:** append-only. `id`, `org_id` FK, `charge_id` FK nullable, `from_bucket`, `to_bucket`, `amount_paise` greater than 0, `reason`, `created_at`. Balance is calculated from this table.
 
-**tax_invoices:** `id`, `invoice_no` unique, `financial_year`, `org_id` FK, `charge_id` FK unique, `snapshot` jsonb, `issued_at`. The snapshot holds the invoice as issued. PDF files arrive with Phase 5. Numbers come from `number_sequences`, without gaps.
+**tax_invoices:** `id`, `invoice_no` unique, `financial_year`, `org_id` FK, `charge_id` FK unique, `snapshot` jsonb, `issued_at`. The snapshot holds the invoice as issued, and the PDF is built from it on request. Numbers come from `number_sequences`, without gaps.
 
 **subscriptions:** `id`, `org_id` FK, `turnover_paise` (total of the latest three years), `fee_paise`, `starts_on`, `ends_on`, `status` (pending, active, expired, cancelled), `settings_id` FK. Partial unique indexes allow one active and one pending per organisation. An expired seller returns to `pending_payment`, which hides listings until renewal.
 
@@ -262,7 +262,7 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 ### 3.6 Governance and system
 
-**files:** `id`, `bucket`, `path` unique, `owner_org_id` FK, `uploaded_by` FK, `mime_type`, `size_bytes`, `sha256`, `scan_status`.
+**files:** `id`, `bucket`, `path` unique, `owner_org_id` FK, `uploaded_by` FK, `mime_type`, `size_bytes`, `sha256`, `scan_status`. Re-encoded images start clean. PDFs start pending and stay hidden from the other party until scanned.
 
 **incidents:** `id`, `ref_no` unique, `raised_by_org_id` FK, `against_org_id` FK nullable, `product_id`, `tender_id`, `order_id` FK (at least one required), `description`, `status`, `decision`, `decided_by` FK, `decided_at`.
 
@@ -374,7 +374,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 | Tenders | Read public fields of open tenders | Same, plus own all | Read all |
 | Bids | None | Own only. Buyer reads sealed bids only after `bid_opens_at`, and auction bids only after closure | Read after close, or logged access to auction prices (D-9) |
 | Participants | None | Own row. Owning buyer after close | Read all |
-| Orders, order documents | None | Own organisation | Read all |
+| Orders, order documents | None | Through `get_order` and `list_orders` only, with consignee and address masked until contacts unlock | Through `get_order` |
 | Billing, wallet | None | Own organisation | Read all |
 | Identity tables | None | Own organisation, masked | Read through functions, logged |
 | Incidents, messages | None | Parties only | Read all |
