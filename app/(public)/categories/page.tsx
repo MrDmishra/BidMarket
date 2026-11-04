@@ -2,37 +2,49 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/layout/content-page";
 import { EmptyState } from "@/components/ui/empty-state";
-import { listCategories } from "@/modules/catalogue";
+import { groupCategories, listCategories } from "@/modules/catalogue";
 
 export const metadata: Metadata = { title: "Categories" };
 export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
-  const categories = await listCategories();
-  const topLevel = categories.filter((category) => !category.parent_id);
-  const subCount = (id: string) => categories.filter((item) => item.parent_id === id).length;
+  const categories = groupCategories(await listCategories());
 
   return (
     <ContentPage
       title="Categories"
-      intro="Each category sets the specifications that buyers filter on and sellers must fill in."
+      intro="Each main category is split into smaller sub-categories. Pick either one to see its products."
     >
       {categories.length === 0 ? (
         <EmptyState message="Categories appear here when the catalogue opens." />
       ) : (
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-          {topLevel.map((category) => (
-            <Link
+        <div className="grid items-start gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((category) => (
+            <section
               key={category.id}
-              href={`/products?category=${category.slug}`}
-              className="flex flex-col gap-1 rounded-panel border border-line bg-surface p-4 text-ink no-underline hover:border-accent"
+              aria-labelledby={`category-${category.slug}`}
+              className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-4"
             >
-              <span className="font-semibold">{category.name}</span>
-              <span className="text-sm text-muted">
-                {category.description}
-                {subCount(category.id) > 0 ? ` · ${subCount(category.id)} sub-categories` : ""}
-              </span>
-            </Link>
+              <div className="flex flex-col gap-1">
+                <h2 id={`category-${category.slug}`} className="text-lg font-bold">
+                  <Link href={`/products?category=${category.slug}`}>{category.name}</Link>
+                </h2>
+                {category.description ? (
+                  <p className="text-sm text-muted">{category.description}</p>
+                ) : null}
+              </div>
+              {category.subCategories.length > 0 ? (
+                <ul className="flex flex-col gap-1 border-t border-line pt-3 text-sm">
+                  {category.subCategories.map((subCategory) => (
+                    <li key={subCategory.id}>
+                      <Link href={`/products?category=${subCategory.slug}`}>
+                        {subCategory.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
           ))}
         </div>
       )}

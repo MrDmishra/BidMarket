@@ -1,3 +1,4 @@
+export { groupCategories } from "@/modules/catalogue/category-tree";
 export {
   getProduct,
   listCategories,
