@@ -2,20 +2,20 @@
 
 /* Tokens come from docs/DESIGN.md section 2. Components use the Tailwind names below. */
 :root {
-  --bg: #f0f5f2;
+  --bg: #f7fafc;
   --surface: #ffffff;
-  --sunk: #e5ede8;
-  --ink: #10251d;
-  --muted: #51645b;
-  --line: #d1ddd6;
-  --accent: #0b6b4e;
+  --sunk: #eaf2f7;
+  --ink: #12263a;
+  --muted: #54677a;
+  --line: #dce6ee;
+  --accent: #0369a1;
   --accent-ink: #ffffff;
-  --band: #0c3b2e;
-  --band-2: #134a3a;
-  --band-ink: #ecf5f0;
-  --band-muted: #a9c8ba;
-  --gold: #f2b84b;
-  --gold-ink: #2b1c00;
+  --band: #e0f2fe;
+  --band-2: #ffffff;
+  --band-ink: #12263a;
+  --band-muted: #35566f;
+  --highlight: #0369a1;
+  --highlight-ink: #ffffff;
   --ok: #0b6b4e;
   --ok-bg: #d9efe4;
   --warn: #8f4e05;
@@ -28,16 +28,20 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0e1714;
-    --surface: #15211c;
-    --sunk: #1b2a24;
-    --ink: #e6efea;
-    --muted: #9db2a8;
-    --line: #2b3b34;
-    --accent: #4cc59a;
-    --accent-ink: #06251a;
-    --band: #0a2a20;
-    --band-2: #103729;
+    --bg: #0e1720;
+    --surface: #15212c;
+    --sunk: #1b2a38;
+    --ink: #e6eef5;
+    --muted: #9db0c2;
+    --line: #2b3b4b;
+    --accent: #38bdf8;
+    --accent-ink: #06202f;
+    --band: #0f2534;
+    --band-2: #16303f;
+    --band-ink: #e6f3fb;
+    --band-muted: #a9c4d6;
+    --highlight: #38bdf8;
+    --highlight-ink: #06202f;
     --ok: #4cc59a;
     --ok-bg: #12352a;
     --warn: #f2b84b;
@@ -51,16 +55,20 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #0e1714;
-  --surface: #15211c;
-  --sunk: #1b2a24;
-  --ink: #e6efea;
-  --muted: #9db2a8;
-  --line: #2b3b34;
-  --accent: #4cc59a;
-  --accent-ink: #06251a;
-  --band: #0a2a20;
-  --band-2: #103729;
+  --bg: #0e1720;
+  --surface: #15212c;
+  --sunk: #1b2a38;
+  --ink: #e6eef5;
+  --muted: #9db0c2;
+  --line: #2b3b4b;
+  --accent: #38bdf8;
+  --accent-ink: #06202f;
+  --band: #0f2534;
+  --band-2: #16303f;
+  --band-ink: #e6f3fb;
+  --band-muted: #a9c4d6;
+  --highlight: #38bdf8;
+  --highlight-ink: #06202f;
   --ok: #4cc59a;
   --ok-bg: #12352a;
   --warn: #f2b84b;
@@ -85,8 +93,8 @@
   --color-band-2: var(--band-2);
   --color-band-ink: var(--band-ink);
   --color-band-muted: var(--band-muted);
-  --color-gold: var(--gold);
-  --color-gold-ink: var(--gold-ink);
+  --color-highlight: var(--highlight);
+  --color-highlight-ink: var(--highlight-ink);
   --color-ok: var(--ok);
   --color-ok-bg: var(--ok-bg);
   --color-warn: var(--warn);

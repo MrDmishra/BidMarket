@@ -30,19 +30,19 @@ All colors are semantic tokens. Components never use raw values.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `bg` | #F0F5F2 | #0E1714 | Page background |
-| `surface` | #FFFFFF | #15211C | Panels, tables, inputs |
-| `sunk` | #E5EDE8 | #1B2A24 | Table headers, thumbnails |
-| `ink` | #10251D | #E6EFEA | Primary text |
-| `muted` | #51645B | #9DB2A8 | Secondary text |
-| `line` | #D1DDD6 | #2B3B34 | Borders and dividers |
-| `accent` | #0B6B4E | #4CC59A | Links, primary buttons, focus |
-| `accent-ink` | #FFFFFF | #06251A | Text on accent |
-| `band` | #0C3B2E | #0A2A20 | Hero and footer |
-| `band-2` | #134A3A | #103729 | Panels on band |
-| `band-ink` | #ECF5F0 | #ECF5F0 | Text on band |
-| `band-muted` | #A9C8BA | #A9C8BA | Secondary text on band |
-| `gold` | #F2B84B | #F2B84B | Live auction L1 and stair, one primary action on band |
+| `bg` | #F7FAFC | #0E1720 | Page background |
+| `surface` | #FFFFFF | #15212C | Panels, tables, inputs |
+| `sunk` | #EAF2F7 | #1B2A38 | Table headers, thumbnails |
+| `ink` | #12263A | #E6EEF5 | Primary text |
+| `muted` | #54677A | #9DB0C2 | Secondary text |
+| `line` | #DCE6EE | #2B3B4B | Borders and dividers |
+| `accent` | #0369A1 | #38BDF8 | Links, primary buttons, focus |
+| `accent-ink` | #FFFFFF | #06202F | Text on accent |
+| `band` | #E0F2FE | #0F2534 | Hero and footer |
+| `band-2` | #FFFFFF | #16303F | Panels on band |
+| `band-ink` | #12263A | #E6F3FB | Text on band |
+| `band-muted` | #35566F | #A9C4D6 | Secondary text on band |
+| `highlight` | #0369A1 | #38BDF8 | Live auction L1 and stair, one primary action on band |
 | `ok` / `ok-bg` | #0B6B4E / #D9EFE4 | #4CC59A / #12352A | Completed, published, paid |
 | `warn` / `warn-bg` | #8F4E05 / #FCEBC8 | #F2B84B / #3D2C0C | Needs action, pending, live |
 | `bad` / `bad-bg` | #AE2A1F / #FBE4E0 | #F2938A / #401B18 | Rejected, blocked, errors |
@@ -50,7 +50,7 @@ All colors are semantic tokens. Components never use raw values.
 
 **Rules**
 
-- Gold is reserved for live auction information and the single primary action on a band.
+- Highlight is reserved for live auction information and the single primary action on a band. The band is light in the light theme, so text on it uses `band-ink`.
 - Status always pairs color with text. Color alone never carries meaning.
 - Support light and dark themes, following the system setting, with a manual override in the profile.
 
@@ -92,7 +92,7 @@ All colors are semantic tokens. Components never use raw values.
 
 | Component | Rules |
 |---|---|
-| **Button** | Variants: primary, secondary, danger, gold. Sizes: default, small. One primary button per view area. Labels state the outcome, such as "Pay ₹59 and place order". |
+| **Button** | Variants: primary, secondary, danger, highlight. Sizes: default, small. One primary button per view area. Labels state the outcome, such as "Pay ₹59 and place order". |
 | **Status pill** | One mapping for the whole app. See section 5.1. |
 | **Data table** | Sticky header on desktop. Right-align numbers. Becomes stacked rows on phones where more than 3 columns matter. |
 | **Fact list** | Label over value, used for order and tender details. |

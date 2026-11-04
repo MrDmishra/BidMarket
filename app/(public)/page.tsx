@@ -49,7 +49,7 @@ export default async function HomePage() {
       <section className="bg-band text-band-ink">
         <div className="page-wrap grid items-center gap-9 py-11 md:grid-cols-2">
           <div className="flex flex-col items-start gap-4">
-            <span className="rounded-pill bg-band-2 px-2 py-0.5 text-xs font-semibold text-gold">
+            <span className="rounded-pill bg-band-2 px-2 py-0.5 text-xs font-semibold text-highlight">
               In development
             </span>
             <h1 className="text-[clamp(2rem,1.4rem+2.6vw,3.2rem)] font-extrabold">
@@ -59,7 +59,7 @@ export default async function HomePage() {
               Order directly from verified sellers, invite bids, or run a reverse auction. Every
               order ends with a contract and an acceptance report you can audit.
             </p>
-            <ButtonLink href="/how-it-works" variant="gold">
+            <ButtonLink href="/how-it-works" variant="highlight">
               See how it works
             </ButtonLink>
           </div>
@@ -67,13 +67,13 @@ export default async function HomePage() {
             <figcaption className="text-xs font-semibold tracking-wide text-band-muted uppercase">
               Illustration with example prices
             </figcaption>
-            <p className="font-mono text-4xl font-semibold text-gold tabular-nums">
+            <p className="font-mono text-4xl font-semibold text-highlight tabular-nums">
               {formatInr(60_800)}
               <span className="ml-2 font-sans text-sm font-normal text-band-muted">
                 example L1, per metre
               </span>
             </p>
-            <div className="text-gold">
+            <div className="text-highlight">
               <AuctionStair bidsPaise={EXAMPLE_BIDS_PAISE} />
             </div>
           </figure>

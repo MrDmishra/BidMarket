@@ -59,7 +59,7 @@ export default function ComponentsPage() {
             <Button>Primary</Button>
             <Button variant="secondary">Secondary</Button>
             <Button variant="danger">Danger</Button>
-            <Button variant="gold">Gold</Button>
+            <Button variant="highlight">Highlight</Button>
             <Button size="small">Small</Button>
             <Button loading>Confirming</Button>
             <Button disabled>Disabled</Button>
