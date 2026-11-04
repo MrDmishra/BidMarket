@@ -1,5 +1,5 @@
 begin;
-select plan(38);
+select plan(36);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000e1', 'buyer@example.com'),
