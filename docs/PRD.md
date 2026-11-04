@@ -387,7 +387,7 @@ PEM's published terms contain some contradictions and gaps. I have listed these 
 | **D-3** | **Seller launch pricing.** ₹25,000 upfront is hard to sell to sellers when the marketplace has no buyers yet. | Waive or heavily discount the first year for the first 100 sellers, and keep the transaction fees. |
 | **D-4** | **How do you verify identity?** PEM requires Aadhaar, live capture and a 1 km location check. Aadhaar use is legally restricted, and a browser location check is easy to fake. | Use PAN and GSTIN API checks plus DigiLocker or a licensed KYC provider. Do not store Aadhaar. Skip the 1 km check in MVP. |
 | **D-5** | **Who may register?** PEM's PAN rule accepts only 4th characters P or H, which would exclude companies (C) and firms (F). It also says trusts both can and cannot sell. | Accept all valid PAN types for the allowed entity types. Allow trusts and societies to sell only if they have a GSTIN. |
-| **D-6** | **Launch focus.** | Start with 2 or 3 categories and one region. Please tell me which you know best. |
+| **D-6** | **Launch focus.** | **Decided by owner:** Rajasthan, with all 16 categories listed in the catalogue. Recommendation stands to recruit sellers in 2 or 3 categories first, because auctions need competition. |
 
 ### Must decide before building the feature
 

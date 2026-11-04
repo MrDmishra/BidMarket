@@ -24,7 +24,7 @@ select ok((select display_no from products where title = 'LED high-bay light') ~
 select throws_ok($$update products set discount_bps = 9500 where title = 'Draft cable'$$, '23514', null, 'discount has a ceiling');
 
 set local role anon;
-select is((select count(*) from categories), 8::bigint, 'visitors see active categories');
+select is((select count(*) from categories), 16::bigint, 'visitors see active categories');
 select throws_ok($$select * from products$$, '42501', null, 'visitors cannot read the products table');
 select throws_ok($$select * from product_states$$, '42501', null, 'visitors cannot read product states');
 select is((select count(*) from search_products()), 2::bigint, 'only published products of open sellers appear');
@@ -32,7 +32,7 @@ select is((select title from search_products() limit 1), 'LED high-bay light', '
 select is((select title from search_products(p_sort := 'price_low') limit 1), 'LED high-bay light', 'sorts by net price');
 select is((select count(*) from search_products(p_query := 'copper')), 1::bigint, 'text search matches');
 select is((select count(*) from search_products(p_state_code := '23')), 1::bigint, 'state filter works');
-select is((select count(*) from search_products(p_category_slug := 'pipes')), 0::bigint, 'category filter works');
+select is((select count(*) from search_products(p_category_slug := 'sports')), 0::bigint, 'category filter works');
 select is((select city from search_products(p_query := 'copper')), 'Jabalpur', 'shows the seller city');
 select unalike((select to_jsonb(p)::text from search_products() p limit 1), '%Hidden Seller%', 'search never reveals the seller');
 select unalike((select to_jsonb(p)::text from public_product('b0000000-0000-0000-0000-000000000001') p), '%Hidden Seller%', 'detail never reveals the seller');
