@@ -99,7 +99,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Tables 3.3. API section 6, excluding auction routes.
 - **Tests:** Sealed visibility, attempt limit, deadline, extension rules, award chain, wallet release on cancellation.
 - **Done when:** J3 and J7 work for a Bid tender, and late bids fail.
-- **Status:** Code complete on the `feat/sealed-tenders` branch, and tested against a local database. It waits for the live database update, then Razorpay. Extra terms documents (F-31) and editing a draft are not built yet.
+- **Status:** Code complete and live. Tested against a local database. Razorpay and the job schedule are needed for a live test tender. Extra terms documents (F-31) and editing a draft are not built yet.
 
 ## Phase 7: Reverse auctions
 

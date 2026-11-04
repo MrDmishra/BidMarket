@@ -100,6 +100,54 @@ export type Database = {
           },
         ];
       };
+      bids: {
+        Row: {
+          id: string;
+          idempotency_key: string | null;
+          phase: string;
+          placed_at: string;
+          seller_org_id: string;
+          tender_id: string;
+          unit_paise: number;
+          withdrawn_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          idempotency_key?: string | null;
+          phase?: string;
+          placed_at?: string;
+          seller_org_id: string;
+          tender_id: string;
+          unit_paise: number;
+          withdrawn_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          idempotency_key?: string | null;
+          phase?: string;
+          placed_at?: string;
+          seller_org_id?: string;
+          tender_id?: string;
+          unit_paise?: number;
+          withdrawn_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "bids_seller_org_id_fkey";
+            columns: ["seller_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "bids_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       categories: {
         Row: {
           created_at: string;
@@ -315,6 +363,13 @@ export type Database = {
             columns: ["subscription_id"];
             isOneToOne: false;
             referencedRelation: "subscriptions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fee_charges_tender_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
             referencedColumns: ["id"];
           },
         ];
@@ -601,6 +656,13 @@ export type Database = {
             columns: ["settings_id"];
             isOneToOne: false;
             referencedRelation: "platform_settings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_tender_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
             referencedColumns: ["id"];
           },
         ];
@@ -1309,6 +1371,279 @@ export type Database = {
           },
         ];
       };
+      tender_awards: {
+        Row: {
+          expires_at: string | null;
+          id: string;
+          offered_at: string | null;
+          rank: number;
+          reject_reason: string | null;
+          responded_at: string | null;
+          seller_org_id: string;
+          status: Database["public"]["Enums"]["award_status"];
+          tender_id: string;
+          unit_paise: number;
+        };
+        Insert: {
+          expires_at?: string | null;
+          id?: string;
+          offered_at?: string | null;
+          rank: number;
+          reject_reason?: string | null;
+          responded_at?: string | null;
+          seller_org_id: string;
+          status: Database["public"]["Enums"]["award_status"];
+          tender_id: string;
+          unit_paise: number;
+        };
+        Update: {
+          expires_at?: string | null;
+          id?: string;
+          offered_at?: string | null;
+          rank?: number;
+          reject_reason?: string | null;
+          responded_at?: string | null;
+          seller_org_id?: string;
+          status?: Database["public"]["Enums"]["award_status"];
+          tender_id?: string;
+          unit_paise?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tender_awards_seller_org_id_fkey";
+            columns: ["seller_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tender_awards_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tender_participants: {
+        Row: {
+          attempts_used: number;
+          declined_at: string | null;
+          last_bid_at: string | null;
+          last_bid_paise: number | null;
+          seller_org_id: string;
+          tender_id: string;
+          withdrawn: boolean;
+        };
+        Insert: {
+          attempts_used?: number;
+          declined_at?: string | null;
+          last_bid_at?: string | null;
+          last_bid_paise?: number | null;
+          seller_org_id: string;
+          tender_id: string;
+          withdrawn?: boolean;
+        };
+        Update: {
+          attempts_used?: number;
+          declined_at?: string | null;
+          last_bid_at?: string | null;
+          last_bid_paise?: number | null;
+          seller_org_id?: string;
+          tender_id?: string;
+          withdrawn?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tender_participants_seller_org_id_fkey";
+            columns: ["seller_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tender_participants_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tender_specs: {
+        Row: {
+          id: string;
+          is_key: boolean;
+          label: string;
+          spec_definition_id: string | null;
+          tender_id: string;
+          unit: string | null;
+          value: string;
+        };
+        Insert: {
+          id?: string;
+          is_key?: boolean;
+          label: string;
+          spec_definition_id?: string | null;
+          tender_id: string;
+          unit?: string | null;
+          value: string;
+        };
+        Update: {
+          id?: string;
+          is_key?: boolean;
+          label?: string;
+          spec_definition_id?: string | null;
+          tender_id?: string;
+          unit?: string | null;
+          value?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tender_specs_spec_definition_id_fkey";
+            columns: ["spec_definition_id"];
+            isOneToOne: false;
+            referencedRelation: "spec_definitions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tender_specs_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tenders: {
+        Row: {
+          bid_ends_at: string;
+          bid_starts_at: string | null;
+          buyer_org_id: string;
+          cancel_reason: string | null;
+          category_id: string;
+          consignee_address_id: string;
+          consignee_gstin: string;
+          consignee_name: string;
+          contract_months: number;
+          created_at: string;
+          credit_days: number | null;
+          delivery_state_code: string;
+          estimate_unit_paise: number;
+          extension_minutes: number;
+          extensions_allowed: number;
+          extensions_used: number;
+          id: string;
+          kind: Database["public"]["Enums"]["tender_kind"];
+          min_bids: number;
+          payment_terms: Database["public"]["Enums"]["payment_terms"];
+          product_id: string | null;
+          quantity: number;
+          settings_id: string;
+          status: Database["public"]["Enums"]["tender_status"];
+          tender_no: string;
+          title: string;
+          type: Database["public"]["Enums"]["tender_type"];
+          unit: string;
+        };
+        Insert: {
+          bid_ends_at: string;
+          bid_starts_at?: string | null;
+          buyer_org_id: string;
+          cancel_reason?: string | null;
+          category_id: string;
+          consignee_address_id: string;
+          consignee_gstin: string;
+          consignee_name: string;
+          contract_months: number;
+          created_at?: string;
+          credit_days?: number | null;
+          delivery_state_code: string;
+          estimate_unit_paise: number;
+          extension_minutes?: number;
+          extensions_allowed?: number;
+          extensions_used?: number;
+          id?: string;
+          kind: Database["public"]["Enums"]["tender_kind"];
+          min_bids?: number;
+          payment_terms: Database["public"]["Enums"]["payment_terms"];
+          product_id?: string | null;
+          quantity: number;
+          settings_id: string;
+          status?: Database["public"]["Enums"]["tender_status"];
+          tender_no: string;
+          title: string;
+          type?: Database["public"]["Enums"]["tender_type"];
+          unit: string;
+        };
+        Update: {
+          bid_ends_at?: string;
+          bid_starts_at?: string | null;
+          buyer_org_id?: string;
+          cancel_reason?: string | null;
+          category_id?: string;
+          consignee_address_id?: string;
+          consignee_gstin?: string;
+          consignee_name?: string;
+          contract_months?: number;
+          created_at?: string;
+          credit_days?: number | null;
+          delivery_state_code?: string;
+          estimate_unit_paise?: number;
+          extension_minutes?: number;
+          extensions_allowed?: number;
+          extensions_used?: number;
+          id?: string;
+          kind?: Database["public"]["Enums"]["tender_kind"];
+          min_bids?: number;
+          payment_terms?: Database["public"]["Enums"]["payment_terms"];
+          product_id?: string | null;
+          quantity?: number;
+          settings_id?: string;
+          status?: Database["public"]["Enums"]["tender_status"];
+          tender_no?: string;
+          title?: string;
+          type?: Database["public"]["Enums"]["tender_type"];
+          unit?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tenders_buyer_org_id_fkey";
+            columns: ["buyer_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenders_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenders_consignee_address_id_fkey";
+            columns: ["consignee_address_id"];
+            isOneToOne: false;
+            referencedRelation: "org_addresses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenders_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tenders_settings_id_fkey";
+            columns: ["settings_id"];
+            isOneToOne: false;
+            referencedRelation: "platform_settings";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       turnover_declarations: {
         Row: {
           amount_paise: number;
@@ -1478,6 +1813,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_award: { Args: { p_id: string }; Returns: string };
       accept_order: { Args: { p_id: string }; Returns: string };
       add_bank_account: {
         Args: { p_account_no: string; p_holder_name: string; p_ifsc: string };
@@ -1626,9 +1962,24 @@ export type Database = {
         };
         Returns: string;
       };
+      award_tender: { Args: { p_id: string; p_rank: number }; Returns: string };
       begin_checkout: { Args: { p_charge_id: string }; Returns: Json };
+      buyer_tenders: {
+        Args: never;
+        Returns: {
+          bid_ends_at: string;
+          id: string;
+          status: Database["public"]["Enums"]["tender_status"];
+          tender_no: string;
+          title: string;
+        }[];
+      };
       can_read_order_file: { Args: { p_path: string }; Returns: boolean };
       cancel_order: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      cancel_tender: {
         Args: { p_id: string; p_reason: string };
         Returns: undefined;
       };
@@ -1671,6 +2022,29 @@ export type Database = {
         };
         Returns: string;
       };
+      create_tender: {
+        Args: {
+          p_bid_ends_at: string;
+          p_category_id: string;
+          p_consignee_address_id: string;
+          p_consignee_gstin: string;
+          p_consignee_name: string;
+          p_contract_months: number;
+          p_credit_days: number;
+          p_estimate_unit_paise: number;
+          p_extension_minutes: number;
+          p_extensions_allowed: number;
+          p_kind: Database["public"]["Enums"]["tender_kind"];
+          p_min_bids: number;
+          p_payment_terms: Database["public"]["Enums"]["payment_terms"];
+          p_product_id: string;
+          p_quantity: number;
+          p_specs: Json;
+          p_title: string;
+          p_unit: string;
+        };
+        Returns: string;
+      };
       current_org_id: { Args: never; Returns: string };
       delete_product: { Args: { p_id: string }; Returns: string[] };
       dispatch_order: {
@@ -1683,8 +2057,10 @@ export type Database = {
         Args: { p_error: string; p_id: string };
         Returns: undefined;
       };
+      get_buyer_tender: { Args: { p_id: string }; Returns: Json };
       get_order: { Args: { p_id: string }; Returns: Json };
       get_order_contacts: { Args: { p_id: string }; Returns: Json };
+      get_seller_tender: { Args: { p_id: string }; Returns: Json };
       health_check: { Args: never; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
       list_orders: {
@@ -1721,6 +2097,21 @@ export type Database = {
           unit: string;
         }[];
       };
+      public_tender: { Args: { p_id: string }; Returns: Json };
+      public_tenders: {
+        Args: { p_limit?: number; p_offset?: number };
+        Returns: {
+          bid_ends_at: string;
+          category_name: string;
+          delivery_state_code: string;
+          id: string;
+          quantity: number;
+          tender_no: string;
+          title: string;
+          unit: string;
+        }[];
+      };
+      publish_tender: { Args: { p_id: string }; Returns: string };
       quote_order: {
         Args: { p_product_id: string; p_quantity: number };
         Returns: Json;
@@ -1742,6 +2133,10 @@ export type Database = {
           p_size_bytes: number;
         };
         Returns: string;
+      };
+      reject_award: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
       };
       reject_order: {
         Args: { p_id: string; p_reason: string };
@@ -1819,16 +2214,45 @@ export type Database = {
           unit: string;
         }[];
       };
+      seller_tenders: {
+        Args: never;
+        Returns: {
+          award_status: Database["public"]["Enums"]["award_status"];
+          bid_ends_at: string;
+          category_name: string;
+          delivery_state_code: string;
+          id: string;
+          my_bid_paise: number;
+          quantity: number;
+          tender_no: string;
+          title: string;
+          unit: string;
+        }[];
+      };
       set_product_visibility: {
         Args: { p_id: string; p_visible: boolean };
         Returns: undefined;
       };
       start_subscription: { Args: never; Returns: string };
+      submit_bid: {
+        Args: { p_id: string; p_unit_paise: number };
+        Returns: string;
+      };
       submit_organisation: {
         Args: never;
         Returns: Database["public"]["Enums"]["org_status"];
       };
       submit_product: { Args: { p_id: string }; Returns: undefined };
+      tender_bids: {
+        Args: { p_id: string };
+        Returns: {
+          placed_at: string;
+          rank: number;
+          total_paise: number;
+          unit_paise: number;
+        }[];
+      };
+      tick_tenders: { Args: never; Returns: number };
       unresolved_payments: {
         Args: never;
         Returns: {
@@ -1853,8 +2277,10 @@ export type Database = {
           paid_paise: number;
         }[];
       };
+      withdraw_bid: { Args: { p_id: string }; Returns: undefined };
     };
     Enums: {
+      award_status: "pending" | "offered" | "accepted" | "rejected" | "expired";
       charge_kind:
         | "direct_buyer"
         | "direct_seller"
@@ -1877,6 +2303,19 @@ export type Database = {
       payment_terms: "advance" | "on_delivery" | "credit";
       product_status: "draft" | "pending" | "notify" | "published" | "unpublished" | "rejected";
       spec_kind: "text" | "number" | "enum";
+      tender_kind: "regular" | "custom";
+      tender_status:
+        | "draft"
+        | "unpaid"
+        | "bidding"
+        | "evaluating"
+        | "shortlisting"
+        | "auction_scheduled"
+        | "auction"
+        | "awarding"
+        | "ordered"
+        | "cancelled";
+      tender_type: "bid" | "ra" | "bid_to_ra";
       user_role: "org_user" | "admin";
       verification_kind: "pan" | "gstin" | "bank" | "cin" | "identity";
       verification_status: "pending" | "verified" | "failed" | "manual_review";
@@ -2002,6 +2441,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      award_status: ["pending", "offered", "accepted", "rejected", "expired"],
       charge_kind: [
         "direct_buyer",
         "direct_seller",
@@ -2036,6 +2476,20 @@ export const Constants = {
       payment_terms: ["advance", "on_delivery", "credit"],
       product_status: ["draft", "pending", "notify", "published", "unpublished", "rejected"],
       spec_kind: ["text", "number", "enum"],
+      tender_kind: ["regular", "custom"],
+      tender_status: [
+        "draft",
+        "unpaid",
+        "bidding",
+        "evaluating",
+        "shortlisting",
+        "auction_scheduled",
+        "auction",
+        "awarding",
+        "ordered",
+        "cancelled",
+      ],
+      tender_type: ["bid", "ra", "bid_to_ra"],
       user_role: ["org_user", "admin"],
       verification_kind: ["pan", "gstin", "bank", "cin", "identity"],
       verification_status: ["pending", "verified", "failed", "manual_review"],
