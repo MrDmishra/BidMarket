@@ -13,6 +13,12 @@ export const metadata: Metadata = { title: "Place an order" };
 const MINIMUM_DELIVERY_DAYS = 5;
 const DAY_MS = 86_400_000;
 
+function earliestDeliveryDate() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(
+    Date.now() + MINIMUM_DELIVERY_DAYS * DAY_MS,
+  );
+}
+
 type NewOrderPageProps = { searchParams: Promise<{ product?: string }> };
 
 export default async function NewOrderPage({ searchParams }: NewOrderPageProps) {
@@ -22,9 +28,7 @@ export default async function NewOrderPage({ searchParams }: NewOrderPageProps) 
   const product = await getProduct(productId);
   if (!product) notFound();
   const addresses = await listDeliveryAddresses();
-  const earliestDelivery = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(
-    Date.now() + MINIMUM_DELIVERY_DAYS * DAY_MS,
-  );
+  const earliestDelivery = earliestDeliveryDate();
 
   return (
     <>
