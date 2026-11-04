@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Wordmark } from "@/components/ui/wordmark";
 import { logOut } from "@/modules/accounts/auth-actions";
 
@@ -9,6 +10,7 @@ export function AppHeader({ name }: { name: string }) {
         <Wordmark />
         <div className="flex min-w-0 items-center gap-3">
           <span className="min-w-0 text-sm wrap-anywhere text-muted">{name}</span>
+          <ThemeToggle />
           <form action={logOut}>
             <Button type="submit" variant="secondary" size="small">
               Log out

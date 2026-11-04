@@ -36,7 +36,7 @@ export function PublicFooter() {
     <footer className="bg-band text-band-muted">
       <div className="page-wrap grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-6 py-8 text-sm">
         <div className="flex flex-col gap-2">
-          <Wordmark onBand />
+          <Wordmark />
           <p>A private B2B marketplace for India.</p>
           <p>© 2026 Bid Market</p>
         </div>

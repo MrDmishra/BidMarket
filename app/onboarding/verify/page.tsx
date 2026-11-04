@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { StatusPill } from "@/components/ui/status-pill";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Wordmark } from "@/components/ui/wordmark";
 import { getAccount } from "@/lib/auth/account";
 import { INDIAN_STATES } from "@/lib/india/states";
@@ -56,7 +57,10 @@ export default async function VerifyPage() {
 
   return (
     <main className="page-wrap flex flex-col items-center gap-5 py-10">
-      <Wordmark />
+      <div className="flex items-center gap-3">
+        <Wordmark />
+        <ThemeToggle />
+      </div>
       <div className="flex w-full max-w-xl flex-col gap-4">
         <h1 className="text-3xl font-bold">Complete verification</h1>
         <p className="text-muted">

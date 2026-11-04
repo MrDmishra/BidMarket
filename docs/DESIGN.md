@@ -36,6 +36,7 @@ All colors are semantic tokens. Components never use raw values.
 | `ink` | #12263A | #E6EEF5 | Primary text |
 | `muted` | #54677A | #9DB0C2 | Secondary text |
 | `line` | #DCE6EE | #2B3B4B | Borders and dividers |
+| `brand` | #123F66 | #E6F3FB | Logo and logo name |
 | `accent` | #0369A1 | #38BDF8 | Links, primary buttons, focus |
 | `accent-ink` | #FFFFFF | #06202F | Text on accent |
 | `band` | #E0F2FE | #0F2534 | Hero and footer |
@@ -52,7 +53,9 @@ All colors are semantic tokens. Components never use raw values.
 
 - Highlight is reserved for live auction information and the single primary action on a band. The band is light in the light theme, so text on it uses `band-ink`.
 - Status always pairs color with text. Color alone never carries meaning.
-- Support light and dark themes, following the system setting, with a manual override in the profile.
+- Support light and dark themes, following the system setting, with a day and night button in the header. The choice is saved on that device.
+
+**Logo.** A navy B with a white gavel cut out of it, beside the name "Bid Market" in the display face. The browser tab uses a simplified white B and thicker gavel on a navy square, because the full mark loses detail at 16 px. The logo uses no sky blue or amber.
 
 ## 3. Typography
 

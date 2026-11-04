@@ -1,5 +1,6 @@
 import { MainNav } from "@/components/layout/main-nav";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Wordmark } from "@/components/ui/wordmark";
 
 export function PublicHeader() {
@@ -32,7 +33,12 @@ export function PublicHeader() {
           </ButtonLink>
         </div>
       </div>
-      <MainNav />
+      <div className="border-t border-line">
+        <div className="page-wrap flex items-center gap-2">
+          <MainNav />
+          <ThemeToggle />
+        </div>
+      </div>
     </header>
   );
 }
