@@ -172,26 +172,29 @@ The server computes all amounts. Any price or fee sent by the client is rejected
 
 ## 6. Tenders and bids
 
+Built for sealed bid tenders:
+
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| GET | `/tenders` | Public | Open tenders, public fields only |
-| GET | `/tenders/{id}` | Public | Public detail. Returns more for the owner or participants |
-| GET | `/buyer/tenders` | Buyer | Own tenders |
-| POST | `/buyer/tenders` | Buyer | Create draft |
-| PATCH | `/buyer/tenders/{id}` | Buyer | Edit draft |
-| POST | `/buyer/tenders/{id}/publish` | Buyer | Validate and return payment details |
-| GET | `/buyer/tenders/{id}/bids` | Buyer | Bids after opening or closure, otherwise 403 |
-| POST | `/buyer/tenders/{id}/award` | Buyer | Select a seller in a bid tender |
-| POST | `/buyer/tenders/{id}/shortlist` | Buyer | Remove `highest` or `highest50` in Bid to RA |
-| GET | `/seller/tenders` | Seller | `view=eligible`, `applied`, `won` |
-| POST | `/seller/tenders/{id}/join` | Seller | Check eligibility and create participant row |
+| POST | `/buyer/tenders` | Buyer | Create a draft |
+| POST | `/buyer/tenders/{id}/publish` | Buyer | Create the fee charge. Payment opens bidding |
+| POST | `/buyer/tenders/{id}/cancel` | Buyer | Cancel a draft or unpaid tender |
+| POST | `/buyer/tenders/{id}/award` | Buyer | Award by rank after close |
 | POST | `/seller/tenders/{id}/bids` | Seller | Submit or replace a sealed bid |
-| DELETE | `/seller/tenders/{id}/bids/current` | Seller | Withdraw sealed bid |
+| DELETE | `/seller/tenders/{id}/bids` | Seller | Withdraw a sealed bid |
+| POST | `/seller/tenders/{id}/award/accept` | Seller | Accept and create the fee charge |
+| POST | `/seller/tenders/{id}/award/reject` | Seller | Reject, apply a strike and pass to the next seller |
+
+Pages read through `public_tenders`, `public_tender`, `buyer_tenders`, `get_buyer_tender`, `tender_bids`, `seller_tenders` and `get_seller_tender`.
+
+Planned for Phases 7 and 8:
+
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| POST | `/buyer/tenders/{id}/shortlist` | Buyer | Remove `highest` or `highest50` in Bid to RA |
 | GET | `/seller/tenders/{id}/auction` | Seller | Current L1, own bid, rank, deadline, `seq` |
 | POST | `/seller/tenders/{id}/auction/bids` | Seller | Place an auction bid |
 | GET | `/buyer/tenders/{id}/auction` | Buyer | Bid count and deadline only while live |
-| POST | `/seller/tenders/{id}/award/accept` | Seller | Accept and return fee payment details |
-| POST | `/seller/tenders/{id}/award/reject` | Seller | Reject, apply penalty and pass to next seller |
 
 **Example:** `POST /seller/tenders/{id}/auction/bids`
 

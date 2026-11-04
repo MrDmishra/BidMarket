@@ -29,3 +29,13 @@ test("protects order documents from visitors", async ({ request }) => {
   expect(response.ok()).toBe(false);
   expect(response.headers()["content-type"]).not.toContain("application/pdf");
 });
+
+test("sends visitors away from seller tenders", async ({ page }) => {
+  await page.goto("/seller/tenders");
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test("shows the empty tender list to visitors", async ({ page }) => {
+  await page.goto("/tenders");
+  await expect(page.getByRole("heading", { name: "Tenders" })).toBeVisible();
+});

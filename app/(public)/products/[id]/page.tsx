@@ -75,9 +75,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             {product.delivery_states.map(stateName).filter(Boolean).join(", ") || "selected states"}
             .
           </p>
-          <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
-            Order this product
-          </ButtonLink>
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
+              Order this product
+            </ButtonLink>
+            <ButtonLink href={`/buyer/tenders/new?product=${product.id}`} variant="secondary">
+              Create a tender
+            </ButtonLink>
+          </div>
         </ActionPanel>
       </div>
     </ContentPage>

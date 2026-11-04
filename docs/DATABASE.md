@@ -27,7 +27,7 @@ Source of truth: PRD.md and ARCHITECTURE.md.
 | `tender_type` | bid, ra, bid_to_ra |
 | `tender_kind` | regular, custom |
 | `tender_status` | draft, unpaid, bidding, evaluating, shortlisting, auction_scheduled, auction, awarding, ordered, cancelled |
-| `award_status` | offered, accepted, rejected, expired |
+| `award_status` | pending, offered, accepted, rejected, expired |
 | `order_source` | direct, tender |
 | `order_status` | unpaid, awaiting_seller, accepted, dispatched, completed, cancelled |
 | `payment_terms` | advance, on_delivery, credit |
@@ -163,7 +163,7 @@ Admin rows are created only by invitation.
 | cancel_reason | text | |
 | settings_id | uuid | FK platform_settings |
 
-Check constraints ensure dates fit the tender type and run in order.
+Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_starts_at`, `bid_ends_at`, `extensions_used` and the shared fields. The auction columns (`bid_opens_at`, `ra_*`, `snipe_extensions_used`, `l1_paise`, `bid_count`, `seq`), and `terms_file_id`, arrive with Phases 7 and 8 and later file work. Buyers see bids once `bid_ends_at` passes and the tender is `evaluating`.
 
 **tender_specs:** `id`, `tender_id` FK, `spec_definition_id` FK nullable, `label`, `value`, `unit`, `is_key`. Snapshot of required specifications.
 
@@ -175,6 +175,7 @@ Check constraints ensure dates fit the tender type and run in order.
 | seller_org_id | uuid | PK part, FK |
 | attempts_used | int | Maximum 3 for sealed bids |
 | last_bid_paise | bigint | Nullable. Latest active bid |
+| last_bid_at | timestamptz | Breaks ties, with the earlier bid ranked first |
 | withdrawn | boolean | Default false |
 | eliminated_at | timestamptz | Set in Bid to RA |
 | declined_at | timestamptz | Set when an award is rejected |
@@ -192,7 +193,7 @@ Check constraints ensure dates fit the tender type and run in order.
 | idempotency_key | text | Unique (`seller_org_id`, `idempotency_key`) |
 | placed_at | timestamptz | Set by the server inside the transaction |
 
-**tender_awards:** `id`, `tender_id` FK, `seller_org_id` FK, `rank` int, `unit_paise`, `status`, `offered_at`, `expires_at`, `responded_at`. A partial unique index allows one `offered` award per tender.
+**tender_awards:** `id`, `tender_id` FK, `seller_org_id` FK, `rank` int, `unit_paise`, `status`, `offered_at`, `expires_at`, `responded_at`, `reject_reason`. A partial unique index allows one open award per tender. `pending` means a custom tender balance is still due.
 
 ### 3.4 Orders
 
@@ -274,7 +275,7 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 **outbox:** `id`, `channel` (email, sms), `template`, `recipient_user_id` FK, `payload` jsonb, `status`, `attempts`, `next_attempt_at`, `dedupe_key` unique, `last_error`.
 
-**jobs:** added in Phase 6 with tender ticks. Billing jobs run directly from the job route. `id`, `kind`, `payload` jsonb, `status`, `attempts`, `run_after`, `last_error`, `dedupe_key` unique.
+**jobs:** not built. `tick_tenders` and billing jobs run directly from the job route, so this table waits until a job needs its own queue. `id`, `kind`, `payload` jsonb, `status`, `attempts`, `run_after`, `last_error`, `dedupe_key` unique.
 
 **webhook_events:** `id`, `provider`, `event_id`, `event_type`, `received_at`, `processed_at`, `error`. Unique (`provider`, `event_id`).
 

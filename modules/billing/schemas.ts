@@ -79,6 +79,13 @@ export function emailForTemplate(template: string, payload: unknown) {
       text: `There is an update on order ${order.data.orderNo}. Log in to Bid Market to see it.`,
     };
   }
+  const tender = z.object({ tenderNo: z.string() }).safeParse(payload);
+  if (template === "tender_update" && tender.success) {
+    return {
+      subject: `Update on tender ${tender.data.tenderNo}`,
+      text: `There is an update on tender ${tender.data.tenderNo}. Log in to Bid Market to see it.`,
+    };
+  }
   if (template === "subscription_expiring" && details.success) {
     return {
       subject: "Your Bid Market subscription is ending",

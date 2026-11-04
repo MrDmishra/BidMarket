@@ -66,5 +66,13 @@ export async function runBillingJobs() {
   if (error) throw toAppError(error);
   const unpaid = await supabase.rpc("expire_unpaid_orders");
   if (unpaid.error) throw toAppError(unpaid.error);
-  return { reconciled, emailed, expired, unpaidOrdersCancelled: unpaid.data };
+  const tenders = await supabase.rpc("tick_tenders");
+  if (tenders.error) throw toAppError(tenders.error);
+  return {
+    reconciled,
+    emailed,
+    expired,
+    unpaidOrdersCancelled: unpaid.data,
+    tendersChanged: tenders.data,
+  };
 }

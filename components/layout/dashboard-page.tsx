@@ -44,7 +44,10 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
         <Banner>{details.note}</Banner>
         {status === "active" && title.startsWith("Seller") ? (
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/seller/orders">Orders</ButtonLink>
+            <ButtonLink href="/seller/tenders">Tenders</ButtonLink>
+            <ButtonLink href="/seller/orders" variant="secondary">
+              Orders
+            </ButtonLink>
             <ButtonLink href="/seller/products" variant="secondary">
               Manage products
             </ButtonLink>
@@ -55,7 +58,10 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
         ) : null}
         {status === "active" && title.startsWith("Buyer") ? (
           <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/buyer/orders">Orders</ButtonLink>
+            <ButtonLink href="/buyer/tenders">Tenders</ButtonLink>
+            <ButtonLink href="/buyer/orders" variant="secondary">
+              Orders
+            </ButtonLink>
             <ButtonLink href="/products" variant="secondary">
               Browse products
             </ButtonLink>
