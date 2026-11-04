@@ -2,33 +2,33 @@ import Link from "next/link";
 import { AuctionStair } from "@/components/ui/auction-stair";
 import { ButtonLink } from "@/components/ui/button";
 import { formatInr } from "@/lib/money";
-import { PROPOSED_FEES } from "@/modules/billing";
+import { getFeeSchedule, type FeeSchedule } from "@/modules/billing";
 import { groupCategories, listCategories } from "@/modules/catalogue";
 
 export const dynamic = "force-dynamic";
 
 const EXAMPLE_BIDS_PAISE = [64_000, 63_200, 62_100, 61_400, 60_800];
 
-const METHODS = [
+const buyingMethods = (fees: FeeSchedule) => [
   {
     title: "Direct order",
     body: "For small, repeat purchases. Pick a listed product and order at the published price.",
-    fee: `Under ${formatInr(PROPOSED_FEES.limitOrgPaise)}. Fee ${PROPOSED_FEES.directFeeBps / 100}%.`,
+    fee: `Under ${formatInr(fees.limitOrgPaise)}. Fee ${fees.directFeeBps / 100}%.`,
   },
   {
     title: "Bid",
     body: "Sellers send sealed prices against your requirement. You review them after closing and choose one.",
-    fee: `Any value. Fee ${PROPOSED_FEES.tenderFeeBps / 100}%.`,
+    fee: `Any value. Fee ${fees.tenderFeeBps / 100}%.`,
   },
   {
     title: "Reverse auction",
     body: "Sellers undercut each other live. The lowest valid price at closing becomes L1 and gets the first offer.",
-    fee: `Any value. Fee ${PROPOSED_FEES.tenderFeeBps / 100}%.`,
+    fee: `Any value. Fee ${fees.tenderFeeBps / 100}%.`,
   },
   {
     title: "Bid to RA",
     body: "Collect sealed bids first, remove the costliest sellers, then run an auction among those left.",
-    fee: `Any value. Fee ${PROPOSED_FEES.tenderFeeBps / 100}%.`,
+    fee: `Any value. Fee ${fees.tenderFeeBps / 100}%.`,
   },
 ];
 
@@ -41,7 +41,8 @@ const ORDER_STEPS = [
 ];
 
 export default async function HomePage() {
-  const categories = groupCategories(await listCategories());
+  const [categories, fees] = await Promise.all([listCategories(), getFeeSchedule()]);
+  const categoryGroups = groupCategories(categories);
 
   return (
     <main>
@@ -84,7 +85,7 @@ export default async function HomePage() {
             Four ways to buy
           </h2>
           <div className="grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {METHODS.map((method) => (
+            {buyingMethods(fees).map((method) => (
               <div key={method.title} className="flex flex-col gap-2 bg-surface p-5">
                 <h3 className="text-lg font-bold">{method.title}</h3>
                 <p className="text-muted">{method.body}</p>
@@ -96,7 +97,7 @@ export default async function HomePage() {
             Proposed fees, plus GST. They may change before launch.
           </p>
         </section>
-        {categories.length > 0 ? (
+        {categoryGroups.length > 0 ? (
           <section className="flex flex-col gap-4" aria-labelledby="home-categories">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="home-categories" className="text-3xl font-bold">
@@ -105,7 +106,7 @@ export default async function HomePage() {
               <Link href="/categories">See all sub-categories</Link>
             </div>
             <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-              {categories.map((category) => (
+              {categoryGroups.map((category) => (
                 <Link
                   key={category.id}
                   href={`/products?category=${category.slug}`}

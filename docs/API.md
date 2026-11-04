@@ -225,16 +225,11 @@ Response:
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/payments/{chargeId}/checkout` | Party | Apply wallet balance, then create Razorpay order for the rest |
-| GET | `/payments/{chargeId}` | Party | Payment and charge status |
-| POST | `/payments/{chargeId}/client-confirm` | Party | Show progress only. Never marks a payment as paid |
-| GET | `/wallet` | User | Available, on hold and paid totals |
-| GET | `/wallet/entries` | User | Ledger |
-| GET | `/invoices` | User | Tax invoices |
-| GET | `/subscription` | Seller | Current subscription |
-| POST | `/subscription/quote` | Seller or onboarding | Calculate fee from turnover |
-| POST | `/subscription/renew` | Seller | Create renewal charge |
-| GET | `/fees/public` | Public | Current fee table for the Fees page |
+| POST | `/subscription/start` | Seller | Create the subscription or renewal charge. A free first year activates at once |
+| POST | `/payments/{chargeId}/checkout` | Party | Apply wallet balance, then create a Razorpay order for the rest |
+| GET | `/payments/{chargeId}` | Party | Charge status. The browser polls this after checkout, and it never marks a payment as paid |
+
+Wallet totals, charges, invoices and the subscription fee quote are read directly by the Billing page, through row-level security and the `wallet_summary` and `quote_subscription` functions. The Fees page reads `platform_settings`.
 
 ## 8. Support
 
@@ -310,7 +305,7 @@ Subscribed events: `payment.captured`, `payment.failed`, `order.paid`.
 |---|---|---|
 | `/api/webhooks/cashfree` | Provider signature | Verification and identity results |
 | `/api/hooks/send-sms` | Supabase hook signature | Enforce OTP limits, send via MSG91 |
-| `/api/internal/jobs/run` | `INTERNAL_JOB_SECRET` bearer | Process jobs and outbox |
+| `/api/internal/jobs/run` | `INTERNAL_JOB_SECRET` bearer | Reconcile payments, send the outbox and expire subscriptions |
 | `/api/health` | Public, no sensitive data | App and Supabase health. Returns 503 when Supabase is unreachable |
 
 ## 11. External integrations
@@ -359,6 +354,7 @@ Never commit real values. `NEXT_PUBLIC_` values are visible to browsers.
 | `SUPABASE_SEND_SMS_HOOK_SECRET` | Server | Hook verification |
 | `RAZORPAY_KEY_SECRET` | Server | Razorpay API |
 | `RAZORPAY_WEBHOOK_SECRET` | Server | Webhook signature |
+| `RAZORPAY_WEBHOOK_SECRET_PREVIOUS` | Server | Accepted during a secret rotation |
 | `CASHFREE_CLIENT_ID`, `CASHFREE_CLIENT_SECRET` | Server | Verification API |
 | `CASHFREE_WEBHOOK_SECRET` | Server | Webhook signature |
 | `MSG91_AUTH_KEY`, `MSG91_SENDER_ID` | Server | SMS |

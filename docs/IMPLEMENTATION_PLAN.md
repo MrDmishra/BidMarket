@@ -75,6 +75,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Tables 3.5, `jobs`, `outbox`, `webhook_events`, `idempotency_keys`. API section 7.
 - **Tests:** Fee and GST calculations, duplicate and out-of-order webhooks, amount mismatch, wallet balance, gapless invoice numbers.
 - **Done when:** A seller can pay the subscription in test mode and go live, even if the browser closes mid-payment.
+- **Status:** Code complete and tested without a real Razorpay payment. `docs/runbooks/billing-activation.md` lists the keys needed for the test-mode payment. The `jobs` table moves to Phase 6, and invoice PDFs move to Phase 5.
 
 ## Phase 5: Direct orders
 

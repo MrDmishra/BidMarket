@@ -31,9 +31,14 @@ export default async function AdminPage() {
       <main className="page-wrap flex flex-col gap-4 py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-bold">Account verification</h1>
-          <ButtonLink href="/admin/categories" variant="secondary">
-            Manage categories
-          </ButtonLink>
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/admin/categories" variant="secondary">
+              Manage categories
+            </ButtonLink>
+            <ButtonLink href="/admin/settings" variant="secondary">
+              Fees and settings
+            </ButtonLink>
+          </div>
         </div>
         {pending.length === 0 ? <EmptyState message="No accounts are waiting for review." /> : null}
         {pending.map((organisation) => (

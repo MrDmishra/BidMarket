@@ -229,7 +229,7 @@ Check constraints ensure dates fit the tender type and run in order.
 
 **platform_settings:** insert-only. The latest row by `effective_from` applies to new transactions.
 
-Columns: `id`, `effective_from`, `direct_fee_bps`, `tender_fee_bps`, `gst_bps`, `tds_bps`, `limit_individual_paise`, `limit_org_paise`, `custom_deposit_paise`, `min_discount_bps`, `subscription_base_paise`, `subscription_base_crore`, `subscription_step_paise`, `decrement_bps`, `snipe_window_minutes`, `snipe_max`, `award_window_hours`, `created_by`.
+Columns: `id`, `effective_from`, `direct_fee_bps`, `tender_fee_bps`, `gst_bps`, `tds_bps`, `limit_individual_paise`, `limit_org_paise`, `custom_deposit_paise`, `min_discount_bps`, `subscription_base_paise`, `subscription_base_crore`, `subscription_step_paise`, `decrement_bps`, `snipe_window_minutes`, `snipe_max`, `award_window_hours`, `free_subscription_sellers`, `supplier_legal_name`, `supplier_gstin`, `supplier_state_code`, `created_by`. `free_subscription_sellers` applies D-3: the first N sellers get a free first year.
 
 Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 25, ₹100, 50, 5, 6, 48. TDS stays at 0 until your chartered accountant confirms it (D-12). The 48-hour award window is an assumption.
 
@@ -240,7 +240,7 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 | id | uuid | PK |
 | org_id | uuid | FK |
 | kind | charge_kind | |
-| order_id, tender_id, subscription_id | uuid | Exactly one set, by check |
+| order_id, tender_id, subscription_id | uuid | Exactly one set, by check. The first two gain foreign keys in Phases 5 and 6 |
 | base_paise | bigint | |
 | rate_bps | int | |
 | fee_paise | bigint | Before tax |
@@ -254,9 +254,9 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 **wallet_entries:** append-only. `id`, `org_id` FK, `charge_id` FK nullable, `from_bucket`, `to_bucket`, `amount_paise` greater than 0, `reason`, `created_at`. Balance is calculated from this table.
 
-**tax_invoices:** `id`, `invoice_no` unique, `financial_year`, `org_id` FK, `charge_id` FK unique, `file_id` FK, `issued_at`. Numbers come from `number_sequences`, without gaps.
+**tax_invoices:** `id`, `invoice_no` unique, `financial_year`, `org_id` FK, `charge_id` FK unique, `snapshot` jsonb, `issued_at`. The snapshot holds the invoice as issued. PDF files arrive with Phase 5. Numbers come from `number_sequences`, without gaps.
 
-**subscriptions:** `id`, `org_id` FK, `turnover_paise`, `fee_paise`, `starts_on`, `ends_on`, `status`, `settings_id` FK. Partial unique index allows one active per organisation.
+**subscriptions:** `id`, `org_id` FK, `turnover_paise` (total of the latest three years), `fee_paise`, `starts_on`, `ends_on`, `status` (pending, active, expired, cancelled), `settings_id` FK. Partial unique indexes allow one active and one pending per organisation. An expired seller returns to `pending_payment`, which hides listings until renewal.
 
 **number_sequences:** PK (`name`, `financial_year`), `next_value`. Row-locked when issued.
 
@@ -272,9 +272,9 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 **penalties:** `id`, `org_id` FK, `tender_id` FK nullable, `strike_no`, `days` nullable for permanent, `ends_at`, `reason`, `applied_by` FK nullable, `waived_by` FK, `waived_reason`, `waived_at`.
 
-**outbox:** `id`, `channel` (email, sms), `template`, `recipient_user_id` FK, `payload` jsonb, `status`, `attempts`, `next_attempt_at`, `dedupe_key` unique.
+**outbox:** `id`, `channel` (email, sms), `template`, `recipient_user_id` FK, `payload` jsonb, `status`, `attempts`, `next_attempt_at`, `dedupe_key` unique, `last_error`.
 
-**jobs:** `id`, `kind`, `payload` jsonb, `status`, `attempts`, `run_after`, `last_error`, `dedupe_key` unique.
+**jobs:** added in Phase 6 with tender ticks. Billing jobs run directly from the job route. `id`, `kind`, `payload` jsonb, `status`, `attempts`, `run_after`, `last_error`, `dedupe_key` unique.
 
 **webhook_events:** `id`, `provider`, `event_id`, `event_type`, `received_at`, `processed_at`, `error`. Unique (`provider`, `event_id`).
 

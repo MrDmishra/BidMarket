@@ -13,7 +13,7 @@ const STATUS: Record<OrgStatus, { label: string; tone: PillTone; note: string }>
   pending_payment: {
     label: "Pending",
     tone: "warn",
-    note: "Your details are saved. Subscription payment opens soon.",
+    note: "Your details are saved. Pay your subscription to go live.",
   },
   pending_review: { label: "Pending", tone: "warn", note: "An admin is reviewing your account." },
   active: { label: "Active", tone: "ok", note: "Your account is verified." },
@@ -43,8 +43,16 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
         </div>
         <Banner>{details.note}</Banner>
         {status === "active" && title.startsWith("Seller") ? (
-          <div>
+          <div className="flex flex-wrap gap-2">
             <ButtonLink href="/seller/products">Manage products</ButtonLink>
+            <ButtonLink href="/seller/billing" variant="secondary">
+              Billing
+            </ButtonLink>
+          </div>
+        ) : null}
+        {status === "pending_payment" ? (
+          <div>
+            <ButtonLink href="/seller/billing">Pay subscription</ButtonLink>
           </div>
         ) : null}
         {status === "draft" ? (

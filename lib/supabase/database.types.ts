@@ -230,6 +230,88 @@ export type Database = {
           },
         ];
       };
+      fee_charges: {
+        Row: {
+          base_paise: number;
+          cgst_paise: number;
+          created_at: string;
+          fee_paise: number;
+          id: string;
+          igst_paise: number;
+          kind: Database["public"]["Enums"]["charge_kind"];
+          order_id: string | null;
+          org_id: string;
+          rate_bps: number;
+          settings_id: string;
+          sgst_paise: number;
+          status: Database["public"]["Enums"]["charge_status"];
+          subscription_id: string | null;
+          tds_paise: number;
+          tender_id: string | null;
+          total_paise: number;
+        };
+        Insert: {
+          base_paise: number;
+          cgst_paise?: number;
+          created_at?: string;
+          fee_paise: number;
+          id?: string;
+          igst_paise?: number;
+          kind: Database["public"]["Enums"]["charge_kind"];
+          order_id?: string | null;
+          org_id: string;
+          rate_bps: number;
+          settings_id: string;
+          sgst_paise?: number;
+          status?: Database["public"]["Enums"]["charge_status"];
+          subscription_id?: string | null;
+          tds_paise?: number;
+          tender_id?: string | null;
+          total_paise: number;
+        };
+        Update: {
+          base_paise?: number;
+          cgst_paise?: number;
+          created_at?: string;
+          fee_paise?: number;
+          id?: string;
+          igst_paise?: number;
+          kind?: Database["public"]["Enums"]["charge_kind"];
+          order_id?: string | null;
+          org_id?: string;
+          rate_bps?: number;
+          settings_id?: string;
+          sgst_paise?: number;
+          status?: Database["public"]["Enums"]["charge_status"];
+          subscription_id?: string | null;
+          tds_paise?: number;
+          tender_id?: string | null;
+          total_paise?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "fee_charges_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fee_charges_settings_id_fkey";
+            columns: ["settings_id"];
+            isOneToOne: false;
+            referencedRelation: "platform_settings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fee_charges_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "subscriptions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       idempotency_keys: {
         Row: {
           created_at: string;
@@ -257,6 +339,24 @@ export type Database = {
           response_status?: number | null;
           route?: string;
           user_id?: string;
+        };
+        Relationships: [];
+      };
+      number_sequences: {
+        Row: {
+          financial_year: string;
+          name: string;
+          next_value: number;
+        };
+        Insert: {
+          financial_year: string;
+          name: string;
+          next_value?: number;
+        };
+        Update: {
+          financial_year?: string;
+          name?: string;
+          next_value?: number;
         };
         Relationships: [];
       };
@@ -393,6 +493,193 @@ export type Database = {
           sent_at?: string;
         };
         Relationships: [];
+      };
+      outbox: {
+        Row: {
+          attempts: number;
+          channel: string;
+          dedupe_key: string;
+          id: string;
+          last_error: string | null;
+          next_attempt_at: string;
+          payload: Json;
+          recipient_user_id: string;
+          status: string;
+          template: string;
+        };
+        Insert: {
+          attempts?: number;
+          channel?: string;
+          dedupe_key: string;
+          id?: string;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          payload?: Json;
+          recipient_user_id: string;
+          status?: string;
+          template: string;
+        };
+        Update: {
+          attempts?: number;
+          channel?: string;
+          dedupe_key?: string;
+          id?: string;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          payload?: Json;
+          recipient_user_id?: string;
+          status?: string;
+          template?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "outbox_recipient_user_id_fkey";
+            columns: ["recipient_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
+      payments: {
+        Row: {
+          amount_paise: number;
+          charge_id: string;
+          created_at: string;
+          failure_reason: string | null;
+          id: string;
+          org_id: string;
+          provider: string;
+          provider_order_id: string | null;
+          provider_payment_id: string | null;
+          status: Database["public"]["Enums"]["payment_status"];
+          updated_at: string;
+        };
+        Insert: {
+          amount_paise: number;
+          charge_id: string;
+          created_at?: string;
+          failure_reason?: string | null;
+          id?: string;
+          org_id: string;
+          provider?: string;
+          provider_order_id?: string | null;
+          provider_payment_id?: string | null;
+          status?: Database["public"]["Enums"]["payment_status"];
+          updated_at?: string;
+        };
+        Update: {
+          amount_paise?: number;
+          charge_id?: string;
+          created_at?: string;
+          failure_reason?: string | null;
+          id?: string;
+          org_id?: string;
+          provider?: string;
+          provider_order_id?: string | null;
+          provider_payment_id?: string | null;
+          status?: Database["public"]["Enums"]["payment_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: false;
+            referencedRelation: "fee_charges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      platform_settings: {
+        Row: {
+          award_window_hours: number;
+          created_by: string | null;
+          custom_deposit_paise: number;
+          decrement_bps: number;
+          direct_fee_bps: number;
+          effective_from: string;
+          free_subscription_sellers: number;
+          gst_bps: number;
+          id: string;
+          limit_individual_paise: number;
+          limit_org_paise: number;
+          min_discount_bps: number;
+          snipe_max: number;
+          snipe_window_minutes: number;
+          subscription_base_crore: number;
+          subscription_base_paise: number;
+          subscription_step_paise: number;
+          supplier_gstin: string | null;
+          supplier_legal_name: string;
+          supplier_state_code: string;
+          tds_bps: number;
+          tender_fee_bps: number;
+        };
+        Insert: {
+          award_window_hours: number;
+          created_by?: string | null;
+          custom_deposit_paise: number;
+          decrement_bps: number;
+          direct_fee_bps: number;
+          effective_from?: string;
+          free_subscription_sellers?: number;
+          gst_bps: number;
+          id?: string;
+          limit_individual_paise: number;
+          limit_org_paise: number;
+          min_discount_bps: number;
+          snipe_max: number;
+          snipe_window_minutes: number;
+          subscription_base_crore: number;
+          subscription_base_paise: number;
+          subscription_step_paise: number;
+          supplier_gstin?: string | null;
+          supplier_legal_name: string;
+          supplier_state_code: string;
+          tds_bps: number;
+          tender_fee_bps: number;
+        };
+        Update: {
+          award_window_hours?: number;
+          created_by?: string | null;
+          custom_deposit_paise?: number;
+          decrement_bps?: number;
+          direct_fee_bps?: number;
+          effective_from?: string;
+          free_subscription_sellers?: number;
+          gst_bps?: number;
+          id?: string;
+          limit_individual_paise?: number;
+          limit_org_paise?: number;
+          min_discount_bps?: number;
+          snipe_max?: number;
+          snipe_window_minutes?: number;
+          subscription_base_crore?: number;
+          subscription_base_paise?: number;
+          subscription_step_paise?: number;
+          supplier_gstin?: string | null;
+          supplier_legal_name?: string;
+          supplier_state_code?: string;
+          tds_bps?: number;
+          tender_fee_bps?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "platform_settings_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
       };
       product_media: {
         Row: {
@@ -681,6 +968,102 @@ export type Database = {
           },
         ];
       };
+      subscriptions: {
+        Row: {
+          created_at: string;
+          ends_on: string | null;
+          fee_paise: number;
+          id: string;
+          org_id: string;
+          settings_id: string;
+          starts_on: string | null;
+          status: string;
+          turnover_paise: number;
+        };
+        Insert: {
+          created_at?: string;
+          ends_on?: string | null;
+          fee_paise: number;
+          id?: string;
+          org_id: string;
+          settings_id: string;
+          starts_on?: string | null;
+          status?: string;
+          turnover_paise: number;
+        };
+        Update: {
+          created_at?: string;
+          ends_on?: string | null;
+          fee_paise?: number;
+          id?: string;
+          org_id?: string;
+          settings_id?: string;
+          starts_on?: string | null;
+          status?: string;
+          turnover_paise?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_settings_id_fkey";
+            columns: ["settings_id"];
+            isOneToOne: false;
+            referencedRelation: "platform_settings";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tax_invoices: {
+        Row: {
+          charge_id: string;
+          financial_year: string;
+          id: string;
+          invoice_no: string;
+          issued_at: string;
+          org_id: string;
+          snapshot: Json;
+        };
+        Insert: {
+          charge_id: string;
+          financial_year: string;
+          id?: string;
+          invoice_no: string;
+          issued_at?: string;
+          org_id: string;
+          snapshot: Json;
+        };
+        Update: {
+          charge_id?: string;
+          financial_year?: string;
+          id?: string;
+          invoice_no?: string;
+          issued_at?: string;
+          org_id?: string;
+          snapshot?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tax_invoices_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: true;
+            referencedRelation: "fee_charges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tax_invoices_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       turnover_declarations: {
         Row: {
           amount_paise: number;
@@ -766,6 +1149,84 @@ export type Database = {
             referencedColumns: ["user_id"];
           },
         ];
+      };
+      wallet_entries: {
+        Row: {
+          amount_paise: number;
+          charge_id: string | null;
+          created_at: string;
+          from_bucket: Database["public"]["Enums"]["wallet_bucket"] | null;
+          id: number;
+          org_id: string;
+          reason: string;
+          to_bucket: Database["public"]["Enums"]["wallet_bucket"];
+        };
+        Insert: {
+          amount_paise: number;
+          charge_id?: string | null;
+          created_at?: string;
+          from_bucket?: Database["public"]["Enums"]["wallet_bucket"] | null;
+          id?: never;
+          org_id: string;
+          reason: string;
+          to_bucket: Database["public"]["Enums"]["wallet_bucket"];
+        };
+        Update: {
+          amount_paise?: number;
+          charge_id?: string | null;
+          created_at?: string;
+          from_bucket?: Database["public"]["Enums"]["wallet_bucket"] | null;
+          id?: never;
+          org_id?: string;
+          reason?: string;
+          to_bucket?: Database["public"]["Enums"]["wallet_bucket"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wallet_entries_charge_id_fkey";
+            columns: ["charge_id"];
+            isOneToOne: false;
+            referencedRelation: "fee_charges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wallet_entries_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      webhook_events: {
+        Row: {
+          error: string | null;
+          event_id: string;
+          event_type: string;
+          id: string;
+          processed_at: string | null;
+          provider: string;
+          received_at: string;
+        };
+        Insert: {
+          error?: string | null;
+          event_id: string;
+          event_type: string;
+          id?: string;
+          processed_at?: string | null;
+          provider: string;
+          received_at?: string;
+        };
+        Update: {
+          error?: string | null;
+          event_id?: string;
+          event_type?: string;
+          id?: string;
+          processed_at?: string | null;
+          provider?: string;
+          received_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: {
@@ -883,6 +1344,19 @@ export type Database = {
         };
         Returns: string;
       };
+      admin_save_settings: {
+        Args: {
+          p_direct_fee_bps: number;
+          p_free_subscription_sellers: number;
+          p_gst_bps: number;
+          p_reason: string;
+          p_subscription_base_paise: number;
+          p_subscription_step_paise: number;
+          p_tds_bps: number;
+          p_tender_fee_bps: number;
+        };
+        Returns: string;
+      };
       admin_test_activate_seller: {
         Args: { p_org_id: string; p_reason: string };
         Returns: undefined;
@@ -895,12 +1369,33 @@ export type Database = {
         Args: { p_body: Json; p_key: string; p_status: number };
         Returns: undefined;
       };
+      apply_payment_event: {
+        Args: {
+          p_amount_paise: number;
+          p_event_id: string;
+          p_event_type: string;
+          p_failure_reason: string;
+          p_provider_order_id: string;
+          p_provider_payment_id: string;
+        };
+        Returns: string;
+      };
+      begin_checkout: { Args: { p_charge_id: string }; Returns: Json };
       category_spec_values: {
         Args: { p_category_slug: string };
         Returns: {
           label: string;
           spec_id: string;
           value: string;
+        }[];
+      };
+      claim_outbox: {
+        Args: { p_limit: number };
+        Returns: {
+          email: string;
+          id: string;
+          payload: Json;
+          template: string;
         }[];
       };
       create_organisation: {
@@ -914,6 +1409,11 @@ export type Database = {
       };
       current_org_id: { Args: never; Returns: string };
       delete_product: { Args: { p_id: string }; Returns: string[] };
+      expire_subscriptions: { Args: never; Returns: number };
+      finish_outbox: {
+        Args: { p_error: string; p_id: string };
+        Returns: undefined;
+      };
       health_check: { Args: never; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
       public_product: {
@@ -936,6 +1436,11 @@ export type Database = {
           title: string;
           unit: string;
         }[];
+      };
+      quote_subscription: { Args: never; Returns: Json };
+      record_provider_order: {
+        Args: { p_payment_id: string; p_provider_order_id: string };
+        Returns: string;
       };
       remove_product_image: { Args: { p_media_id: string }; Returns: string };
       request_category: {
@@ -1013,11 +1518,19 @@ export type Database = {
         Args: { p_id: string; p_visible: boolean };
         Returns: undefined;
       };
+      start_subscription: { Args: never; Returns: string };
       submit_organisation: {
         Args: never;
         Returns: Database["public"]["Enums"]["org_status"];
       };
       submit_product: { Args: { p_id: string }; Returns: undefined };
+      unresolved_payments: {
+        Args: never;
+        Returns: {
+          id: string;
+          provider_order_id: string;
+        }[];
+      };
       update_product_commercials: {
         Args: {
           p_discount_bps: number;
@@ -1027,18 +1540,37 @@ export type Database = {
         };
         Returns: undefined;
       };
+      wallet_summary: {
+        Args: never;
+        Returns: {
+          available_paise: number;
+          on_hold_paise: number;
+          paid_paise: number;
+        }[];
+      };
     };
     Enums: {
+      charge_kind:
+        | "direct_buyer"
+        | "direct_seller"
+        | "tender_buyer"
+        | "tender_deposit"
+        | "tender_balance"
+        | "tender_seller"
+        | "subscription";
+      charge_status: "pending" | "held" | "paid" | "released" | "cancelled";
       entity_type:
         "individual" | "proprietorship" | "partnership" | "trust_society" | "llp" | "company";
       org_kind: "buyer" | "seller";
       org_status:
         "draft" | "pending_payment" | "pending_review" | "active" | "suspended" | "rejected";
+      payment_status: "created" | "paid" | "failed";
       product_status: "draft" | "pending" | "notify" | "published" | "unpublished" | "rejected";
       spec_kind: "text" | "number" | "enum";
       user_role: "org_user" | "admin";
       verification_kind: "pan" | "gstin" | "bank" | "cin" | "identity";
       verification_status: "pending" | "verified" | "failed" | "manual_review";
+      wallet_bucket: "available" | "on_hold" | "paid";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1160,6 +1692,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      charge_kind: [
+        "direct_buyer",
+        "direct_seller",
+        "tender_buyer",
+        "tender_deposit",
+        "tender_balance",
+        "tender_seller",
+        "subscription",
+      ],
+      charge_status: ["pending", "held", "paid", "released", "cancelled"],
       entity_type: [
         "individual",
         "proprietorship",
@@ -1170,11 +1712,13 @@ export const Constants = {
       ],
       org_kind: ["buyer", "seller"],
       org_status: ["draft", "pending_payment", "pending_review", "active", "suspended", "rejected"],
+      payment_status: ["created", "paid", "failed"],
       product_status: ["draft", "pending", "notify", "published", "unpublished", "rejected"],
       spec_kind: ["text", "number", "enum"],
       user_role: ["org_user", "admin"],
       verification_kind: ["pan", "gstin", "bank", "cin", "identity"],
       verification_status: ["pending", "verified", "failed", "manual_review"],
+      wallet_bucket: ["available", "on_hold", "paid"],
     },
   },
 } as const;

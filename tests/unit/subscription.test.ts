@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { subscriptionFeePaise } from "@/modules/billing";
+import { subscriptionFeePaise } from "@/modules/billing/fee-schedule";
 
 describe("subscriptionFeePaise", () => {
   it.each([

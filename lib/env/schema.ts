@@ -26,6 +26,13 @@ export const serverEnvSchema = publicEnvSchema
   .extend({
     APP_ENV: z.enum(["local", "preview", "production"]).default("local"),
     SENTRY_DSN: optionalUrl,
+    SUPABASE_SERVICE_ROLE_KEY: optionalText,
+    RAZORPAY_KEY_SECRET: optionalText,
+    RAZORPAY_WEBHOOK_SECRET: optionalText,
+    RAZORPAY_WEBHOOK_SECRET_PREVIOUS: optionalText,
+    INTERNAL_JOB_SECRET: optionalText,
+    RESEND_API_KEY: optionalText,
+    EMAIL_FROM: optionalText,
   })
   .superRefine((env, context) => {
     if (env.APP_ENV !== "production") return;

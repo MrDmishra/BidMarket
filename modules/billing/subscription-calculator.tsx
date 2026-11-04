@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { TextField } from "@/components/ui/field";
-import { subscriptionFeePaise } from "@/modules/billing/fee-schedule";
+import { subscriptionFeePaise, type FeeSchedule } from "@/modules/billing/fee-schedule";
 import { formatInr } from "@/lib/money";
 
-export function SubscriptionCalculator() {
+export function SubscriptionCalculator({ fees }: { fees: FeeSchedule }) {
   const [turnover, setTurnover] = useState("40");
   const crore = Number(turnover);
   const valid = turnover.trim() !== "" && Number.isFinite(crore) && crore >= 0;
@@ -24,7 +24,7 @@ export function SubscriptionCalculator() {
       <p>
         Annual fee{" "}
         <b data-testid="subscription-fee" className="font-mono tabular-nums">
-          {valid ? formatInr(subscriptionFeePaise(crore)) : "—"}
+          {valid ? formatInr(subscriptionFeePaise(crore, fees)) : "—"}
         </b>{" "}
         plus GST
       </p>
