@@ -411,6 +411,8 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 Production categories follow D-6: all 16 main categories and their sub-categories are live.
 
+**Migration history note.** `20261104001200_direct_orders` was run by the owner in the Supabase SQL editor, so it is live but missing from the Supabase migration list. Treat it as applied.
+
 ## 10. Backup and recovery
 
 - Enable point-in-time recovery on production. Proposed targets: RPO 5 minutes, RTO 4 hours. `[ASSUMPTION]`

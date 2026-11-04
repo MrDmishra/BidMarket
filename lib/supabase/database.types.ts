@@ -290,6 +290,13 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: "fee_charges_order_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "fee_charges_org_id_fkey";
             columns: ["org_id"];
             isOneToOne: false;
@@ -309,6 +316,60 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "subscriptions";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      files: {
+        Row: {
+          bucket: string;
+          created_at: string;
+          id: string;
+          mime_type: string;
+          owner_org_id: string;
+          path: string;
+          scan_status: Database["public"]["Enums"]["file_scan_status"];
+          sha256: string;
+          size_bytes: number;
+          uploaded_by: string;
+        };
+        Insert: {
+          bucket: string;
+          created_at?: string;
+          id?: string;
+          mime_type: string;
+          owner_org_id: string;
+          path: string;
+          scan_status?: Database["public"]["Enums"]["file_scan_status"];
+          sha256: string;
+          size_bytes: number;
+          uploaded_by: string;
+        };
+        Update: {
+          bucket?: string;
+          created_at?: string;
+          id?: string;
+          mime_type?: string;
+          owner_org_id?: string;
+          path?: string;
+          scan_status?: Database["public"]["Enums"]["file_scan_status"];
+          sha256?: string;
+          size_bytes?: number;
+          uploaded_by?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "files_owner_org_id_fkey";
+            columns: ["owner_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "files_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
           },
         ];
       };
@@ -359,6 +420,190 @@ export type Database = {
           next_value?: number;
         };
         Relationships: [];
+      };
+      order_documents: {
+        Row: {
+          file_id: string | null;
+          id: string;
+          kind: string;
+          not_applicable_reason: string | null;
+          order_id: string;
+          reference_no: string | null;
+        };
+        Insert: {
+          file_id?: string | null;
+          id?: string;
+          kind: string;
+          not_applicable_reason?: string | null;
+          order_id: string;
+          reference_no?: string | null;
+        };
+        Update: {
+          file_id?: string | null;
+          id?: string;
+          kind?: string;
+          not_applicable_reason?: string | null;
+          order_id?: string;
+          reference_no?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "order_documents_file_id_fkey";
+            columns: ["file_id"];
+            isOneToOne: false;
+            referencedRelation: "files";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "order_documents_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      order_events: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          id: number;
+          note: string | null;
+          order_id: string;
+          status: Database["public"]["Enums"]["order_status"];
+        };
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          id?: never;
+          note?: string | null;
+          order_id: string;
+          status: Database["public"]["Enums"]["order_status"];
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          id?: never;
+          note?: string | null;
+          order_id?: string;
+          status?: Database["public"]["Enums"]["order_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      orders: {
+        Row: {
+          buyer_org_id: string;
+          consignee_gstin: string | null;
+          consignee_name: string;
+          contacts_unlocked_at: string | null;
+          created_at: string;
+          credit_days: number | null;
+          delivery_address: Json;
+          expected_delivery_on: string | null;
+          id: string;
+          order_no: string;
+          payment_terms: Database["public"]["Enums"]["payment_terms"];
+          product_id: string | null;
+          quantity: number;
+          seller_org_id: string;
+          settings_id: string;
+          source: Database["public"]["Enums"]["order_source"];
+          spec_snapshot: Json;
+          status: Database["public"]["Enums"]["order_status"];
+          tender_id: string | null;
+          title: string;
+          total_paise: number;
+          unit: string;
+          unit_paise: number;
+        };
+        Insert: {
+          buyer_org_id: string;
+          consignee_gstin?: string | null;
+          consignee_name: string;
+          contacts_unlocked_at?: string | null;
+          created_at?: string;
+          credit_days?: number | null;
+          delivery_address: Json;
+          expected_delivery_on?: string | null;
+          id?: string;
+          order_no: string;
+          payment_terms: Database["public"]["Enums"]["payment_terms"];
+          product_id?: string | null;
+          quantity: number;
+          seller_org_id: string;
+          settings_id: string;
+          source?: Database["public"]["Enums"]["order_source"];
+          spec_snapshot?: Json;
+          status?: Database["public"]["Enums"]["order_status"];
+          tender_id?: string | null;
+          title: string;
+          total_paise: number;
+          unit: string;
+          unit_paise: number;
+        };
+        Update: {
+          buyer_org_id?: string;
+          consignee_gstin?: string | null;
+          consignee_name?: string;
+          contacts_unlocked_at?: string | null;
+          created_at?: string;
+          credit_days?: number | null;
+          delivery_address?: Json;
+          expected_delivery_on?: string | null;
+          id?: string;
+          order_no?: string;
+          payment_terms?: Database["public"]["Enums"]["payment_terms"];
+          product_id?: string | null;
+          quantity?: number;
+          seller_org_id?: string;
+          settings_id?: string;
+          source?: Database["public"]["Enums"]["order_source"];
+          spec_snapshot?: Json;
+          status?: Database["public"]["Enums"]["order_status"];
+          tender_id?: string | null;
+          title?: string;
+          total_paise?: number;
+          unit?: string;
+          unit_paise?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "orders_buyer_org_id_fkey";
+            columns: ["buyer_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_seller_org_id_fkey";
+            columns: ["seller_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_settings_id_fkey";
+            columns: ["settings_id"];
+            isOneToOne: false;
+            referencedRelation: "platform_settings";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       org_addresses: {
         Row: {
@@ -1233,6 +1478,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_order: { Args: { p_id: string }; Returns: string };
       add_bank_account: {
         Args: { p_account_no: string; p_holder_name: string; p_ifsc: string };
         Returns: string;
@@ -1381,6 +1627,11 @@ export type Database = {
         Returns: string;
       };
       begin_checkout: { Args: { p_charge_id: string }; Returns: Json };
+      can_read_order_file: { Args: { p_path: string }; Returns: boolean };
+      cancel_order: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
+      };
       category_spec_values: {
         Args: { p_category_slug: string };
         Returns: {
@@ -1398,6 +1649,19 @@ export type Database = {
           template: string;
         }[];
       };
+      create_order: {
+        Args: {
+          p_consignee_gstin: string;
+          p_consignee_name: string;
+          p_credit_days: number;
+          p_delivery_address_id: string;
+          p_expected_delivery_on: string;
+          p_payment_terms: Database["public"]["Enums"]["payment_terms"];
+          p_product_id: string;
+          p_quantity: number;
+        };
+        Returns: Json;
+      };
       create_organisation: {
         Args: {
           p_entity_type: Database["public"]["Enums"]["entity_type"];
@@ -1409,13 +1673,33 @@ export type Database = {
       };
       current_org_id: { Args: never; Returns: string };
       delete_product: { Args: { p_id: string }; Returns: string[] };
+      dispatch_order: {
+        Args: { p_documents: Json; p_id: string };
+        Returns: undefined;
+      };
       expire_subscriptions: { Args: never; Returns: number };
+      expire_unpaid_orders: { Args: never; Returns: number };
       finish_outbox: {
         Args: { p_error: string; p_id: string };
         Returns: undefined;
       };
+      get_order: { Args: { p_id: string }; Returns: Json };
+      get_order_contacts: { Args: { p_id: string }; Returns: Json };
       health_check: { Args: never; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
+      list_orders: {
+        Args: { p_limit?: number; p_offset?: number };
+        Returns: {
+          created_at: string;
+          id: string;
+          order_no: string;
+          quantity: number;
+          status: Database["public"]["Enums"]["order_status"];
+          title: string;
+          total_paise: number;
+          unit: string;
+        }[];
+      };
       public_product: {
         Args: { p_id: string };
         Returns: {
@@ -1437,10 +1721,31 @@ export type Database = {
           unit: string;
         }[];
       };
+      quote_order: {
+        Args: { p_product_id: string; p_quantity: number };
+        Returns: Json;
+      };
       quote_subscription: { Args: never; Returns: Json };
+      receive_order: {
+        Args: { p_file_id: string; p_id: string };
+        Returns: undefined;
+      };
       record_provider_order: {
         Args: { p_payment_id: string; p_provider_order_id: string };
         Returns: string;
+      };
+      register_order_file: {
+        Args: {
+          p_mime_type: string;
+          p_path: string;
+          p_sha256: string;
+          p_size_bytes: number;
+        };
+        Returns: string;
+      };
+      reject_order: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
       };
       remove_product_image: { Args: { p_media_id: string }; Returns: string };
       request_category: {
@@ -1561,10 +1866,15 @@ export type Database = {
       charge_status: "pending" | "held" | "paid" | "released" | "cancelled";
       entity_type:
         "individual" | "proprietorship" | "partnership" | "trust_society" | "llp" | "company";
+      file_scan_status: "pending" | "clean" | "infected";
+      order_source: "direct" | "tender";
+      order_status:
+        "unpaid" | "awaiting_seller" | "accepted" | "dispatched" | "completed" | "cancelled";
       org_kind: "buyer" | "seller";
       org_status:
         "draft" | "pending_payment" | "pending_review" | "active" | "suspended" | "rejected";
       payment_status: "created" | "paid" | "failed";
+      payment_terms: "advance" | "on_delivery" | "credit";
       product_status: "draft" | "pending" | "notify" | "published" | "unpublished" | "rejected";
       spec_kind: "text" | "number" | "enum";
       user_role: "org_user" | "admin";
@@ -1710,9 +2020,20 @@ export const Constants = {
         "llp",
         "company",
       ],
+      file_scan_status: ["pending", "clean", "infected"],
+      order_source: ["direct", "tender"],
+      order_status: [
+        "unpaid",
+        "awaiting_seller",
+        "accepted",
+        "dispatched",
+        "completed",
+        "cancelled",
+      ],
       org_kind: ["buyer", "seller"],
       org_status: ["draft", "pending_payment", "pending_review", "active", "suspended", "rejected"],
       payment_status: ["created", "paid", "failed"],
+      payment_terms: ["advance", "on_delivery", "credit"],
       product_status: ["draft", "pending", "notify", "published", "unpublished", "rejected"],
       spec_kind: ["text", "number", "enum"],
       user_role: ["org_user", "admin"],

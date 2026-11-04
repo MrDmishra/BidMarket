@@ -87,7 +87,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Tables 3.4. API section 5.
 - **Tests:** Limits, stock race, permission tests, fee movement, contact gating, document generation, end-to-end journey.
 - **Done when:** One test order reaches Completed with a downloadable acceptance report, contract and tax invoices.
-- **Status:** Code complete on the `feat/direct-orders` branch, and tested against a local database. It waits for the live database update, then Razorpay for a live test order.
+- **Status:** Code complete and live. Tested against a local database. Razorpay is needed for the first live test order.
 
 ## Phase 6: Sealed bid tenders
 
