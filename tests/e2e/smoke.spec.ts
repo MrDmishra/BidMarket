@@ -32,7 +32,7 @@ test("an explicit light theme overrides a dark system setting", async ({ page })
   await page.goto("/");
   await page.evaluate(() => document.documentElement.setAttribute("data-theme", "light"));
   const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(background).toBe("rgb(240, 245, 242)");
+  expect(background).toBe("rgb(247, 250, 252)");
 });
 
 for (const path of ["/login", "/signup", "/forbidden"]) {
