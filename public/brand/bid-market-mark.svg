@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <mask id="gavel">
+    <rect width="64" height="64" fill="#fff"/>
+    <g transform="rotate(-45 32 32)" fill="#000">
+      <rect x="3" y="33" width="34" height="6" rx="3"/>
+      <rect x="31.500" y="20.500" width="14" height="31" rx="4.500"/>
+    </g>
+  </mask>
+  <path d="M12 7H37C46 7 52 12.500 52 20.500C52 25 50 28.800 46.500 31C50.800 33.200 54 37.500 54 43.500C54 52 47 57 38 57H12Z" fill="#123F66" mask="url(#gavel)"/>
+</svg>

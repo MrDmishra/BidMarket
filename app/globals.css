@@ -8,6 +8,7 @@
   --ink: #12263a;
   --muted: #54677a;
   --line: #dce6ee;
+  --brand: #123f66;
   --accent: #0369a1;
   --accent-ink: #ffffff;
   --band: #e0f2fe;
@@ -34,6 +35,7 @@
     --ink: #e6eef5;
     --muted: #9db0c2;
     --line: #2b3b4b;
+    --brand: #e6f3fb;
     --accent: #38bdf8;
     --accent-ink: #06202f;
     --band: #0f2534;
@@ -61,6 +63,7 @@
   --ink: #e6eef5;
   --muted: #9db0c2;
   --line: #2b3b4b;
+  --brand: #e6f3fb;
   --accent: #38bdf8;
   --accent-ink: #06202f;
   --band: #0f2534;
@@ -87,6 +90,7 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-brand: var(--brand);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-band: var(--band);
