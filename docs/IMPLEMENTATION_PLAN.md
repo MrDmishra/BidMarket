@@ -63,6 +63,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Tables 3.2 and `files`. API sections 3 and 4.
 - **Tests:** Status transitions, upload validation, seller identity absent from public responses, search performance.
 - **Done when:** A product moves from draft to public, and all status rules hold.
+- **Status:** In progress. Catalogue tables, placeholder categories, public category and product pages are live. Seller listing, admin review, category requests and file uploads remain.
 
 ## Phase 4: Billing core
 

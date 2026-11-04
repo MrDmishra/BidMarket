@@ -47,6 +47,19 @@ for (const colorScheme of ["light", "dark"] as const) {
   }
 }
 
+test("product filters keep their values and offer a way back", async ({ page }) => {
+  await page.goto("/products?q=cable&state=23");
+  await expect(page.getByLabel("Search", { exact: true })).toHaveValue("cable");
+  await expect(page.getByLabel("Delivery state")).toHaveValue("23");
+  await page.getByRole("link", { name: "Clear filters" }).click();
+  await expect(page).toHaveURL(/\/products$/);
+});
+
+test("an invalid product link shows the 404 page", async ({ page }) => {
+  const response = await page.goto("/products/not-a-product");
+  expect(response?.status()).toBe(404);
+});
+
 test("legal pages are marked as placeholders", async ({ page }) => {
   for (const path of ["/terms", "/privacy", "/refund-policy", "/cancellation-policy"]) {
     await page.goto(path);

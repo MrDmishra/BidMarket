@@ -92,7 +92,7 @@ Admin rows are created only by invitation.
 
 ### 3.2 Catalogue
 
-**categories:** `id`, `parent_id` FK self, `name`, `slug` unique, `is_active`, `sort_order`.
+**categories:** `id`, `parent_id` FK self, `name`, `slug` unique, `description`, `is_active`, `sort_order`.
 
 **spec_definitions:** `id`, `category_id` FK, `key`, `label`, `kind` (text, number, enum), `unit`, `allowed_values` jsonb, `min_value`, `max_value` numeric, `is_key` boolean, `is_required` boolean. Unique (`category_id`, `key`).
 
@@ -379,7 +379,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 | Tickets | None | Own | Read all |
 | Audit log, jobs, outbox, webhook_events | None | None | Audit log read only |
 
-**Public views.** Anonymous catalogue and tender reads use `public_products` and `public_tenders`. These views exclude seller or buyer identity details as PRD section 6 requires.
+**Public reads.** Anonymous catalogue reads use the `search_products` and `public_product` functions, and tender reads will use the same pattern. These return only allow-listed columns and exclude seller or buyer identity as PRD section 6 requires. The tables grant nothing to visitors.
 
 **Contact visibility.** The other party's name and contact details come only through `get_order_contacts()`, which returns nothing until `contacts_unlocked_at` is set.
 

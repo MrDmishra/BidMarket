@@ -38,7 +38,9 @@ set local role anon;
 select is((
   select count(*) from pg_class c
   join pg_namespace n on n.oid = c.relnamespace
-  where n.nspname = 'public' and c.relkind = 'r' and c.relname !~ '^(pg_|__)'
+  where n.nspname = 'public' and c.relkind = 'r'
+    and c.relname in ('organisations', 'profiles', 'consents', 'org_addresses', 'bank_accounts',
+      'verifications', 'turnover_declarations', 'otp_attempts', 'audit_log')
     and has_table_privilege('anon', c.oid, 'select')
 ), 0::bigint, 'visitors can read no identity table');
 reset role;

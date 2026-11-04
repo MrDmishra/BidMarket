@@ -9,6 +9,27 @@ export type OrgStatus =
   "draft" | "pending_payment" | "pending_review" | "active" | "suspended" | "rejected";
 export type UserRole = "org_user" | "admin";
 
+export type PublicProduct = {
+  id: string;
+  display_no: string;
+  category_slug: string;
+  category_name: string;
+  title: string;
+  mrp_paise: number;
+  discount_bps: number;
+  net_paise: number;
+  unit: string;
+  city: string | null;
+  state_code: string | null;
+};
+
+export type PublicProductDetail = PublicProduct & {
+  description: string | null;
+  stock_qty: number;
+  delivery_states: string[];
+  specs: { label: string; value: string; unit: string | null }[];
+};
+
 type Table<Row> = {
   Row: Row;
   Insert: never;
@@ -19,6 +40,13 @@ type Table<Row> = {
 export type Database = {
   public: {
     Tables: {
+      categories: Table<{
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+        sort_order: number;
+      }>;
       organisations: Table<{
         id: string;
         kind: OrgKind;
@@ -39,6 +67,21 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      search_products: {
+        Args: {
+          p_query?: string;
+          p_category_slug?: string;
+          p_state_code?: string;
+          p_sort?: string;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: PublicProduct[];
+      };
+      public_product: {
+        Args: { p_id: string };
+        Returns: PublicProductDetail[];
+      };
       create_organisation: {
         Args: {
           p_kind: OrgKind;
