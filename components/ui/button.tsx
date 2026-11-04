@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ComponentProps } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "danger" | "gold";
+export type ButtonVariant = "primary" | "secondary" | "danger" | "highlight";
 export type ButtonSize = "default" | "small";
 
 const BASE =
@@ -16,7 +16,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   primary: "border-accent bg-accent text-accent-ink hover:opacity-90",
   secondary: "border-line bg-surface text-ink hover:border-accent",
   danger: "border-bad bg-transparent text-bad hover:bg-bad-bg",
-  gold: "border-gold bg-gold text-gold-ink hover:opacity-90",
+  highlight: "border-highlight bg-highlight text-highlight-ink hover:opacity-90",
 };
 
 export function buttonClasses(variant: ButtonVariant = "primary", size: ButtonSize = "default") {

@@ -11,7 +11,7 @@ export function Wordmark({ onBand = false }: { onBand?: boolean }) {
     >
       <svg
         viewBox="0 0 28 28"
-        className={`size-7 ${onBand ? "text-gold" : "text-accent"}`}
+        className={`size-7 ${onBand ? "text-highlight" : "text-accent"}`}
         fill="currentColor"
         aria-hidden="true"
       >
