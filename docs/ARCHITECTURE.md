@@ -20,7 +20,7 @@ The one hard technical problem is the auction. Bids must be ordered correctly, d
 | Validation | Zod | One schema shared by forms and API. |
 | Database | PostgreSQL via Supabase | Transactions, row locks and row-level security solve the core problem. |
 | Auth | Supabase Auth | Phone and password, OTP hooks, MFA and secure sessions. |
-| Files | Supabase Storage, private buckets | Signed links and one vendor. |
+| Files | Supabase Storage. Private buckets for documents, and one public bucket for re-encoded product images | One vendor. Product images must display publicly. |
 | Real-time | Supabase Realtime Broadcast, private channels | Authorisation per channel. |
 | Scheduling | pg_cron and pg_net, plus a `jobs` table | No separate worker for MVP. |
 | Payments | Razorpay Orders, Checkout and webhooks | RBI-authorised aggregator with India focus. [A-1] |
@@ -219,7 +219,7 @@ Environments: local, preview, production, selected with `APP_ENV`. Production re
 | Browser to server | All input validated. Client price, fee and role values are never trusted. Fees are computed on the server. |
 | App to database | Row-level security and function checks. |
 | Sealed bids | Readable only by the bidder until close, enforced through RLS and API. Staff with direct database access could still read them, so limit that access and log it. Encrypting bids until opening is a later option. |
-| Files | Private buckets, type and size limits, signature sniffing, images re-encoded, short-lived signed links. Documents reach other parties only after scanning. [A-2] |
+| Files | Product images are decoded and re-encoded to WebP on the server, which removes metadata and hidden content, so they need no virus scanner. Private documents, from Phase 5, keep type and size limits, short-lived signed links, and scanning before other parties can open them. [A-2] |
 | Sensitive data | Bank numbers and PAN are encrypted inside Postgres functions with AES-256. Keys stay in Supabase Vault, and lookup uses an HMAC. |
 | Webhooks | Raw-body HMAC check and event-ID de-duplication. |
 | Abuse | Rate limits in API.md, Turnstile and account lockout. |
@@ -250,7 +250,7 @@ Environments: local, preview, production, selected with `APP_ENV`. Production re
 | ID | Decision | Recommendation |
 |---|---|---|
 | **A-1** | Vendors: Razorpay, Cashfree, MSG91, Resend. | Approve, then confirm pricing and KYB eligibility for a marketplace model with each. Pricing and acceptance were not checked for these documents. |
-| **A-2** | Malware scanning. No scanning vendor is selected yet. | Choose in Phase 4. Launch is blocked until scanning is active, because PRD section 8 requires it. |
+| **A-2** | Malware scanning for private documents. No vendor is selected yet. Product images do not need one. | Choose before Phase 5. Launch is blocked until scanning is active, because PRD section 8 requires it. |
 | **A-3** | Vercel and Supabase paid plans, including backups. | Use paid plans for production. Vercel's free plan is not intended for commercial use, so check current terms. |
 | **A-4** | Data residency. Sentry, Resend and Vercel services may process limited data outside India. | Ask your lawyer to confirm. Keep personal data out of logs and errors. |
 

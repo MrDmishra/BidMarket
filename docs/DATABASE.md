@@ -96,7 +96,7 @@ Admin rows are created only by invitation.
 
 **spec_definitions:** `id`, `category_id` FK, `key`, `label`, `kind` (text, number, enum), `unit`, `allowed_values` jsonb, `min_value`, `max_value` numeric, `is_key` boolean, `is_required` boolean. Unique (`category_id`, `key`).
 
-**category_requests:** `id`, `seller_org_id` FK, `name`, `details`, `catalog_file_id` FK files, `status` (pending, approved, rejected), `review_note`, `reviewed_by` FK profiles.
+**category_requests:** `id`, `seller_org_id` FK, `name`, `details`, `status` (pending, approved, rejected), `review_note`, `reviewed_by` FK profiles. A catalogue file can be added with document uploads.
 
 **products**
 
@@ -122,7 +122,7 @@ Admin rows are created only by invitation.
 
 **product_spec_values:** PK (`product_id`, `spec_definition_id`), `value_text`, `value_number`.
 
-**product_media:** `id`, `product_id` FK, `file_id` FK, `kind` (image, video), `sort_order`. Submission requires 3 images and at most one video.
+**product_media:** `id`, `product_id` FK, `storage_path` unique, `sort_order`. Submission requires 3 images, and 3 is also the maximum. Video is not built.
 
 ### 3.3 Tenders
 
@@ -278,7 +278,9 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 **webhook_events:** `id`, `provider`, `event_id`, `event_type`, `received_at`, `processed_at`, `error`. Unique (`provider`, `event_id`).
 
-**idempotency_keys:** PK (`org_id`, `key`), `route`, `request_hash`, `response_status`, `response_body` jsonb, `expires_at`.
+**idempotency_keys:** PK (`user_id`, `key`), `route`, `request_hash`, `response_status`, `response_body` jsonb, `created_at`. Keyed by user because new users have no organisation yet.
+
+**rate_counters:** PK (`user_id`, `window_start`), `hits`.
 
 **audit_log:** append-only. `id` bigserial, `actor_id`, `actor_role`, `org_id`, `action`, `entity_type`, `entity_id`, `before` jsonb, `after` jsonb, `reason`, `ip`, `request_id`, `created_at`. Sensitive fields are masked.
 

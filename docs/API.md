@@ -11,7 +11,7 @@ Source of truth: PRD.md, ARCHITECTURE.md and DATABASE.md.
 - **Money:** integer paise fields ending in `Paise`. Never floats.
 - **Rates:** basis points fields ending in `Bps`.
 - **Dates:** ISO 8601 with offset.
-- **Writes:** every POST, PATCH and DELETE requires an `Idempotency-Key` header and passes an Origin check.
+- **Writes:** every application POST, PATCH and DELETE requires an `Idempotency-Key` header and passes an Origin check. Server actions for login are covered by Supabase Auth limits.
 - **Field names:** camelCase in JSON.
 
 ### Auth levels
@@ -70,13 +70,13 @@ Source of truth: PRD.md, ARCHITECTURE.md and DATABASE.md.
 
 ### Pagination and filtering
 
-- Cursor pagination with `cursor` and `limit`. Default 20, maximum 50.
+- Cursor pagination with `cursor` and `limit`. Default 20, maximum 50. The public product list uses page numbers, because shoppers expect them and it needs no stable cursor.
 - Sort with an allow-listed `sort` value.
 - Unknown filters return 400.
 
 ### Idempotency
 
-The server stores the first response for each organisation and key for 24 hours. The same key with the same body returns the saved response. The same key with a different body returns `IDEMPOTENCY_CONFLICT`.
+The server stores the first successful response for each user and key for 24 hours. A failed request frees its key, so the same action can be retried. The same key with the same body returns the saved response. The same key with a different body returns `IDEMPOTENCY_CONFLICT`.
 
 ## 2. Accounts
 
@@ -123,6 +123,8 @@ When the provider is unavailable, it returns 202 with `status: "manual_review"`.
 | PATCH | `/seller/products/{id}/commercials` | Seller | Change price, discount, stock |
 | DELETE | `/seller/products/{id}` | Seller | Delete if stock is zero and nothing is active |
 | POST | `/seller/category-requests` | Seller | Request category |
+| POST | `/seller/products/{id}/images` | Seller | Upload one image as multipart form data |
+| DELETE | `/seller/products/{id}/images/{mediaId}` | Seller | Remove an image |
 
 The submit, publish and unpublish routes share one handler. `seller_products` and `admin_pending_products` are read through Postgres functions.
 
@@ -267,7 +269,7 @@ All routes require Admin with MFA. Every write requires a `reason` and is audit 
 | GET, POST | `/admin/categories` | List, create |
 | PATCH | `/admin/categories/{id}` | Update |
 | GET, POST | `/admin/categories/{id}/specs` | List, create |
-| PATCH | `/admin/specs/{id}` | Update |
+| PATCH | `/admin/specs/{id}` | Update. Not built yet |
 | GET | `/admin/category-requests` | Queue |
 | POST | `/admin/category-requests/{id}/review` | Approve or reject |
 | GET | `/admin/tenders` | All tenders |
@@ -326,7 +328,7 @@ Subscribed events: `payment.captured`, `payment.failed`, `order.paid`.
 
 ## 12. Rate limits
 
-Limits are per user unless noted, and use a Postgres-backed counter. Values are proposals to tune during load testing.
+Limits are per user unless noted, and use a Postgres-backed counter. Values are proposals to tune during load testing. Today, each user has one limit of 60 writes a minute. The finer limits below arrive with the features they protect.
 
 | Scope | Limit |
 |---|---|

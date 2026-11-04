@@ -133,8 +133,7 @@ If a command cannot run, say so. Never report tests you did not run.
 
 ## 15. Git and change discipline
 
-- Never work directly on `main`.
-- Branch names: `feat/`, `fix/`, `chore/`, `docs/`.
+- The owner has approved working directly on `main`. Use a branch, with names starting `feat/`, `fix/`, `chore/` or `docs/`, when a change must not deploy yet, such as code that needs a database change first.
 - Keep commits small, with Conventional Commit messages.
 - One task per pull request. Include what changed, why, how it was tested, and any risks.
 - Do not force-push shared branches.

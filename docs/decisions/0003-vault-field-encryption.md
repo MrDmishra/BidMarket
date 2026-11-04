@@ -1,7 +1,7 @@
 # 0003: Field encryption in Supabase Vault
 
 **Date:** 4 November 2026
-**Status:** Accepted, pending your review
+**Status:** Accepted
 
 ## Context
 

@@ -1,5 +1,5 @@
 begin;
-select plan(16);
+select plan(19);
 
 insert into organisations (id, kind, entity_type, legal_name, pan_enc, pan_hmac, gstin, status) values
   ('a0000000-0000-0000-0000-000000000001', 'seller', 'company', 'Hidden Seller Ltd', 'x', 'p1', '23AABCN1234F1Z5', 'active'),
@@ -24,7 +24,10 @@ select ok((select display_no from products where title = 'LED high-bay light') ~
 select throws_ok($$update products set discount_bps = 9500 where title = 'Draft cable'$$, '23514', null, 'discount has a ceiling');
 
 set local role anon;
-select is((select count(*) from categories), 16::bigint, 'visitors see active categories');
+select is((select count(*) from categories where parent_id is null), 16::bigint, 'visitors see active categories');
+select is((select count(*) from categories where parent_id is not null), 110::bigint, 'visitors see the sub-categories');
+select is((select count(*) from categories c join categories p on p.id = c.parent_id where p.parent_id is not null), 0::bigint, 'sub-categories sit one level below a main category');
+select is((select count(*) from categories c where c.parent_id is null and not exists (select from categories s where s.parent_id = c.id)), 0::bigint, 'every main category has sub-categories');
 select throws_ok($$select * from products$$, '42501', null, 'visitors cannot read the products table');
 select throws_ok($$select * from product_states$$, '42501', null, 'visitors cannot read product states');
 select is((select count(*) from search_products()), 2::bigint, 'only published products of open sellers appear');
