@@ -94,7 +94,7 @@ Admin rows are created only by invitation.
 
 **categories:** `id`, `parent_id` FK self, `name`, `slug` unique, `description`, `is_active`, `sort_order`.
 
-**spec_definitions:** `id`, `category_id` FK, `key`, `label`, `kind` (text, number, enum), `unit`, `allowed_values` jsonb, `min_value`, `max_value` numeric, `is_key` boolean, `is_required` boolean. Unique (`category_id`, `key`).
+**spec_definitions:** `id`, `category_id` FK, `key`, `label`, `kind` (text, number, enum), `unit`, `allowed_values` jsonb, `min_value`, `max_value` numeric, `is_key` boolean, `is_required` boolean. Unique (`category_id`, `key`). A sub-category uses its own specifications and those of its main category.
 
 **category_requests:** `id`, `seller_org_id` FK, `name`, `details`, `status` (pending, approved, rejected), `review_note`, `reviewed_by` FK profiles. A catalogue file can be added with document uploads.
 

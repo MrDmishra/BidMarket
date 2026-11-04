@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { AuctionStair } from "@/components/ui/auction-stair";
 import { ButtonLink } from "@/components/ui/button";
 import { formatInr } from "@/lib/money";
 import { PROPOSED_FEES } from "@/modules/billing";
+import { groupCategories, listCategories } from "@/modules/catalogue";
+
+export const dynamic = "force-dynamic";
 
 const EXAMPLE_BIDS_PAISE = [64_000, 63_200, 62_100, 61_400, 60_800];
 
@@ -36,7 +40,9 @@ const ORDER_STEPS = [
   ["Close", "The buyer confirms receipt. An acceptance report closes the order."],
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const categories = groupCategories(await listCategories());
+
   return (
     <main>
       <section className="bg-band text-band-ink">
@@ -90,6 +96,27 @@ export default function HomePage() {
             Proposed fees, plus GST. They may change before launch.
           </p>
         </section>
+        {categories.length > 0 ? (
+          <section className="flex flex-col gap-4" aria-labelledby="home-categories">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="home-categories" className="text-3xl font-bold">
+                Browse categories
+              </h2>
+              <Link href="/categories">See all sub-categories</Link>
+            </div>
+            <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/products?category=${category.slug}`}
+                  className="rounded-panel border border-line bg-surface p-4 font-semibold text-ink no-underline hover:border-accent"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
         <section className="flex flex-col gap-4" aria-labelledby="order-steps">
           <h2 id="order-steps" className="text-3xl font-bold">
             How an order runs

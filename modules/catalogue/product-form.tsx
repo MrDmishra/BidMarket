@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { apiWrite } from "@/lib/api/client";
 import { SelectField, TextareaField, TextField } from "@/components/ui/field";
 import { INDIAN_STATES } from "@/lib/india/states";
+import { specCategoryIds } from "@/modules/catalogue/category-tree";
 
 const RAJASTHAN = "08";
 
@@ -46,7 +47,8 @@ export function ProductForm({ categories, specs, product }: ProductFormProps) {
     const parent = categories.find((item) => item.id === category.parent_id);
     return parent ? `${parent.name} › ${category.name}` : category.name;
   };
-  const categorySpecs = specs.filter((spec) => spec.category_id === categoryId);
+  const specCategories = specCategoryIds(categories, categoryId);
+  const categorySpecs = specs.filter((spec) => specCategories.includes(spec.category_id));
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

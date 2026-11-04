@@ -1,5 +1,5 @@
 begin;
-select plan(25);
+select plan(29);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000c1', 'seller@example.com'),
@@ -30,6 +30,13 @@ $$;
 create function test_helpers.save(p_discount integer default 1500) returns uuid language sql as $$
   select public.save_product(null, test_helpers.category('hardware'), 'Brass ball valve', 'Forged', 78000, p_discount, 10, 'pc',
     array['08'], jsonb_build_array(jsonb_build_object('specId', test_helpers.spec('hardware', 'material'), 'value', 'Brass')));
+$$;
+create function test_helpers.save_fasteners(p_specs jsonb) returns uuid language sql as $$
+  select public.save_product(null, test_helpers.category('fasteners'), 'Hex bolt', 'Zinc plated', 5000, 1500, 10, 'pc', array['08'], p_specs);
+$$;
+create function test_helpers.add_images(p_id uuid) returns void language sql as $$
+  select public.add_product_image(p_id, 'c0000000-0000-0000-0000-000000000001/' || p_id || '/' || n || '.webp')
+  from generate_series(1, 3) as n;
 $$;
 grant usage on schema test_helpers to authenticated;
 grant execute on all functions in schema test_helpers to authenticated;
@@ -89,6 +96,21 @@ reset role;
 set local role anon;
 select is((select count(*) from search_products(p_query := 'valve')), 0::bigint, 'unpublished product leaves the catalogue');
 reset role;
+
+set local role authenticated;
+select test_helpers.act_as('00000000-0000-0000-0000-0000000000c1');
+select set_config('test.without_spec', test_helpers.save_fasteners('[]')::text, true);
+select test_helpers.add_images(current_setting('test.without_spec')::uuid);
+select throws_ok($$select submit_product(current_setting('test.without_spec')::uuid)$$, 'P0001', 'VALIDATION_FAILED', 'a sub-category needs required specifications from its main category');
+select set_config('test.with_spec', test_helpers.save_fasteners(jsonb_build_array(
+  jsonb_build_object('specId', test_helpers.spec('hardware', 'material'), 'value', 'Steel'),
+  jsonb_build_object('specId', test_helpers.spec('safety', 'standard'), 'value', 'IS 1234')
+))::text, true);
+select test_helpers.add_images(current_setting('test.with_spec')::uuid);
+select lives_ok($$select submit_product(current_setting('test.with_spec')::uuid)$$, 'a main category specification satisfies its sub-category');
+reset role;
+select is((select v.value_text from product_spec_values v where v.product_id = current_setting('test.with_spec')::uuid), 'Steel', 'the main category value is stored');
+select is((select count(*) from product_spec_values v where v.product_id = current_setting('test.with_spec')::uuid), 1::bigint, 'specifications from another category are ignored');
 
 select * from finish();
 rollback;

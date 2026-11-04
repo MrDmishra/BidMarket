@@ -13,38 +13,41 @@ export default async function CategoriesPage() {
   return (
     <ContentPage
       title="Categories"
-      intro="Each main category is split into smaller sub-categories. Pick either one to see its products."
+      intro="Open a category to see its sub-categories, then pick one to see its products."
     >
       {categories.length === 0 ? (
         <EmptyState message="Categories appear here when the catalogue opens." />
       ) : (
         <div className="grid items-start gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
-            <section
+            <details
               key={category.id}
-              aria-labelledby={`category-${category.slug}`}
-              className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-4"
+              className="group rounded-panel border border-line bg-surface open:border-accent"
             >
-              <div className="flex flex-col gap-1">
-                <h2 id={`category-${category.slug}`} className="text-lg font-bold">
-                  <Link href={`/products?category=${category.slug}`}>{category.name}</Link>
-                </h2>
-                {category.description ? (
-                  <p className="text-sm text-muted">{category.description}</p>
-                ) : null}
-              </div>
-              {category.subCategories.length > 0 ? (
-                <ul className="flex flex-col gap-1 border-t border-line pt-3 text-sm">
-                  {category.subCategories.map((subCategory) => (
-                    <li key={subCategory.id}>
-                      <Link href={`/products?category=${subCategory.slug}`}>
-                        {subCategory.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </section>
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="text-lg font-bold">{category.name}</span>
+                  <span className="text-sm text-muted">
+                    {category.subCategories.length} sub-categories
+                  </span>
+                </span>
+                <span aria-hidden="true" className="text-accent group-open:rotate-180">
+                  ▾
+                </span>
+              </summary>
+              <ul className="flex flex-col gap-1 border-t border-line p-4 text-sm">
+                <li>
+                  <Link href={`/products?category=${category.slug}`} className="font-semibold">
+                    All {category.name.toLowerCase()} products
+                  </Link>
+                </li>
+                {category.subCategories.map((subCategory) => (
+                  <li key={subCategory.id}>
+                    <Link href={`/products?category=${subCategory.slug}`}>{subCategory.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </details>
           ))}
         </div>
       )}

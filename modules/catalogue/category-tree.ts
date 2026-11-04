@@ -8,3 +8,11 @@ export function groupCategories<Category extends TreeInput>(categories: Category
       subCategories: categories.filter((item) => item.parent_id === category.id),
     }));
 }
+
+export function specCategoryIds<Category extends TreeInput>(
+  categories: Category[],
+  categoryId: string,
+) {
+  const parentId = categories.find((item) => item.id === categoryId)?.parent_id;
+  return parentId ? [categoryId, parentId] : [categoryId];
+}

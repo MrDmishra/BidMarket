@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupCategories } from "@/modules/catalogue/category-tree";
+import { groupCategories, specCategoryIds } from "@/modules/catalogue/category-tree";
 
 const categories = [
   { id: "furniture", parent_id: null },
@@ -17,5 +17,15 @@ describe("groupCategories", () => {
 
   it("does not list a sub-category as a main category", () => {
     expect(groupCategories(categories).map((item) => item.id)).toEqual(["furniture", "food"]);
+  });
+});
+
+describe("specCategoryIds", () => {
+  it("includes the main category for a sub-category", () => {
+    expect(specCategoryIds(categories, "tables")).toEqual(["tables", "furniture"]);
+  });
+
+  it("returns only the category itself for a main category", () => {
+    expect(specCategoryIds(categories, "food")).toEqual(["food"]);
   });
 });
