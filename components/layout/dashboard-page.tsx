@@ -2,7 +2,7 @@ import { AppHeader } from "@/components/layout/app-header";
 import { Banner } from "@/components/ui/banner";
 import { ButtonLink } from "@/components/ui/button";
 import { StatusPill, type PillTone } from "@/components/ui/status-pill";
-import type { OrgStatus } from "@/lib/supabase/database.types";
+import type { OrgStatus } from "@/lib/supabase/domain-types";
 
 const STATUS: Record<OrgStatus, { label: string; tone: PillTone; note: string }> = {
   draft: {

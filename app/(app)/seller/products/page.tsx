@@ -8,7 +8,7 @@ import { FactList } from "@/components/ui/fact-list";
 import { StatusPill, type PillTone } from "@/components/ui/status-pill";
 import { requireOrganisation } from "@/lib/auth/account";
 import { formatInr } from "@/lib/money";
-import type { ProductStatus } from "@/lib/supabase/database.types";
+import type { ProductStatus } from "@/lib/supabase/domain-types";
 import { ApiForm } from "@/modules/accounts/api-form";
 import { listSellerProducts } from "@/modules/catalogue";
 import { ProductActions } from "@/modules/catalogue/product-actions";

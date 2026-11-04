@@ -100,3 +100,23 @@ export const specSchema = z.object({
   isKey: yesNo,
   isRequired: yesNo,
 });
+
+const productImagesSchema = z.array(z.object({ id: z.string(), path: z.string() }));
+const productSpecValuesSchema = z.record(z.string(), z.string());
+const publicSpecsSchema = z.array(
+  z.object({ label: z.string(), value: z.string(), unit: z.string().nullable() }),
+);
+
+export function parseSellerProduct<Product extends { images: unknown; specs: unknown }>(
+  product: Product,
+) {
+  return {
+    ...product,
+    images: productImagesSchema.parse(product.images),
+    specs: productSpecValuesSchema.parse(product.specs),
+  };
+}
+
+export function parsePublicProduct<Product extends { specs: unknown }>(product: Product) {
+  return { ...product, specs: publicSpecsSchema.parse(product.specs) };
+}

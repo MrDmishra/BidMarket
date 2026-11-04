@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { publicEnv } from "@/lib/env/public";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/domain-types";
 
 /** Reads public data without a session. Returns null when Supabase is not configured. */
 export function createPublicClient() {

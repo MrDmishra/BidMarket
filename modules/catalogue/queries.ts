@@ -2,6 +2,7 @@ import "server-only";
 
 import { AppError } from "@/lib/errors/app-error";
 import { createPublicClient } from "@/lib/supabase/public";
+import { parsePublicProduct } from "@/modules/catalogue/schemas";
 
 export const PAGE_SIZE = 24;
 
@@ -77,5 +78,5 @@ export async function getProduct(id: string) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("public_product", { p_id: id });
   if (error) throw new AppError("SERVICE_UNAVAILABLE", { cause: error });
-  return data[0] ?? null;
+  return data[0] ? parsePublicProduct(data[0]) : null;
 }

@@ -8,8 +8,8 @@ These items are outside the code, and several have long lead times. Start them e
 
 | Item | Needed by |
 |---|---|
-| Decide D-6 (launch categories and region) and D-10 (brand and legal entity) | Phase 3 and any provider sign-up |
-| Confirm D-1 to D-15 and A-1 to A-4 | Phase 0 |
+| Decide D-10 (brand and legal entity) | Any provider sign-up |
+| Close the remaining PRD section 14 items and A-1 to A-4 | The phase each one blocks |
 | Register business, GST and bank account | Payment gateway activation |
 | Apply for Razorpay and Cashfree accounts, with a marketplace use-case review | Phase 5 and Phase 2 production keys |
 | Complete DLT registration, sender ID and templates | SMS in production |
@@ -71,7 +71,7 @@ Sandbox accounts let development continue while live approvals are pending.
 
 - **Tasks:** Settings, charge calculation, Razorpay checkout, webhook, reconciliation, wallet, tax invoices, subscription, job runner and outbox.
 - **Files:** `modules/billing/`, `lib/money/`, `lib/providers/`, `app/api/webhooks/`, `app/api/internal/`.
-- **Prerequisites:** Phase 2. Razorpay test keys. D-2, D-3, D-12 and D-14.
+- **Prerequisites:** Phase 2. Razorpay test keys. The D-3 pricing choice, and the D-12 confirmation before live invoices. D-2 and D-14 are decided.
 - **Database/API:** Tables 3.5, `jobs`, `outbox`, `webhook_events`, `idempotency_keys`. API section 7.
 - **Tests:** Fee and GST calculations, duplicate and out-of-order webhooks, amount mismatch, wallet balance, gapless invoice numbers.
 - **Done when:** A seller can pay the subscription in test mode and go live, even if the browser closes mid-payment.
@@ -170,4 +170,4 @@ Sandbox accounts let development continue while live approvals are pending.
 
 **Phase 0, Project Setup (prompt 8).** It has no business decisions in it apart from A-3 (hosting plans), and everything else depends on it.
 
-Before starting, confirm your D-1 to D-15 and A-1 to A-4 decisions, because a change to D-1, D-2, D-4 or D-7 would change DATABASE.md.
+A later change to D-1, D-2, D-4 or D-7 would change DATABASE.md.

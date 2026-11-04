@@ -2,7 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { createUserClient } from "@/lib/supabase/server";
-import type { OrgKind, OrgStatus, UserRole } from "@/lib/supabase/database.types";
+import type { OrgKind, OrgStatus, UserRole } from "@/lib/supabase/domain-types";
 
 export type Account = {
   userId: string;

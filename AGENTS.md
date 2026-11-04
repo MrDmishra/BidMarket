@@ -81,7 +81,7 @@ Make only the requested change. Do not rewrite working code, reformat unrelated 
 - Do not use `any`. Use `unknown`, then narrow it.
 - Do not use `@ts-ignore`. If `@ts-expect-error` is truly needed, include the reason.
 - Validate all external input with Zod: requests, webhooks, provider responses, environment variables.
-- Use generated database types.
+- Use generated database types from `lib/supabase/database.types.ts`, and regenerate that file after each schema change. App-level aliases belong in `lib/supabase/domain-types.ts`.
 
 ## 10. Error handling
 
@@ -99,7 +99,7 @@ Make only the requested change. Do not rewrite working code, reformat unrelated 
 - Never log secrets, passwords, OTPs, tokens, full PAN, bank numbers or documents.
 - Never store Aadhaar numbers or images.
 - Verify webhook signatures on the raw body before processing.
-- Treat all uploads as untrusted. Validate type by content, and use private storage.
+- Treat all uploads as untrusted. Validate type by content, and use private storage. Re-encoded product images are the one approved exception (decision 0004).
 - Stop and flag any change that weakens authentication, authorization, RLS or validation.
 
 ## 12. Database and API access

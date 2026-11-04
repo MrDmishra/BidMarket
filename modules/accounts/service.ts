@@ -5,7 +5,7 @@ import { createUserClient } from "@/lib/supabase/server";
 import { CURRENT_POLICY_VERSION } from "@/modules/accounts/schemas";
 import { rupeesToPaise } from "@/lib/money";
 import { recentFinancialYears } from "@/lib/time/financial-year";
-import type { EntityType, OrgKind } from "@/lib/supabase/database.types";
+import type { EntityType, OrgKind } from "@/lib/supabase/domain-types";
 
 type NewOrganisation = { kind: OrgKind; entityType: EntityType; legalName: string };
 

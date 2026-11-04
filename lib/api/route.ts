@@ -1,9 +1,17 @@
 import { createHash } from "node:crypto";
-import type { z } from "zod";
+import { z } from "zod";
+import type { Json } from "@/lib/supabase/database.types";
 import { createRequestId, jsonError } from "@/lib/api/response";
 import { AppError } from "@/lib/errors/app-error";
 import { toAppError } from "@/lib/errors/database";
 import { createUserClient } from "@/lib/supabase/server";
+
+const storedResponseSchema = z.object({ status: z.number(), body: z.unknown() }).nullable();
+
+/** Stored bodies are plain JSON, so a round trip drops anything JSON cannot hold. */
+function toJson(value: unknown): Json {
+  return JSON.parse(JSON.stringify(value)) as Json;
+}
 
 function assertSameOrigin(request: Request) {
   const origin = request.headers.get("origin");
@@ -33,11 +41,12 @@ export async function handleWrite(
       p_hash: createHash("sha256").update(fingerprint).digest("hex"),
     });
     if (error) throw toAppError(error);
-    if (replay) return Response.json(replay.body, { status: replay.status });
+    const stored = storedResponseSchema.parse(replay);
+    if (stored) return Response.json(stored.body, { status: stored.status });
 
     try {
       const body = { data: (await run()) ?? { done: true }, meta: { requestId } };
-      await supabase.rpc("api_finish", { p_key: key, p_status: status, p_body: body });
+      await supabase.rpc("api_finish", { p_key: key, p_status: status, p_body: toJson(body) });
       return Response.json(body, { status });
     } catch (error) {
       await supabase.rpc("api_finish", { p_key: key, p_status: 500, p_body: null });

@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { AppError } from "@/lib/errors/app-error";
 import { getServerEnv } from "@/lib/env/server";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/domain-types";
 
 /** Runs as the signed-in user, so row-level security applies to every query. */
 export async function createUserClient() {

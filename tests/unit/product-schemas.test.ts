@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { commercialsSchema, productReviewSchema, productSchema } from "@/modules/catalogue/schemas";
+import {
+  commercialsSchema,
+  parsePublicProduct,
+  parseSellerProduct,
+  productReviewSchema,
+  productSchema,
+} from "@/modules/catalogue/schemas";
 
 const product = {
   categoryId: "11111111-1111-4111-8111-111111111111",
@@ -54,5 +60,27 @@ describe("other product schemas", () => {
       false,
     );
     expect(productReviewSchema.safeParse({ decision: "rejected", note: "" }).success).toBe(false);
+  });
+});
+
+describe("product data from the database", () => {
+  it("accepts seller images and specification values", () => {
+    const product = parseSellerProduct({
+      images: [{ id: "image-1", path: "org/product/1.webp" }],
+      specs: { "spec-1": "Brass" },
+    });
+    expect(product.images[0]?.path).toBe("org/product/1.webp");
+    expect(product.specs["spec-1"]).toBe("Brass");
+  });
+
+  it("rejects malformed seller data", () => {
+    expect(() => parseSellerProduct({ images: null, specs: {} })).toThrow();
+  });
+
+  it("accepts public specifications without a unit", () => {
+    const product = parsePublicProduct({
+      specs: [{ label: "Material", value: "Brass", unit: null }],
+    });
+    expect(product.specs[0]?.label).toBe("Material");
   });
 });

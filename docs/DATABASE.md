@@ -409,7 +409,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 - **Seed for all environments:** categories, specification templates, first `platform_settings` row, document sequences.
 - **Seed for local and preview only:** example organisations, products and tenders, using invented names and `.example` emails. Never seed these in production.
 
-The production categories wait on D-6.
+Production categories follow D-6: all 16 main categories and their sub-categories are live.
 
 ## 10. Backup and recovery
 

@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Status** | Draft. Companion documents use the section 14 recommendations as working defaults until you confirm or change them. D-6 and D-10 remain open. |
-| **Version** | 0.2 |
+| **Status** | Approved by the owner on 4 November 2026, except D-10, D-12 and D-15. Section 14 lists what stays open. |
+| **Version** | 0.3 |
 | **Date** | 4 November 2026 |
 | **Prototype** | Bid Market working prototype (browser-only, example data) |
 | **Reference product** | PEM, pem.co.in, used for the business model only. Do not copy its name, logo, text, images or legal terms. |
 
-**How to read this document.** `[ASSUMPTION]` marks something I inferred and you have not confirmed. `[D-n]` points to a decision in section 14 that needs your approval. Resolve the section 14 decisions before starting DESIGN.md or ARCHITECTURE.md, because several of them change the data model.
+**How to read this document.** `[ASSUMPTION]` marks something I inferred and you have not confirmed. `[D-n]` points to a decision in section 14.
 
 ---
 
@@ -160,7 +160,7 @@ Priority: **M** = MVP, **L** = later.
 | F-42 | In Bid to RA, the buyer removes the highest bidder(s) or highest 50%, then the RA starts at the set time among remaining sellers. | M |
 | F-43 | The selected seller accepts or rejects. Rejection passes the award to the next lowest seller. | M |
 | F-44 | Rejection penalty: blocks of 30, 60 and 180 days, then permanent. `[D-8]` | M |
-| F-45 | Bids after 6:45 PM stay hidden until 9:00 AM on the next working day. `[D-7]` | L |
+| F-45 | Removed. D-7 skips the overnight visibility rule. | — |
 
 ### 3.5 Fees, wallet and documents
 
@@ -377,6 +377,15 @@ Targets are proposals for the first 6 months after launch. `[ASSUMPTION: replace
 ## 14. Decisions requiring your approval
 
 PEM's published terms contain some contradictions and gaps. I have listed these so you do not inherit them.
+
+**Decision status, 4 November 2026.** The owner accepted the recommendations for D-1 to D-5, D-7 to D-9, D-11, D-13 and D-14. D-6 is decided. Still open:
+
+- **D-3:** choose between a full waiver and a discount, and set the discount.
+- **D-4:** choose DigiLocker or a named KYC provider.
+- **D-10:** brand and legal entity.
+- **D-12:** chartered accountant to confirm GST and TDS. TDS stays at 0 until then.
+- **D-15:** lawyer and chartered accountant to set retention periods.
+- **D-2:** lawyer to confirm the wallet fits RBI rules.
 
 ### Must decide before design and architecture
 

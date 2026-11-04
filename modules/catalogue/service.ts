@@ -12,6 +12,7 @@ import type {
   productSchema,
   specSchema,
 } from "@/modules/catalogue/schemas";
+import { parseSellerProduct } from "@/modules/catalogue/schemas";
 
 const IMAGE_BUCKET = "product-images";
 
@@ -66,7 +67,7 @@ export async function listSellerProducts() {
   const supabase = await createUserClient();
   const { data, error } = await supabase.rpc("seller_products");
   if (error) throw toAppError(error);
-  return data;
+  return data.map(parseSellerProduct);
 }
 
 export async function listPendingProducts() {

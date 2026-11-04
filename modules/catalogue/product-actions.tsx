@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { apiWrite } from "@/lib/api/client";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import type { ProductStatus } from "@/lib/supabase/database.types";
+import type { ProductStatus } from "@/lib/supabase/domain-types";
 
 const FAILED: Record<string, string> = {
   submit: "Complete the required specifications, delivery states and stock, then try again.",

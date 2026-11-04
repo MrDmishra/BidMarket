@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env/public";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/domain-types";
 
 /** Refreshes the session cookie and reports whether a valid user is present. */
 export async function refreshSession(request: NextRequest) {

@@ -1,6 +1,6 @@
 # Bid Market: Architecture
 
-Source of truth: PRD.md and DESIGN.md. Decisions marked **[A-n]** in section 15 need your approval. PRD decisions D-1 to D-15 use their recommended defaults.
+Source of truth: PRD.md and DESIGN.md. Decisions marked **[A-n]** in section 15 need your approval. PRD section 14 records which decisions the owner accepted and which stay open.
 
 ## 1. Summary
 
@@ -243,7 +243,7 @@ Environments: local, preview, production, selected with `APP_ENV`. Production re
 - CI runs lint, type check, tests and build.
 - Migrations run in a release step, before the app deploys. They must be backward compatible.
 - Do not deploy during live auctions unless the change is an urgent fix.
-- `/api/health` checks the app and Supabase. It uses the Supabase Auth health endpoint until the first migration adds a direct database check.
+- `/api/health` checks the app and Supabase. It calls the `health_check` database function.
 
 ## 15. Decisions needing approval
 
