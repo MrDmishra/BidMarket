@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/layout/app-header";
+import { Banner } from "@/components/ui/banner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FactList } from "@/components/ui/fact-list";
 import { StatusPill } from "@/components/ui/status-pill";
 import { requireAdmin } from "@/lib/auth/account";
-import { listPendingOrganisations } from "@/modules/accounts";
+import { formatInr } from "@/lib/money";
+import { listPaymentPendingSellers, listPendingOrganisations } from "@/modules/accounts";
 import { ReviewActions } from "@/modules/accounts/review-queue";
+import { TestActivation } from "@/modules/accounts/test-activation";
+import { listPendingProducts } from "@/modules/catalogue";
+import { ProductReview } from "@/modules/catalogue/product-review";
 
 export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminPage() {
   const account = await requireAdmin();
-  const pending = await listPendingOrganisations();
+  const [pending, products, sellers] = await Promise.all([
+    listPendingOrganisations(),
+    listPendingProducts(),
+    listPaymentPendingSellers(),
+  ]);
 
   return (
     <>
@@ -41,6 +50,50 @@ export default async function AdminPage() {
               ]}
             />
             <ReviewActions organisationId={organisation.id} />
+          </section>
+        ))}
+
+        <h2 className="pt-4 text-2xl font-bold">Product review</h2>
+        {products.length === 0 ? (
+          <EmptyState message="No products are waiting for review." />
+        ) : null}
+        {products.map((product) => (
+          <section
+            key={product.id}
+            aria-label={product.title}
+            className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-5"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-xl font-bold">{product.title}</h3>
+              <StatusPill tone="warn" label="Pending" />
+            </div>
+            {product.description ? <p>{product.description}</p> : null}
+            <FactList
+              facts={[
+                { label: "Seller", value: product.seller_name },
+                { label: "Category", value: product.category_name },
+                { label: "MRP", value: formatInr(product.mrp_paise), numeric: true },
+                { label: "Net price", value: formatInr(product.net_paise), numeric: true },
+                { label: "Stock", value: `${product.stock_qty} ${product.unit}`, numeric: true },
+              ]}
+            />
+            <ProductReview productId={product.id} />
+          </section>
+        ))}
+
+        <h2 className="pt-4 text-2xl font-bold">Test activation</h2>
+        <Banner tone="warn">
+          For testing only. This skips subscription payment and is removed before launch.
+        </Banner>
+        {sellers.length === 0 ? <EmptyState message="No sellers are waiting for payment." /> : null}
+        {sellers.map((seller) => (
+          <section
+            key={seller.id}
+            aria-label={seller.legal_name}
+            className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-5"
+          >
+            <h3 className="text-xl font-bold">{seller.legal_name}</h3>
+            <TestActivation organisationId={seller.id} />
           </section>
         ))}
       </main>

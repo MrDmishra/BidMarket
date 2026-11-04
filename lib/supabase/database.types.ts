@@ -9,6 +9,41 @@ export type OrgStatus =
   "draft" | "pending_payment" | "pending_review" | "active" | "suspended" | "rejected";
 export type UserRole = "org_user" | "admin";
 
+export type ProductStatus =
+  "draft" | "pending" | "notify" | "published" | "unpublished" | "rejected";
+
+export type SellerProduct = {
+  id: string;
+  display_no: string;
+  title: string;
+  category_id: string;
+  category_name: string;
+  mrp_paise: number;
+  discount_bps: number;
+  net_paise: number;
+  stock_qty: number;
+  unit: string;
+  status: ProductStatus;
+  review_note: string | null;
+  description: string | null;
+  state_codes: string[];
+  specs: Record<string, string>;
+};
+
+export type PendingProduct = {
+  id: string;
+  display_no: string;
+  title: string;
+  description: string | null;
+  category_name: string;
+  seller_name: string;
+  mrp_paise: number;
+  discount_bps: number;
+  net_paise: number;
+  stock_qty: number;
+  unit: string;
+};
+
 export type PublicProduct = {
   id: string;
   display_no: string;
@@ -47,6 +82,14 @@ export type Database = {
         description: string | null;
         sort_order: number;
       }>;
+      spec_definitions: Table<{
+        id: string;
+        category_id: string;
+        label: string;
+        kind: "text" | "number" | "enum";
+        unit: string | null;
+        is_required: boolean;
+      }>;
       organisations: Table<{
         id: string;
         kind: OrgKind;
@@ -67,6 +110,41 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      save_product: {
+        Args: {
+          p_id: string | null;
+          p_category_id: string;
+          p_title: string;
+          p_description: string;
+          p_mrp_paise: number;
+          p_discount_bps: number;
+          p_stock_qty: number;
+          p_unit: string;
+          p_state_codes: string[];
+          p_specs: { specId: string; value: string }[];
+        };
+        Returns: string;
+      };
+      submit_product: { Args: { p_id: string }; Returns: undefined };
+      set_product_visibility: { Args: { p_id: string; p_visible: boolean }; Returns: undefined };
+      update_product_commercials: {
+        Args: { p_id: string; p_mrp_paise: number; p_discount_bps: number; p_stock_qty: number };
+        Returns: undefined;
+      };
+      seller_products: { Args: Record<never, never>; Returns: SellerProduct[] };
+      admin_pending_products: { Args: Record<never, never>; Returns: PendingProduct[] };
+      admin_review_product: {
+        Args: { p_id: string; p_decision: string; p_note: string };
+        Returns: undefined;
+      };
+      admin_payment_pending_sellers: {
+        Args: Record<never, never>;
+        Returns: { id: string; legal_name: string; gstin: string | null }[];
+      };
+      admin_test_activate_seller: {
+        Args: { p_org_id: string; p_reason: string };
+        Returns: undefined;
+      };
       search_products: {
         Args: {
           p_query?: string;

@@ -24,6 +24,17 @@ export async function listCategories() {
   return data;
 }
 
+export async function listSpecDefinitions() {
+  const supabase = createPublicClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("spec_definitions")
+    .select("id, category_id, label, kind, unit, is_required")
+    .order("label");
+  if (error) throw new AppError("SERVICE_UNAVAILABLE", { cause: error });
+  return data;
+}
+
 export async function searchProducts({
   query,
   categorySlug,

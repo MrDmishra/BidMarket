@@ -42,6 +42,11 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
           <StatusPill tone={details.tone} label={details.label} />
         </div>
         <Banner>{details.note}</Banner>
+        {status === "active" && title.startsWith("Seller") ? (
+          <div>
+            <ButtonLink href="/seller/products">Manage products</ButtonLink>
+          </div>
+        ) : null}
         {status === "draft" ? (
           <div>
             <ButtonLink href="/onboarding/verify">Complete verification</ButtonLink>

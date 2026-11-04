@@ -112,3 +112,19 @@ export async function reviewOrganisation(id: string, approve: boolean, reason: s
   });
   if (error) throw toAppError(error);
 }
+
+export async function listPaymentPendingSellers() {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("admin_payment_pending_sellers");
+  if (error) throw toAppError(error);
+  return data;
+}
+
+export async function testActivateSeller(id: string, reason: string) {
+  const supabase = await createUserClient();
+  const { error } = await supabase.rpc("admin_test_activate_seller", {
+    p_org_id: id,
+    p_reason: reason,
+  });
+  if (error) throw toAppError(error);
+}

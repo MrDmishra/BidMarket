@@ -11,15 +11,22 @@ export type ApiFormField = {
   label: string;
   hint?: string;
   optional?: boolean;
+  defaultValue?: string;
   options?: { value: string; label: string }[];
 };
 
 type ApiError = { error?: { message?: string; fields?: Record<string, string> } };
 
-type ApiFormProps = { id: string; endpoint: string; fields: ApiFormField[]; submitLabel: string };
+type ApiFormProps = {
+  id: string;
+  endpoint: string;
+  fields: ApiFormField[];
+  submitLabel: string;
+  method?: "POST" | "PATCH";
+};
 
 /** Sends the form as JSON, shows server errors by field, then reloads server data. */
-export function ApiForm({ id, endpoint, fields, submitLabel }: ApiFormProps) {
+export function ApiForm({ id, endpoint, fields, submitLabel, method = "POST" }: ApiFormProps) {
   const router = useRouter();
   const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
@@ -33,7 +40,7 @@ export function ApiForm({ id, endpoint, fields, submitLabel }: ApiFormProps) {
     setFieldMessages({});
     try {
       const response = await fetch(endpoint, {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
         body,
       });
@@ -80,6 +87,7 @@ export function ApiForm({ id, endpoint, fields, submitLabel }: ApiFormProps) {
             label={field.optional ? `${field.label} (optional)` : field.label}
             hint={field.hint}
             error={fieldMessages[field.name]}
+            defaultValue={field.defaultValue}
           />
         ),
       )}

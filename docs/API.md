@@ -124,6 +124,8 @@ When the provider is unavailable, it returns 202 with `status: "manual_review"`.
 | DELETE | `/seller/products/{id}` | Seller | Delete if stock is zero and nothing is active |
 | POST | `/seller/category-requests` | Seller | Request category |
 
+The submit, publish and unpublish routes share one handler. `seller_products` and `admin_pending_products` are read through Postgres functions.
+
 ## 4. Files
 
 | Method | Path | Auth | Purpose |
@@ -254,6 +256,7 @@ All routes require Admin with MFA. Every write requires a `reason` and is audit 
 | GET | `/admin/organisations` | Search and filter |
 | GET | `/admin/organisations/{id}` | Detail. Identity reads are logged |
 | POST | `/admin/organisations/{id}/review` | Approve or reject, with a reason |
+| POST | `/admin/organisations/{id}/test-activate` | Temporary. Activates a seller without payment for testing. Remove before launch |
 | POST | `/admin/organisations/{id}/suspend` | Suspend |
 | POST | `/admin/organisations/{id}/reinstate` | Reinstate |
 | POST | `/admin/organisations/{id}/block` | Apply block |

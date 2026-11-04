@@ -63,7 +63,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Tables 3.2 and `files`. API sections 3 and 4.
 - **Tests:** Status transitions, upload validation, seller identity absent from public responses, search performance.
 - **Done when:** A product moves from draft to public, and all status rules hold.
-- **Status:** In progress. Catalogue tables, the 16 launch categories, and public category and product pages are live. Seller listing, admin review, category requests and file uploads remain.
+- **Status:** In progress. Catalogue tables, the 16 launch categories, and public category and product pages are live. Seller listing and admin review are built, without images. Product images, category requests and specification filters remain. A temporary test activation must be removed before launch.
 
 ## Phase 4: Billing core
 
@@ -145,7 +145,7 @@ Sandbox accounts let development continue while live approvals are pending.
 
 **Goal:** Safe production launch.
 
-- **Tasks:** Remove the `noindex` setting in the root layout, final legal pages, production keys, malware scanning, DLT templates live, production seed, deployment, a small paid transaction test, operations runbook, pilot with a small group.
+- **Tasks:** Remove the temporary seller test activation, remove the `noindex` setting in the root layout, final legal pages, production keys, malware scanning, DLT templates live, production seed, deployment, a small paid transaction test, operations runbook, pilot with a small group.
 - **Prerequisites:** All earlier phases, and external items above.
 - **Tests:** Production smoke test, one real low-value payment and invoice check, final audit using the launch criteria in PRD section 12.
 - **Done when:** Audit verdict is READY or READY WITH WARNINGS, with no blockers.

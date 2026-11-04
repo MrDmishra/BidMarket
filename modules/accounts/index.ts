@@ -3,11 +3,13 @@ export {
   addRegisteredAddress,
   createOrganisation,
   getVerificationProgress,
+  listPaymentPendingSellers,
   listPendingOrganisations,
   reviewOrganisation,
   saveBusinessIdentity,
   saveTurnover,
   submitOrganisation,
+  testActivateSeller,
 } from "@/modules/accounts/service";
 export {
   addressSchema,
