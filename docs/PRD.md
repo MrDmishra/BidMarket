@@ -378,11 +378,9 @@ Targets are proposals for the first 6 months after launch. `[ASSUMPTION: replace
 
 PEM's published terms contain some contradictions and gaps. I have listed these so you do not inherit them.
 
-**Decision status, 4 November 2026.** The owner accepted the recommendations for D-1 to D-5, D-7 to D-9, D-11, D-13 and D-14. D-6 is decided. Still open:
+**Decision status, 4 November 2026.** The owner accepted the recommendations for D-1, D-2, D-5, D-7 to D-9, D-11, D-13 and D-14. D-6 is decided. D-3: the first 100 sellers get 50% off their first year. D-4: Cashfree checks PAN, GSTIN and bank details. Still open:
 
-- **D-3:** choose between a full waiver and a discount, and set the discount.
-- **D-4:** choose DigiLocker or a named KYC provider.
-- **D-10:** brand and legal entity.
+- **D-10:** the name is Bid Market, subject to a trademark search. The legal entity is still open.
 - **D-12:** chartered accountant to confirm GST and TDS. TDS stays at 0 until then.
 - **D-15:** lawyer and chartered accountant to set retention periods.
 - **D-2:** lawyer to confirm the wallet fits RBI rules.

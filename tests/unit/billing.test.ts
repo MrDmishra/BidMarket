@@ -49,7 +49,8 @@ describe("settingsSchema", () => {
     tds: "0",
     subscriptionBase: "25000",
     subscriptionStep: "100",
-    freeSellers: "100",
+    launchOfferSellers: "100",
+    launchOffer: "50",
     reason: "Launch offer",
   };
 
@@ -58,7 +59,8 @@ describe("settingsSchema", () => {
     expect(result.directFee).toBe(10);
     expect(result.gst).toBe(1800);
     expect(result.subscriptionBase).toBe(2_500_000);
-    expect(result.freeSellers).toBe(100);
+    expect(result.launchOfferSellers).toBe(100);
+    expect(result.launchOffer).toBe(5000);
   });
 
   it("rejects a rate above 100% and a missing reason", () => {

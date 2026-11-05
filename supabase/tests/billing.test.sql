@@ -1,5 +1,5 @@
 begin;
-select plan(39);
+select plan(40);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000d1', 'seller@example.com'),
@@ -33,7 +33,19 @@ $$;
 grant usage on schema test_helpers to authenticated, service_role;
 grant execute on all functions in schema test_helpers to authenticated, service_role;
 
-select is((select count(*) from platform_settings), 1::bigint, 'settings are seeded');
+do $$
+declare
+  v_row public.platform_settings := private.current_settings();
+begin
+  v_row.id := gen_random_uuid();
+  v_row.effective_from := now() - interval '1 millisecond';
+  v_row.launch_offer_sellers := 0;
+  v_row.launch_offer_bps := 0;
+  insert into public.platform_settings values (v_row.*);
+end;
+$$;
+
+select ok((select launch_offer_sellers = 100 and launch_offer_bps = 5000 from platform_settings order by launch_offer_sellers desc limit 1), 'the launch offer is seeded');
 select throws_ok($$update platform_settings set gst_bps = 0$$, 'P0001', null, 'settings cannot be changed in place');
 
 -- Quote and charge
@@ -106,17 +118,18 @@ reset role;
 -- Settings
 set local role authenticated;
 select test_helpers.act_as('00000000-0000-0000-0000-0000000000d1');
-select throws_ok($$select admin_save_settings(10, 50, 1800, 0, 2500000, 10000, 0, 'x')$$, 'P0001', 'FORBIDDEN', 'sellers cannot change settings');
+select throws_ok($$select admin_save_settings(10, 50, 1800, 0, 2500000, 10000, 0, 0, 'x')$$, 'P0001', 'FORBIDDEN', 'sellers cannot change settings');
 select test_helpers.act_as('00000000-0000-0000-0000-0000000000d3', 'aal2');
-select throws_ok($$select admin_save_settings(10, 50, 1800, 0, 2500000, 10000, 0, ' ')$$, 'P0001', 'VALIDATION_FAILED', 'a settings change needs a reason');
-select lives_ok($$select admin_save_settings(10, 50, 1800, 0, 2500000, 10000, 5, 'Launch offer')$$, 'admin adds a new settings row');
+select throws_ok($$select admin_save_settings(10, 50, 1800, 0, 2500000, 10000, 0, 0, ' ')$$, 'P0001', 'VALIDATION_FAILED', 'a settings change needs a reason');
+select lives_ok($$select admin_save_settings(10, 50, 1800, 0, 2500000, 10000, 5, 5000, 'Launch offer')$$, 'admin adds a new settings row');
 
 -- Free first subscriptions
 select test_helpers.act_as('00000000-0000-0000-0000-0000000000d2');
 reset role;
 update subscriptions set status = 'cancelled' where org_id = 'd0000000-0000-0000-0000-000000000002';
 set local role authenticated;
-select is((quote_subscription() ->> 'free')::boolean, true, 'early sellers get the free year');
+select is((quote_subscription() ->> 'feePaise')::bigint, 1250000::bigint, 'early sellers pay half for their first year');
+select is((quote_subscription() ->> 'gstPaise')::bigint, 225000::bigint, 'GST follows the discounted fee');
 reset role;
 
 select * from finish();
