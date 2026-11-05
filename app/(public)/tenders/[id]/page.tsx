@@ -21,9 +21,13 @@ export default async function TenderPage({ params }: TenderPageProps) {
     <ContentPage title={tender.title} intro={tender.tenderNo}>
       <FactList
         facts={[
+          { label: "Type", value: tender.type === "ra" ? "Reverse auction" : "Sealed bid" },
           { label: "Category", value: tender.categoryName },
           { label: "Quantity", value: `${tender.quantity} ${tender.unit}`, numeric: true },
           { label: "Delivery", value: stateName(tender.deliveryStateCode) },
+          ...(tender.raStartsAt
+            ? [{ label: "Auction starts", value: closingText(tender.raStartsAt) }]
+            : []),
           { label: "Bidding closes", value: closingText(tender.bidEndsAt) },
           { label: "Contract period", value: `${tender.contractMonths} months` },
           ...tender.specs.map((spec) => ({

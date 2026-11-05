@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  auctionBidSchema,
   bidSchema,
+  buyerAuctionSchema,
   createTenderSchema,
   sellerTenderSchema,
   toIndiaTimestamp,
 } from "@/modules/tenders/schemas";
 
 const regular = {
+  type: "bid",
   kind: "regular",
   productId: "11111111-1111-4111-8111-111111111111",
   quantity: "100",
@@ -47,6 +50,45 @@ describe("createTenderSchema", () => {
         estimateUnit: "900",
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("reverse auction inputs", () => {
+  it("needs both auction times", () => {
+    const auction = { ...regular, type: "ra", bidEndsAt: undefined };
+    expect(createTenderSchema.safeParse(auction).success).toBe(false);
+    expect(
+      createTenderSchema.safeParse({
+        ...auction,
+        raStartsAt: "2026-11-10T11:00",
+        raEndsAt: "2026-11-10T12:00",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("needs a whole paise bid and a key", () => {
+    const bid = { unitPaise: 89550, bidKey: "11111111-1111-4111-8111-111111111111" };
+    expect(auctionBidSchema.safeParse(bid).success).toBe(true);
+    expect(auctionBidSchema.safeParse({ ...bid, unitPaise: 895.5 }).success).toBe(false);
+    expect(auctionBidSchema.safeParse({ unitPaise: 89550 }).success).toBe(false);
+  });
+
+  it("has no price field in the buyer's live view", () => {
+    const fields = Object.keys(buyerAuctionSchema.shape).join(" ");
+    expect(fields).not.toMatch(/paise|l1|price/i);
+  });
+
+  it("drops any price that reaches the buyer's live view", () => {
+    const view = buyerAuctionSchema.parse({
+      status: "auction",
+      bidCount: 2,
+      startsAt: "2026-11-10T11:00:00Z",
+      endsAt: "2026-11-10T12:00:00Z",
+      seq: 2,
+      serverNow: "2026-11-10T11:30:00Z",
+      l1Paise: 89550,
+    });
+    expect(view).not.toHaveProperty("l1Paise");
   });
 });
 

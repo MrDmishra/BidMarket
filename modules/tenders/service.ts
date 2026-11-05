@@ -1,13 +1,17 @@
 import "server-only";
 
 import type { z } from "zod";
+import { AppError } from "@/lib/errors/app-error";
 import { toAppError } from "@/lib/errors/database";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createUserClient } from "@/lib/supabase/server";
 import {
+  auctionBidResultSchema,
+  buyerAuctionSchema,
   buyerTenderSchema,
   estimateToPaise,
   publicTenderSchema,
+  sellerAuctionSchema,
   sellerTenderSchema,
   toIndiaTimestamp,
   type createTenderSchema,
@@ -49,7 +53,10 @@ export async function createTender(input: z.output<typeof createTenderSchema>) {
     p_consignee_gstin: input.consigneeGstin,
     p_consignee_address_id: input.consigneeAddressId,
     p_contract_months: input.contractMonths,
-    p_bid_ends_at: toIndiaTimestamp(input.bidEndsAt),
+    p_bid_ends_at: toIndiaTimestamp(input.bidEndsAt ?? input.raEndsAt ?? ""),
+    p_type: input.type,
+    p_ra_starts_at: input.raStartsAt ? toIndiaTimestamp(input.raStartsAt) : undefined,
+    p_ra_ends_at: input.raEndsAt ? toIndiaTimestamp(input.raEndsAt) : undefined,
     p_min_bids: input.minBids,
     p_extensions_allowed: input.extensionsAllowed,
     p_extension_minutes: input.extensionHours * MINUTES_PER_HOUR,
@@ -141,4 +148,30 @@ export async function rejectAward(id: string, reason: string) {
   const supabase = await createUserClient();
   const { error } = await supabase.rpc("reject_award", { p_id: id, p_reason: reason });
   if (error) throw toAppError(error);
+}
+
+export async function getSellerAuction(id: string) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("seller_auction", { p_id: id });
+  if (error) throw toAppError(error);
+  return sellerAuctionSchema.parse(data);
+}
+
+export async function getBuyerAuction(id: string) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("buyer_auction", { p_id: id });
+  if (error) throw toAppError(error);
+  if (!data) throw new AppError("NOT_FOUND");
+  return buyerAuctionSchema.parse(data);
+}
+
+export async function placeAuctionBid(id: string, unitPaise: number, bidKey: string) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("place_ra_bid", {
+    p_id: id,
+    p_unit_paise: unitPaise,
+    p_idempotency_key: bidKey,
+  });
+  if (error) throw toAppError(error);
+  return auctionBidResultSchema.parse(data);
 }

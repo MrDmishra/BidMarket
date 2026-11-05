@@ -4,6 +4,8 @@ export const TENDER_STATUS: Record<string, { label: string; tone: PillTone }> = 
   draft: { label: "Draft", tone: "neutral" },
   unpaid: { label: "Fee due", tone: "warn" },
   bidding: { label: "Open for bids", tone: "ok" },
+  auction_scheduled: { label: "Auction scheduled", tone: "ok" },
+  auction: { label: "Auction live", tone: "warn" },
   evaluating: { label: "Choose a seller", tone: "warn" },
   awarding: { label: "Awaiting seller", tone: "warn" },
   ordered: { label: "Ordered", tone: "ok" },

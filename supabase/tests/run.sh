@@ -22,4 +22,5 @@ for test_file in supabase/tests/*.test.sql; do
   echo "$output"
   if grep -qE '^(not ok|# Looks like)' <<<"$output"; then status=1; fi
 done
+if ! bash supabase/tests/concurrency/auction-race.sh "$DATABASE"; then status=1; fi
 exit "$status"

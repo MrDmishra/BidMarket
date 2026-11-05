@@ -39,3 +39,11 @@ test("shows the empty tender list to visitors", async ({ page }) => {
   await page.goto("/tenders");
   await expect(page.getByRole("heading", { name: "Tenders" })).toBeVisible();
 });
+
+test("refuses auction bids and live views from visitors", async ({ request }) => {
+  const id = "11111111-1111-4111-8111-111111111111";
+  const view = await request.get(`/api/v1/seller/tenders/${id}/auction`);
+  expect(view.ok()).toBe(false);
+  const buyerView = await request.get(`/api/v1/buyer/tenders/${id}/auction`);
+  expect(buyerView.ok()).toBe(false);
+});
