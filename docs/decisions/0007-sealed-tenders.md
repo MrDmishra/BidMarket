@@ -1,7 +1,7 @@
 # 0007: Sealed bid tender rules
 
 **Date:** 4 November 2026
-**Status:** Accepted, pending owner review
+**Status:** Accepted by the owner on 6 November 2026
 
 ## Context
 
