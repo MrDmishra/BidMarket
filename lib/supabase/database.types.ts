@@ -916,6 +916,8 @@ export type Database = {
           free_subscription_sellers: number;
           gst_bps: number;
           id: string;
+          launch_offer_bps: number;
+          launch_offer_sellers: number;
           limit_individual_paise: number;
           limit_org_paise: number;
           min_discount_bps: number;
@@ -940,6 +942,8 @@ export type Database = {
           free_subscription_sellers?: number;
           gst_bps: number;
           id?: string;
+          launch_offer_bps?: number;
+          launch_offer_sellers?: number;
           limit_individual_paise: number;
           limit_org_paise: number;
           min_discount_bps: number;
@@ -964,6 +968,8 @@ export type Database = {
           free_subscription_sellers?: number;
           gst_bps?: number;
           id?: string;
+          launch_offer_bps?: number;
+          launch_offer_sellers?: number;
           limit_individual_paise?: number;
           limit_org_paise?: number;
           min_discount_bps?: number;
@@ -1517,6 +1523,7 @@ export type Database = {
       };
       tenders: {
         Row: {
+          bid_count: number;
           bid_ends_at: string;
           bid_starts_at: string | null;
           buyer_org_id: string;
@@ -1535,11 +1542,16 @@ export type Database = {
           extensions_used: number;
           id: string;
           kind: Database["public"]["Enums"]["tender_kind"];
+          l1_paise: number | null;
           min_bids: number;
           payment_terms: Database["public"]["Enums"]["payment_terms"];
           product_id: string | null;
           quantity: number;
+          ra_ends_at: string | null;
+          ra_starts_at: string | null;
+          seq: number;
           settings_id: string;
+          snipe_extensions_used: number;
           status: Database["public"]["Enums"]["tender_status"];
           tender_no: string;
           title: string;
@@ -1547,6 +1559,7 @@ export type Database = {
           unit: string;
         };
         Insert: {
+          bid_count?: number;
           bid_ends_at: string;
           bid_starts_at?: string | null;
           buyer_org_id: string;
@@ -1565,11 +1578,16 @@ export type Database = {
           extensions_used?: number;
           id?: string;
           kind: Database["public"]["Enums"]["tender_kind"];
+          l1_paise?: number | null;
           min_bids?: number;
           payment_terms: Database["public"]["Enums"]["payment_terms"];
           product_id?: string | null;
           quantity: number;
+          ra_ends_at?: string | null;
+          ra_starts_at?: string | null;
+          seq?: number;
           settings_id: string;
+          snipe_extensions_used?: number;
           status?: Database["public"]["Enums"]["tender_status"];
           tender_no: string;
           title: string;
@@ -1577,6 +1595,7 @@ export type Database = {
           unit: string;
         };
         Update: {
+          bid_count?: number;
           bid_ends_at?: string;
           bid_starts_at?: string | null;
           buyer_org_id?: string;
@@ -1595,11 +1614,16 @@ export type Database = {
           extensions_used?: number;
           id?: string;
           kind?: Database["public"]["Enums"]["tender_kind"];
+          l1_paise?: number | null;
           min_bids?: number;
           payment_terms?: Database["public"]["Enums"]["payment_terms"];
           product_id?: string | null;
           quantity?: number;
+          ra_ends_at?: string | null;
+          ra_starts_at?: string | null;
+          seq?: number;
           settings_id?: string;
+          snipe_extensions_used?: number;
           status?: Database["public"]["Enums"]["tender_status"];
           tender_no?: string;
           title?: string;
@@ -1929,8 +1953,9 @@ export type Database = {
       admin_save_settings: {
         Args: {
           p_direct_fee_bps: number;
-          p_free_subscription_sellers: number;
           p_gst_bps: number;
+          p_launch_offer_bps: number;
+          p_launch_offer_sellers: number;
           p_reason: string;
           p_subscription_base_paise: number;
           p_subscription_step_paise: number;
@@ -1964,6 +1989,7 @@ export type Database = {
       };
       award_tender: { Args: { p_id: string; p_rank: number }; Returns: string };
       begin_checkout: { Args: { p_charge_id: string }; Returns: Json };
+      buyer_auction: { Args: { p_id: string }; Returns: Json };
       buyer_tenders: {
         Args: never;
         Returns: {
@@ -2039,8 +2065,11 @@ export type Database = {
           p_payment_terms: Database["public"]["Enums"]["payment_terms"];
           p_product_id: string;
           p_quantity: number;
+          p_ra_ends_at?: string;
+          p_ra_starts_at?: string;
           p_specs: Json;
           p_title: string;
+          p_type?: Database["public"]["Enums"]["tender_type"];
           p_unit: string;
         };
         Returns: string;
@@ -2076,6 +2105,10 @@ export type Database = {
           unit: string;
         }[];
       };
+      place_ra_bid: {
+        Args: { p_id: string; p_idempotency_key: string; p_unit_paise: number };
+        Returns: Json;
+      };
       public_product: {
         Args: { p_id: string };
         Returns: {
@@ -2108,6 +2141,7 @@ export type Database = {
           quantity: number;
           tender_no: string;
           title: string;
+          type: Database["public"]["Enums"]["tender_type"];
           unit: string;
         }[];
       };
@@ -2193,6 +2227,7 @@ export type Database = {
           unit: string;
         }[];
       };
+      seller_auction: { Args: { p_id: string }; Returns: Json };
       seller_products: {
         Args: never;
         Returns: {
@@ -2226,6 +2261,7 @@ export type Database = {
           quantity: number;
           tender_no: string;
           title: string;
+          type: Database["public"]["Enums"]["tender_type"];
           unit: string;
         }[];
       };

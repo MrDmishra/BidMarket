@@ -14,8 +14,8 @@ export type BidResult = { accepted: true; rank: number } | { accepted: false; me
 type LiveAuctionPanelProps = {
   idPrefix: string;
   unit: string;
-  l1Paise: number;
-  maxAllowedPaise: number;
+  l1Paise?: number;
+  maxAllowedPaise?: number;
   yourBidPaise?: number;
   rank?: number;
   bidsPaise: number[];
@@ -59,7 +59,7 @@ export function LiveAuctionPanel({
       setError("Enter a price such as 604.50.");
       return;
     }
-    if (unitPaise > maxAllowedPaise) {
+    if (maxAllowedPaise !== undefined && unitPaise > maxAllowedPaise) {
       setError(`Enter ${formatInr(maxAllowedPaise)} or less.`);
       return;
     }
@@ -100,7 +100,9 @@ export function LiveAuctionPanel({
         <p className="text-xs font-semibold tracking-wide text-muted uppercase">
           Current L1, per {unit}
         </p>
-        <p className="font-mono text-4xl font-semibold tabular-nums">{formatInr(l1Paise)}</p>
+        <p className="font-mono text-4xl font-semibold tabular-nums">
+          {l1Paise === undefined ? "No bids yet" : formatInr(l1Paise)}
+        </p>
       </div>
       {yourBidPaise !== undefined ? (
         <p className="flex flex-wrap items-center gap-2 text-sm">
@@ -121,7 +123,11 @@ export function LiveAuctionPanel({
           value={price}
           onChange={(event) => setPrice(event.target.value)}
           disabled={!canBid}
-          hint={`Enter ${formatInr(maxAllowedPaise)} or less.`}
+          hint={
+            maxAllowedPaise === undefined
+              ? "Your first bid sets the starting price."
+              : `Enter ${formatInr(maxAllowedPaise)} or less.`
+          }
           error={error}
         />
         <Button type="submit" loading={submitting} disabled={!canBid || !price}>

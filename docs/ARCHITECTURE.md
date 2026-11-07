@@ -21,7 +21,7 @@ The one hard technical problem is the auction. Bids must be ordered correctly, d
 | Database | PostgreSQL via Supabase | Transactions, row locks and row-level security solve the core problem. |
 | Auth | Supabase Auth | Phone and password, OTP hooks, MFA and secure sessions. |
 | Files | Supabase Storage. Private buckets for documents, and one public bucket for re-encoded product images | One vendor. Product images must display publicly. |
-| Real-time | Supabase Realtime Broadcast, private channels | Authorisation per channel. |
+| Live auction updates | Polling every 3 seconds. Supabase Realtime is a later upgrade (decision 0009) | Each read runs through the same masked database function. |
 | Scheduling | pg_cron and pg_net, plus a `jobs` table | No separate worker for MVP. |
 | Payments | Razorpay Orders, Checkout and webhooks | RBI-authorised aggregator with India focus. [A-1] |
 | Verification | Cashfree Secure ID | Covers PAN, GSTIN, GSTIN by PAN, bank account and CIN. [A-1] |
@@ -119,8 +119,7 @@ AGENTS.md stays at the repository root.
 2. `place_ra_bid` locks the tender row.
 3. Inside the lock it checks server time, eligibility, block status and the decrement.
 4. It appends the bid, updates L1 and bumps the sequence number. It extends the deadline if the anti-sniping rule applies.
-5. After commit, a trigger broadcasts the update.
-6. The seller's client receives it and fetches its own rank.
+5. The seller's client polls the auction every 3 seconds and picks up the new L1, rank and deadline.
 
 The row lock gives one strict order per tender. The bid's commit under lock is the official bid time.
 
@@ -131,6 +130,8 @@ Every minute, or more often where pg_cron supports it, `tick_tenders` finds tend
 `tick_tenders` also applies extensions or cancellations, moves Bid to RA tenders to their auction at the set time, and expires unanswered awards after the configured window.
 
 ## 7. Real-time design
+
+**Current build:** polling only, under decision 0009. The channel design below is kept for the upgrade.
 
 Two private channels exist for each live auction.
 

@@ -187,18 +187,23 @@ Built for sealed bid tenders:
 
 Pages read through `public_tenders`, `public_tender`, `buyer_tenders`, `get_buyer_tender`, `tender_bids`, `seller_tenders` and `get_seller_tender`.
 
-Planned for Phases 7 and 8:
+Built for reverse auctions:
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/buyer/tenders/{id}/shortlist` | Buyer | Remove `highest` or `highest50` in Bid to RA |
 | GET | `/seller/tenders/{id}/auction` | Seller | Current L1, own bid, rank, deadline, `seq` |
 | POST | `/seller/tenders/{id}/auction/bids` | Seller | Place an auction bid |
 | GET | `/buyer/tenders/{id}/auction` | Buyer | Bid count and deadline only while live |
 
+Planned for Phase 8:
+
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| POST | `/buyer/tenders/{id}/shortlist` | Buyer | Remove `highest` or `highest50` in Bid to RA |
+
 **Example:** `POST /seller/tenders/{id}/auction/bids`
 
-Request: `{ "unitPaise": 60300 }`
+Request: `{ "unitPaise": 60300, "bidKey": "uuid" }`. A retry sends the same `bidKey`.
 
 Response:
 
@@ -222,7 +227,7 @@ Response:
 - A 2xx response is the only proof that a bid was accepted.
 - When the client times out, it retries with the same `Idempotency-Key`.
 
-**Real-time.** ARCHITECTURE.md section 7 defines the two private channels and payloads. Clients must treat broadcasts as refresh hints.
+**Live updates.** Clients poll the auction route every 3 seconds. ARCHITECTURE.md section 7 keeps the private channel design for a later upgrade.
 
 ## 7. Billing
 

@@ -111,6 +111,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Auction functions, Realtime policies. API auction routes.
 - **Tests:** Parallel bids at the deadline, tie order, duplicate retries, late bid rejection, buyers receiving no prices, channel access, connection loss, load test.
 - **Done when:** The concurrency test produces the correct winner on every run, and load targets pass.
+- **Status:** Live on `main` and in the database since 7 November 2026. The concurrency test passes on repeated local runs. Live use waits for the payment provider and the job schedule, and the load test is still to run. Admin pause and resume move to Phase 9.
 
 ## Phase 8: Bid to RA
 

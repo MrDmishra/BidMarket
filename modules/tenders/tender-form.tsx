@@ -26,6 +26,7 @@ function parseSpecs(text: string) {
 export function TenderForm({ product, categories, addresses, earliestClose }: TenderFormProps) {
   const router = useRouter();
   const [terms, setTerms] = useState("advance");
+  const [tenderType, setTenderType] = useState("bid");
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -45,7 +46,10 @@ export function TenderForm({ product, categories, addresses, earliestClose }: Te
       consigneeGstin: text("consigneeGstin"),
       consigneeAddressId: text("consigneeAddressId"),
       contractMonths: text("contractMonths"),
-      bidEndsAt: text("bidEndsAt"),
+      type: tenderType,
+      ...(tenderType === "ra"
+        ? { raStartsAt: text("raStartsAt"), raEndsAt: text("raEndsAt") }
+        : { bidEndsAt: text("bidEndsAt") }),
       minBids: text("minBids"),
       extensionsAllowed: text("extensionsAllowed"),
       extensionHours: text("extensionHours"),
@@ -168,15 +172,49 @@ export function TenderForm({ product, categories, addresses, earliestClose }: Te
           error={fields.creditDays}
         />
       ) : null}
-      <TextField
-        id="bid-ends"
-        name="bidEndsAt"
-        type="datetime-local"
-        label="Bidding ends (India time)"
-        min={earliestClose}
-        defaultValue={earliestClose}
-        error={fields.bidEndsAt}
-      />
+      <SelectField
+        id="tender-type"
+        name="type"
+        label="Tender type"
+        value={tenderType}
+        onChange={(event) => setTenderType(event.target.value)}
+      >
+        <option value="bid">Sealed bid</option>
+        <option value="ra">Reverse auction</option>
+      </SelectField>
+      {tenderType === "ra" ? (
+        <>
+          <TextField
+            id="ra-starts"
+            name="raStartsAt"
+            type="datetime-local"
+            label="Auction starts (India time)"
+            hint="At least 1 hour from now, so sellers get notice."
+            min={earliestClose}
+            defaultValue={earliestClose}
+            error={fields.raStartsAt}
+          />
+          <TextField
+            id="ra-ends"
+            name="raEndsAt"
+            type="datetime-local"
+            label="Auction ends (India time)"
+            hint="At least 15 minutes after the start. Late bids add time."
+            min={earliestClose}
+            error={fields.raEndsAt}
+          />
+        </>
+      ) : (
+        <TextField
+          id="bid-ends"
+          name="bidEndsAt"
+          type="datetime-local"
+          label="Bidding ends (India time)"
+          min={earliestClose}
+          defaultValue={earliestClose}
+          error={fields.bidEndsAt}
+        />
+      )}
       <TextField
         id="min-bids"
         name="minBids"

@@ -12,6 +12,7 @@ import { formatInr } from "@/lib/money";
 import { isRazorpayConfigured } from "@/lib/providers/razorpay-client";
 import { PayButton } from "@/modules/billing/pay-button";
 import { getBuyerTender, listTenderBids } from "@/modules/tenders";
+import { BuyerAuctionStatus } from "@/modules/tenders/buyer-auction-status";
 import { TenderAction } from "@/modules/tenders/tender-action";
 import { closingText, TENDER_STATUS } from "@/modules/tenders/tender-labels";
 
@@ -64,6 +65,9 @@ export default async function BuyerTenderPage({ params }: TenderPageProps) {
             />
             {tender.status === "bidding" ? (
               <p className="text-muted">Bids stay sealed until bidding closes.</p>
+            ) : null}
+            {tender.status === "auction_scheduled" || tender.status === "auction" ? (
+              <BuyerAuctionStatus tenderId={tender.id} />
             ) : null}
             {showBids ? (
               <section aria-labelledby="bids-heading" className="flex flex-col gap-3">

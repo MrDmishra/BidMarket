@@ -163,7 +163,7 @@ Admin rows are created only by invitation.
 | cancel_reason | text | |
 | settings_id | uuid | FK platform_settings |
 
-Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_starts_at`, `bid_ends_at`, `extensions_used` and the shared fields. The auction columns (`bid_opens_at`, `ra_*`, `snipe_extensions_used`, `l1_paise`, `bid_count`, `seq`), and `terms_file_id`, arrive with Phases 7 and 8 and later file work. Buyers see bids once `bid_ends_at` passes and the tender is `evaluating`.
+Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_starts_at`, `bid_ends_at`, `extensions_used` and the shared fields. Phase 7 adds `ra_starts_at`, `ra_ends_at`, `snipe_extensions_used`, `l1_paise`, `bid_count` and `seq`. For an auction, `bid_ends_at` mirrors `ra_ends_at`, so one column drives lists and closing. `terms_file_id` waits for later file work. Buyers see bids once `bid_ends_at` passes and the tender is `evaluating`.
 
 **tender_specs:** `id`, `tender_id` FK, `spec_definition_id` FK nullable, `label`, `value`, `unit`, `is_key`. Snapshot of required specifications.
 
@@ -386,7 +386,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 **Contact visibility.** The other party's name and contact details come only through `get_order_contacts()`, which returns nothing until `contacts_unlocked_at` is set.
 
-**Realtime.** Policies on `realtime.messages` allow a join on `ra:{id}:sellers` only with a non-eliminated `tender_participants` row, and on `ra:{id}:buyer` only for the owning buyer.
+**Realtime, not built.** Under decision 0009, the upgrade would add policies on `realtime.messages` allow a join on `ra:{id}:sellers` only with a non-eliminated `tender_participants` row, and on `ra:{id}:buyer` only for the owning buyer.
 
 **Writes.** No write grants on business tables for `anon` or `authenticated`. Functions check ownership and status. Every `SECURITY DEFINER` function sets a safe `search_path`.
 
@@ -412,7 +412,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 Production categories follow D-6: all 16 main categories and their sub-categories are live.
 
-**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied.
+**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied. `20261106000100_launch_offer` and `20261106000200_reverse_auctions` were applied through the Supabase migration tool on 6 and 7 November 2026, so they appear in the list under the names `launch_offer` and `reverse_auctions`.
 
 ## 10. Backup and recovery
 

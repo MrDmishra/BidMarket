@@ -12,6 +12,7 @@ import { formatInr } from "@/lib/money";
 import { isRazorpayConfigured } from "@/lib/providers/razorpay-client";
 import { PayButton } from "@/modules/billing/pay-button";
 import { getSellerTender } from "@/modules/tenders";
+import { SellerAuctionPanel } from "@/modules/tenders/seller-auction-panel";
 import { TenderAction } from "@/modules/tenders/tender-action";
 import { closingText } from "@/modules/tenders/tender-labels";
 
@@ -52,6 +53,9 @@ export default async function SellerTenderPage({ params }: TenderPageProps) {
             ]}
           />
           <div className="flex min-w-0 flex-col gap-4">
+            {tender.type === "ra" ? (
+              <SellerAuctionPanel tenderId={tender.id} unit={tender.unit} />
+            ) : null}
             {tender.open ? (
               <ActionPanel title="Your bid">
                 {tender.myBidPaise ? (

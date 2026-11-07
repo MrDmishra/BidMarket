@@ -17,6 +17,7 @@ const amount = z
 
 export const createTenderSchema = z
   .strictObject({
+    type: z.enum(["bid", "ra"]),
     kind: z.enum(["regular", "custom"]),
     productId: z.string().optional(),
     categoryId: z.string().optional(),
@@ -40,12 +41,35 @@ export const createTenderSchema = z
     consigneeGstin: z.string().trim().toUpperCase().regex(GSTIN, "Check the GSTIN."),
     consigneeAddressId: z.uuid("Choose a delivery address."),
     contractMonths: wholeNumber(1, 60, "Enter a contract period of 1 to 60 months."),
-    bidEndsAt: z.string().regex(LOCAL_DATE_TIME, "Choose when bidding ends."),
+    bidEndsAt: z.string().regex(LOCAL_DATE_TIME, "Choose when bidding ends.").optional(),
+    raStartsAt: z.string().regex(LOCAL_DATE_TIME, "Choose when the auction starts.").optional(),
+    raEndsAt: z.string().regex(LOCAL_DATE_TIME, "Choose when the auction ends.").optional(),
     minBids: wholeNumber(1, 50, "Enter at least 1 bid."),
     extensionsAllowed: wholeNumber(0, 5, "Enter 0 to 5 extensions."),
     extensionHours: wholeNumber(1, 168, "Enter 1 to 168 hours."),
   })
   .superRefine((value, context) => {
+    if (value.type === "bid" && !value.bidEndsAt) {
+      context.addIssue({
+        code: "custom",
+        path: ["bidEndsAt"],
+        message: "Choose when bidding ends.",
+      });
+    }
+    if (value.type === "ra" && !value.raStartsAt) {
+      context.addIssue({
+        code: "custom",
+        path: ["raStartsAt"],
+        message: "Choose when the auction starts.",
+      });
+    }
+    if (value.type === "ra" && !value.raEndsAt) {
+      context.addIssue({
+        code: "custom",
+        path: ["raEndsAt"],
+        message: "Choose when the auction ends.",
+      });
+    }
     if (value.paymentTerms === "credit" && Number(value.creditDays) <= 0) {
       context.addIssue({ code: "custom", path: ["creditDays"], message: "Enter the credit days." });
     }
@@ -76,6 +100,10 @@ export const reasonSchema = z.strictObject({
   reason: z.string().trim().min(3, "Give a short reason.").max(300),
 });
 export const bidSchema = z.strictObject({ unitPrice: amount });
+export const auctionBidSchema = z.strictObject({
+  unitPaise: z.number().int().positive(),
+  bidKey: z.uuid(),
+});
 export const awardSchema = z.strictObject({ rank: z.number().int().min(1) });
 
 /** Tender times are entered in India time. */
@@ -99,6 +127,8 @@ const terms = z.enum(["advance", "on_delivery", "credit"]);
 export const publicTenderSchema = z.object({
   id: z.string(),
   tenderNo: z.string(),
+  type: z.enum(["bid", "ra", "bid_to_ra"]),
+  raStartsAt: z.string().nullable(),
   title: z.string(),
   categoryName: z.string(),
   quantity: z.number(),
@@ -111,11 +141,15 @@ export const publicTenderSchema = z.object({
   specs,
 });
 
+const tenderType = z.enum(["bid", "ra", "bid_to_ra"]);
+
 export const buyerTenderSchema = z.object({
   id: z.string(),
   tenderNo: z.string(),
   title: z.string(),
   kind: z.enum(["regular", "custom"]),
+  type: tenderType,
+  raStartsAt: z.string().nullable(),
   status: z.enum([
     "draft",
     "unpaid",
@@ -149,6 +183,7 @@ export type BuyerTender = z.infer<typeof buyerTenderSchema>;
 export const sellerTenderSchema = z.object({
   id: z.string(),
   tenderNo: z.string(),
+  type: tenderType,
   title: z.string(),
   open: z.boolean(),
   quantity: z.number(),
@@ -174,3 +209,38 @@ export const sellerTenderSchema = z.object({
   orderId: z.string().nullable(),
 });
 export type SellerTender = z.infer<typeof sellerTenderSchema>;
+
+export const buyerAuctionSchema = z.object({
+  status: z.string(),
+  bidCount: z.number().int(),
+  startsAt: z.string(),
+  endsAt: z.string(),
+  seq: z.number().int(),
+  serverNow: z.string(),
+});
+export type BuyerAuction = z.infer<typeof buyerAuctionSchema>;
+
+export const sellerAuctionSchema = z.object({
+  status: z.string(),
+  eligible: z.boolean(),
+  startsAt: z.string(),
+  endsAt: z.string(),
+  serverNow: z.string(),
+  seq: z.number().int(),
+  bidCount: z.number().int(),
+  l1Paise: z.number().int().nullable(),
+  maxAllowedPaise: z.number().int().nullable(),
+  myBidPaise: z.number().int().nullable(),
+  rank: z.number().int().nullable(),
+  bidsPaise: z.array(z.number().int()),
+});
+export type SellerAuction = z.infer<typeof sellerAuctionSchema>;
+
+export const auctionBidResultSchema = z.object({
+  bidId: z.string(),
+  unitPaise: z.number().int(),
+  rank: z.number().int(),
+  l1Paise: z.number().int(),
+  endsAt: z.string(),
+  seq: z.number().int(),
+});
