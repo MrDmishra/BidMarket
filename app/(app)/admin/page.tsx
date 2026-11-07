@@ -7,7 +7,9 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { requireAdmin } from "@/lib/auth/account";
 import { formatInr } from "@/lib/money";
 import { listPaymentPendingSellers, listPendingOrganisations } from "@/modules/accounts";
-import { AdminNav, getOverview } from "@/modules/admin";
+import { ActionForm } from "@/components/ui/action-form";
+import { getServerEnv } from "@/lib/env/server";
+import { AdminNav, getOverview, listPendingFiles } from "@/modules/admin";
 import { ReviewActions } from "@/modules/accounts/review-queue";
 import { TestActivation } from "@/modules/accounts/test-activation";
 import { listPendingCategoryRequests, listPendingProducts } from "@/modules/catalogue";
@@ -18,12 +20,14 @@ export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminPage() {
   const account = await requireAdmin();
-  const [overview, pending, products, sellers, requests] = await Promise.all([
+  const testActivationEnabled = getServerEnv().APP_ENV !== "production";
+  const [overview, pending, products, sellers, requests, files] = await Promise.all([
     getOverview(),
     listPendingOrganisations(),
     listPendingProducts(),
     listPaymentPendingSellers(),
     listPendingCategoryRequests(),
+    listPendingFiles(),
   ]);
 
   return (
@@ -140,21 +144,80 @@ export default async function AdminPage() {
           </section>
         ))}
 
-        <h2 className="pt-4 text-2xl font-bold">Test activation</h2>
-        <Banner tone="warn">
-          For testing only. This skips subscription payment and is removed before launch.
-        </Banner>
-        {sellers.length === 0 ? <EmptyState message="No sellers are waiting for payment." /> : null}
-        {sellers.map((seller) => (
+        <h2 id="documents" className="pt-4 text-2xl font-bold">
+          Documents to check
+        </h2>
+        <p className="text-sm text-muted">
+          Until a malware scanner is connected, open each PDF and mark it. The other party sees a
+          document only once it is marked clean.
+        </p>
+        {files.length === 0 ? <EmptyState message="No documents are waiting." /> : null}
+        {files.map((file) => (
           <section
-            key={seller.id}
-            aria-label={seller.legal_name}
+            key={file.id}
+            aria-label={`Document ${file.order_no ?? file.path}`}
             className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-5"
           >
-            <h3 className="text-xl font-bold">{seller.legal_name}</h3>
-            <TestActivation organisationId={seller.id} />
+            <p>
+              <b>{file.kind?.replaceAll("_", " ") ?? "Document"}</b>
+              {file.order_no ? (
+                <>
+                  {" "}
+                  for order <span className="font-mono">{file.order_no}</span>
+                </>
+              ) : null}
+              , from {file.owner}. {Math.ceil(file.size_bytes / 1024)} KB.
+            </p>
+            <a
+              className="underline"
+              href={`/api/v1/admin/files/${file.id}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open the file
+            </a>
+            <div className="grid gap-4 md:grid-cols-2">
+              <ActionForm
+                id={`clean-${file.id}`}
+                endpoint={`/api/v1/admin/files/${file.id}/review`}
+                body={{ clean: true }}
+                buttonLabel="Mark clean"
+                fields={[{ kind: "text", name: "reason", label: "What you checked" }]}
+              />
+              <ActionForm
+                id={`infected-${file.id}`}
+                endpoint={`/api/v1/admin/files/${file.id}/review`}
+                body={{ clean: false }}
+                buttonLabel="Mark unsafe"
+                variant="danger"
+                fields={[{ kind: "text", name: "reason", label: "Why it is unsafe" }]}
+              />
+            </div>
           </section>
         ))}
+
+        {testActivationEnabled ? (
+          <>
+            <h2 className="pt-4 text-2xl font-bold">Test activation</h2>
+            <Banner tone="warn">
+              For testing only. This skips subscription payment and switches off when APP_ENV is
+              production.
+            </Banner>
+            {sellers.length === 0 ? (
+              <EmptyState message="No sellers are waiting for payment." />
+            ) : null}
+            {sellers.map((seller) => (
+              <section
+                key={seller.id}
+                aria-label={seller.legal_name}
+                className="flex flex-col gap-3 rounded-panel border border-line bg-surface p-5"
+              >
+                <h3 className="text-xl font-bold">{seller.legal_name}</h3>
+                <TestActivation organisationId={seller.id} />
+              </section>
+            ))}
+          </>
+        ) : null}
       </main>
     </>
   );

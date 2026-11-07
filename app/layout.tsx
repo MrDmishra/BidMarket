@@ -10,8 +10,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Bid Market", template: "%s | Bid Market" },
   description: "A private B2B marketplace for direct orders, tenders and reverse auctions.",
-  // Remove at launch. Unfinished builds must stay out of search results.
-  robots: { index: false, follow: false },
+  // Only the launched site is indexed. Previews and test builds stay out of search results.
+  robots: process.env.APP_ENV === "production" ? undefined : { index: false, follow: false },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };

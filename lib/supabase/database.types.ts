@@ -2243,6 +2243,20 @@ export type Database = {
           seller_name: string;
         }[];
       };
+      admin_pending_files: {
+        Args: never;
+        Returns: {
+          created_at: string;
+          id: string;
+          kind: string;
+          mime_type: string;
+          order_id: string;
+          order_no: string;
+          owner: string;
+          path: string;
+          size_bytes: number;
+        }[];
+      };
       admin_pending_organisations: {
         Args: never;
         Returns: {
@@ -2281,6 +2295,10 @@ export type Database = {
       };
       admin_review_category_request: {
         Args: { p_approve: boolean; p_id: string; p_note: string };
+        Returns: undefined;
+      };
+      admin_review_file: {
+        Args: { p_clean: boolean; p_id: string; p_reason: string };
         Returns: undefined;
       };
       admin_review_organisation: {
@@ -2718,6 +2736,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["org_status"];
       };
       submit_product: { Args: { p_id: string }; Returns: undefined };
+      system_health: { Args: never; Returns: Json };
       tender_bids: {
         Args: { p_id: string };
         Returns: {

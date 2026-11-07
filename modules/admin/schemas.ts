@@ -7,6 +7,7 @@ const reason = z
   .max(500, "Keep the reason under 500 characters.");
 
 export const adminReasonSchema = z.strictObject({ reason });
+export const fileReviewSchema = z.strictObject({ clean: z.boolean(), reason });
 export const blockSchema = z.strictObject({
   days: z
     .number()

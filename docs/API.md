@@ -265,7 +265,9 @@ All routes require Admin with MFA. Every write requires a `reason` and is audit 
 | GET | `/admin/organisations` | Search and filter |
 | GET | `/admin/organisations/{id}` | Detail. Identity reads are logged |
 | POST | `/admin/organisations/{id}/review` | Approve or reject, with a reason |
-| POST | `/admin/organisations/{id}/test-activate` | Temporary. Activates a seller without payment for testing. Remove before launch |
+| POST | `/admin/organisations/{id}/test-activate` | Temporary. Activates a seller without payment for testing. Refused when `APP_ENV` is production |
+| GET | `/admin/files/{id}` | Opens a pending document for review, through a 5-minute signed link |
+| POST | `/admin/files/{id}/review` | `{ clean, reason }`. Marks a document clean or unsafe |
 | POST | `/admin/organisations/{id}/suspend` | Suspend |
 | POST | `/admin/organisations/{id}/reinstate` | Reinstate |
 | POST | `/admin/organisations/{id}/block` | Apply block |

@@ -156,6 +156,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Prerequisites:** All earlier phases, and external items above.
 - **Tests:** Production smoke test, one real low-value payment and invoice check, final audit using the launch criteria in PRD section 12.
 - **Done when:** Audit verdict is READY or READY WITH WARNINGS, with no blockers.
+- **Status:** Code parts done on 8 November 2026. `APP_ENV=production` now switches on indexing and switches off seller test activation (decision 0013). Support can review uploaded PDFs by hand until a scanner is chosen. `docs/runbooks/launch.md` lists the owner steps: live keys, legal pages, paid Supabase plan, email, SMS, identity checks, Turnstile, the custom domain, a small real payment and the pilot.
 
 ## Requirement coverage
 

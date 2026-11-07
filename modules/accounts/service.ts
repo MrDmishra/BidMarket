@@ -1,4 +1,6 @@
 import "server-only";
+import { getServerEnv } from "@/lib/env/server";
+import { AppError } from "@/lib/errors/app-error";
 
 import { toAppError } from "@/lib/errors/database";
 import { createUserClient } from "@/lib/supabase/server";
@@ -120,7 +122,9 @@ export async function listPaymentPendingSellers() {
   return data;
 }
 
+/** Skips the subscription payment, so it is switched off once APP_ENV is production. */
 export async function testActivateSeller(id: string, reason: string) {
+  if (getServerEnv().APP_ENV === "production") throw new AppError("FORBIDDEN");
   const supabase = await createUserClient();
   const { error } = await supabase.rpc("admin_test_activate_seller", {
     p_org_id: id,
