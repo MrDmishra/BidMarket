@@ -76,7 +76,11 @@ export default async function SellerBillingPage() {
                   },
                 ]}
               />
-              {quote.free ? <Banner>Your first year is free.</Banner> : null}
+              {quote.offerBps > 0 ? (
+                <Banner>
+                  Launch offer: {quote.offerBps / 100}% off your first year. This total includes it.
+                </Banner>
+              ) : null}
               {quote.free || isRazorpayConfigured() ? (
                 <PayButton
                   chargeId={pendingCharge?.id}

@@ -21,5 +21,5 @@ The owner accepted all recommendations put forward on this date:
 ## Consequences
 
 - F-45 is removed, because D-7 skips the overnight visibility rule.
-- D-3 still needs a choice between waiver and discount. The `free_subscription_sellers` setting holds it, and stays at 0 until the owner chooses. D-4 still needs a named provider.
+- Decision 0008 closes D-3 and D-4.
 - D-10, D-12, D-15 and A-1 to A-4 stay open. PRD section 14 and ARCHITECTURE.md section 15 track them.

@@ -119,7 +119,8 @@ export async function saveSettings(input: z.output<typeof settingsSchema>) {
     p_tds_bps: input.tds,
     p_subscription_base_paise: input.subscriptionBase,
     p_subscription_step_paise: input.subscriptionStep,
-    p_free_subscription_sellers: input.freeSellers,
+    p_launch_offer_sellers: input.launchOfferSellers,
+    p_launch_offer_bps: input.launchOffer,
     p_reason: input.reason,
   });
   if (error) throw toAppError(error);
