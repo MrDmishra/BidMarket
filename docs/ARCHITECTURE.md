@@ -250,7 +250,7 @@ Environments: local, preview, production, selected with `APP_ENV`. Production re
 
 | ID | Decision | Recommendation |
 |---|---|---|
-| **A-1** | Vendors: Razorpay, Cashfree, MSG91, Resend. | Approve, then confirm pricing and KYB eligibility for a marketplace model with each. Pricing and acceptance were not checked for these documents. |
+| **A-1** | Vendors: Razorpay, Cashfree, MSG91, Resend. | Approved by the owner on 6 November 2026. Confirm pricing and KYB eligibility for a marketplace model with each. Pricing and acceptance were not checked for these documents. |
 | **A-2** | Malware scanning for private documents. No vendor is selected yet. Product images do not need one. | Choose before Phase 5. Launch is blocked until scanning is active, because PRD section 8 requires it. |
 | **A-3** | Vercel and Supabase paid plans, including backups. | Use paid plans for production. Vercel's free plan is not intended for commercial use, so check current terms. |
 | **A-4** | Data residency. Sentry, Resend and Vercel services may process limited data outside India. | Ask your lawyer to confirm. Keep personal data out of logs and errors. |

@@ -20,7 +20,8 @@ export const settingsSchema = z.object({
   tds: percentToBps("TDS"),
   subscriptionBase: rupees,
   subscriptionStep: rupees,
-  freeSellers: z.coerce.number().int("Enter a whole number.").min(0),
+  launchOfferSellers: z.coerce.number().int("Enter a whole number.").min(0),
+  launchOffer: percentToBps("Launch discount"),
   reason: z.string().trim().min(3, "Say why you are changing these settings."),
 });
 
@@ -29,6 +30,7 @@ export const quoteSchema = z.object({
   feePaise: z.number().int(),
   gstPaise: z.number().int(),
   free: z.boolean(),
+  offerBps: z.number().int(),
 });
 
 export const checkoutResultSchema = z.object({

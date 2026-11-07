@@ -11,7 +11,7 @@ export async function getFeeSchedule(): Promise<FeeSchedule> {
   const { data, error } = await supabase
     .from("platform_settings")
     .select(
-      "direct_fee_bps, tender_fee_bps, gst_bps, limit_individual_paise, limit_org_paise, custom_deposit_paise, subscription_base_paise, subscription_base_crore, subscription_step_paise, free_subscription_sellers",
+      "direct_fee_bps, tender_fee_bps, gst_bps, limit_individual_paise, limit_org_paise, custom_deposit_paise, subscription_base_paise, subscription_base_crore, subscription_step_paise, launch_offer_sellers, launch_offer_bps",
     )
     .lte("effective_from", new Date().toISOString())
     .order("effective_from", { ascending: false })
@@ -28,6 +28,7 @@ export async function getFeeSchedule(): Promise<FeeSchedule> {
     subscriptionBasePaise: data.subscription_base_paise,
     subscriptionBaseCrore: data.subscription_base_crore,
     subscriptionStepPaise: data.subscription_step_paise,
-    freeSubscriptionSellers: data.free_subscription_sellers,
+    launchOfferSellers: data.launch_offer_sellers,
+    launchOfferBps: data.launch_offer_bps,
   };
 }

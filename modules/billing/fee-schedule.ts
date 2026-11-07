@@ -9,7 +9,8 @@ export type FeeSchedule = {
   subscriptionBasePaise: number;
   subscriptionBaseCrore: number;
   subscriptionStepPaise: number;
-  freeSubscriptionSellers: number;
+  launchOfferSellers: number;
+  launchOfferBps: number;
 };
 
 export const PROPOSED_FEES: FeeSchedule = {
@@ -22,7 +23,8 @@ export const PROPOSED_FEES: FeeSchedule = {
   subscriptionBasePaise: 2_500_000,
   subscriptionBaseCrore: 25,
   subscriptionStepPaise: 10_000,
-  freeSubscriptionSellers: 0,
+  launchOfferSellers: 100,
+  launchOfferBps: 5000,
 };
 
 /** Charges for completed crores above the base, as decided in PRD D-14. */

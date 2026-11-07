@@ -41,4 +41,4 @@ Add `RESEND_API_KEY` and `EMAIL_FROM` in Vercel. Until then, messages wait in th
 
 - Set `supplier_gstin` and the legal name through a new settings row, once D-10 is decided. Invoices show a test notice until a GSTIN is set.
 - Have the chartered accountant confirm GST and TDS (D-12).
-- Set the D-3 free seller count in Admin, under Fees and settings.
+- The D-3 launch offer is already set: 50% off for the first 100 sellers. Change it in Admin, under Fees and settings.

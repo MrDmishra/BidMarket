@@ -230,7 +230,7 @@ Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_star
 
 **platform_settings:** insert-only. The latest row by `effective_from` applies to new transactions.
 
-Columns: `id`, `effective_from`, `direct_fee_bps`, `tender_fee_bps`, `gst_bps`, `tds_bps`, `limit_individual_paise`, `limit_org_paise`, `custom_deposit_paise`, `min_discount_bps`, `subscription_base_paise`, `subscription_base_crore`, `subscription_step_paise`, `decrement_bps`, `snipe_window_minutes`, `snipe_max`, `award_window_hours`, `free_subscription_sellers`, `supplier_legal_name`, `supplier_gstin`, `supplier_state_code`, `created_by`. `free_subscription_sellers` applies D-3: the first N sellers get a free first year.
+Columns: `id`, `effective_from`, `direct_fee_bps`, `tender_fee_bps`, `gst_bps`, `tds_bps`, `limit_individual_paise`, `limit_org_paise`, `custom_deposit_paise`, `min_discount_bps`, `subscription_base_paise`, `subscription_base_crore`, `subscription_step_paise`, `decrement_bps`, `snipe_window_minutes`, `snipe_max`, `award_window_hours`, `launch_offer_sellers`, `launch_offer_bps`, `supplier_legal_name`, `supplier_gstin`, `supplier_state_code`, `created_by`. The launch offer applies D-3: the first 100 sellers get 50% off their first year. `free_subscription_sellers` is retired and goes in a later migration.
 
 Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 25, ₹100, 50, 5, 6, 48. TDS stays at 0 until your chartered accountant confirms it (D-12). The 48-hour award window is an assumption.
 

@@ -54,10 +54,16 @@ export default async function AdminSettingsPage() {
               defaultValue: toRupees(fees.subscriptionStepPaise),
             },
             {
-              name: "freeSellers",
-              label: "Sellers who get a free first year",
-              hint: "0 means every seller pays. 100 means the first 100 sellers get a free year.",
-              defaultValue: String(fees.freeSubscriptionSellers),
+              name: "launchOfferSellers",
+              label: "Sellers who get the launch offer",
+              hint: "How many sellers get a discount on their first year.",
+              defaultValue: String(fees.launchOfferSellers),
+            },
+            {
+              name: "launchOffer",
+              label: "Launch discount (%)",
+              hint: "100 makes the first year free. 0 turns the offer off.",
+              defaultValue: toPercent(fees.launchOfferBps),
             },
             { name: "reason", label: "Reason for this change" },
           ]}
