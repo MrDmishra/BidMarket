@@ -53,6 +53,14 @@ export function SellerAuctionPanel({ tenderId, unit }: SellerAuctionPanelProps) 
   const closed =
     serverNowMs >= endsAtMs || !["auction_scheduled", "auction"].includes(state.status);
 
+  if (state.paused) {
+    return (
+      <Banner tone="warn">
+        Bid Market has paused this auction because of a platform problem. Bidding resumes soon, and
+        the time lost is added back.
+      </Banner>
+    );
+  }
   if (notStarted) {
     return (
       <ActionPanel title="Reverse auction">

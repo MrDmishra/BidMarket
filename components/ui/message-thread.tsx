@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 export type ThreadMessage = {
   id: string;
   author: string;
-  role: string;
+  role?: string;
   body: string;
   sentAt: string;
 };
@@ -22,7 +22,8 @@ export function MessageThread({
           <li key={message.id} className="rounded-panel border border-line bg-surface p-3">
             <p className="flex flex-wrap justify-between gap-2 text-sm text-muted">
               <span>
-                <b className="font-semibold text-ink">{message.author}</b>, {message.role}
+                <b className="font-semibold text-ink">{message.author}</b>
+                {message.role ? `, ${message.role}` : null}
               </span>
               <span>{message.sentAt}</span>
             </p>

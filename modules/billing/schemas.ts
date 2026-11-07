@@ -88,6 +88,25 @@ export function emailForTemplate(template: string, payload: unknown) {
       text: `There is an update on tender ${tender.data.tenderNo}. Log in to Bid Market to see it.`,
     };
   }
+  const support = z.object({ refNo: z.string() }).safeParse(payload);
+  if (template === "support_update" && support.success) {
+    return {
+      subject: `Update on ${support.data.refNo}`,
+      text: `There is an update on ${support.data.refNo}. Log in to Bid Market and open Support to see it.`,
+    };
+  }
+  const account = z.object({ status: z.enum(["active", "suspended"]) }).safeParse(payload);
+  if (template === "account_update" && account.success) {
+    return account.data.status === "suspended"
+      ? {
+          subject: "Your Bid Market account is suspended",
+          text: "Your account is suspended. Log in and open Support to find out why and what to do next.",
+        }
+      : {
+          subject: "Your Bid Market account is active again",
+          text: "Your account has been reinstated. You can list, bid and order again.",
+        };
+  }
   if (template === "subscription_expiring" && details.success) {
     return {
       subject: "Your Bid Market subscription is ending",

@@ -139,6 +139,12 @@ export function OrderDetailView({
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-mono text-2xl font-bold">{order.orderNo}</h1>
           <StatusPill {...ORDER_STATUS[order.status]} />
+          <Link
+            className="ml-auto text-sm underline"
+            href={`/support?orderId=${order.id}&ref=${encodeURIComponent(order.orderNo)}`}
+          >
+            Report a problem
+          </Link>
         </div>
         {cancelled ? (
           <Banner tone="warn">{cancelled.note ?? "This order was cancelled."}</Banner>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppHeader } from "@/components/layout/app-header";
 import { Banner } from "@/components/ui/banner";
 import { ButtonLink } from "@/components/ui/button";
@@ -29,9 +30,21 @@ const STATUS: Record<OrgStatus, { label: string; tone: PillTone; note: string }>
   },
 };
 
-type DashboardPageProps = { title: string; organisationName: string; status: OrgStatus };
+export type AttentionItem = { key: string; label: string; href: string; due?: string };
 
-export function DashboardPage({ title, organisationName, status }: DashboardPageProps) {
+type DashboardPageProps = {
+  title: string;
+  organisationName: string;
+  status: OrgStatus;
+  attention?: AttentionItem[];
+};
+
+export function DashboardPage({
+  title,
+  organisationName,
+  status,
+  attention = [],
+}: DashboardPageProps) {
   const details = STATUS[status];
   return (
     <>
@@ -42,6 +55,26 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
           <StatusPill tone={details.tone} label={details.label} />
         </div>
         <Banner>{details.note}</Banner>
+        {attention.length > 0 ? (
+          <section aria-labelledby="attention-heading" className="flex flex-col gap-2">
+            <h2 id="attention-heading" className="text-xl font-bold">
+              Needs your attention
+            </h2>
+            <ul className="flex flex-col gap-2">
+              {attention.map((item) => (
+                <li key={item.key}>
+                  <Link
+                    href={item.href}
+                    className="flex flex-wrap justify-between gap-2 rounded-panel border border-line bg-surface p-3 hover:border-brand"
+                  >
+                    <span>{item.label}</span>
+                    {item.due ? <span className="text-sm text-muted">By {item.due}</span> : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
         {status === "active" && title.startsWith("Seller") ? (
           <div className="flex flex-wrap gap-2">
             <ButtonLink href="/seller/tenders">Tenders</ButtonLink>
@@ -53,6 +86,9 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
             </ButtonLink>
             <ButtonLink href="/seller/billing" variant="secondary">
               Billing
+            </ButtonLink>
+            <ButtonLink href="/support" variant="secondary">
+              Support
             </ButtonLink>
           </div>
         ) : null}
@@ -67,6 +103,9 @@ export function DashboardPage({ title, organisationName, status }: DashboardPage
             </ButtonLink>
             <ButtonLink href="/buyer/billing" variant="secondary">
               Billing
+            </ButtonLink>
+            <ButtonLink href="/support" variant="secondary">
+              Support
             </ButtonLink>
           </div>
         ) : null}

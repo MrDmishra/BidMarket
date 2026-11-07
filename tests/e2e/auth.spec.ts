@@ -9,6 +9,13 @@ for (const path of [
   "/admin/security",
   "/onboarding",
   "/onboarding/verify",
+  "/support",
+  "/admin/organisations",
+  "/admin/incidents",
+  "/admin/tickets",
+  "/admin/tenders",
+  "/admin/orders",
+  "/admin/audit",
 ]) {
   test(`${path} sends visitors to log in`, async ({ page }) => {
     await page.goto(path);

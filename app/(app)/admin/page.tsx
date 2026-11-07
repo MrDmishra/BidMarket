@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/layout/app-header";
 import { Banner } from "@/components/ui/banner";
-import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FactList } from "@/components/ui/fact-list";
 import { StatusPill } from "@/components/ui/status-pill";
 import { requireAdmin } from "@/lib/auth/account";
 import { formatInr } from "@/lib/money";
 import { listPaymentPendingSellers, listPendingOrganisations } from "@/modules/accounts";
+import { AdminNav, getOverview } from "@/modules/admin";
 import { ReviewActions } from "@/modules/accounts/review-queue";
 import { TestActivation } from "@/modules/accounts/test-activation";
 import { listPendingCategoryRequests, listPendingProducts } from "@/modules/catalogue";
@@ -18,7 +18,8 @@ export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminPage() {
   const account = await requireAdmin();
-  const [pending, products, sellers, requests] = await Promise.all([
+  const [overview, pending, products, sellers, requests] = await Promise.all([
+    getOverview(),
     listPendingOrganisations(),
     listPendingProducts(),
     listPaymentPendingSellers(),
@@ -29,17 +30,45 @@ export default async function AdminPage() {
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-bold">Account verification</h1>
-          <div className="flex flex-wrap gap-2">
-            <ButtonLink href="/admin/categories" variant="secondary">
-              Manage categories
-            </ButtonLink>
-            <ButtonLink href="/admin/settings" variant="secondary">
-              Fees and settings
-            </ButtonLink>
-          </div>
-        </div>
+        <AdminNav current="/admin" />
+        <h1 className="text-3xl font-bold">Overview</h1>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {[
+            {
+              label: "Accounts to review",
+              value: overview.pendingOrganisations,
+              href: "#accounts",
+            },
+            { label: "Products to review", value: overview.pendingProducts, href: "#products" },
+            { label: "Open incidents", value: overview.openIncidents, href: "/admin/incidents" },
+            { label: "Open tickets", value: overview.openTickets, href: "/admin/tickets" },
+            { label: "Live auctions", value: overview.liveAuctions, href: "/admin/tenders" },
+            { label: "Paused auctions", value: overview.pausedAuctions, href: "/admin/tenders" },
+            { label: "Active orders", value: overview.activeOrders, href: "/admin/orders" },
+            {
+              label: "Blocked accounts",
+              value: overview.blockedSellers,
+              href: "/admin/organisations",
+            },
+          ].map((tile) => (
+            <li key={tile.label}>
+              <a
+                href={tile.href}
+                className="flex flex-col gap-1 rounded-panel border border-line bg-surface p-4 hover:border-brand"
+              >
+                <span className="font-mono text-2xl font-bold tabular-nums">{tile.value}</span>
+                <span className="text-sm text-muted">{tile.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="text-sm text-muted">
+          Fees received:{" "}
+          <b className="font-mono tabular-nums">{formatInr(overview.feesPaidPaise)}</b>
+        </p>
+        <h2 id="accounts" className="pt-2 text-2xl font-bold">
+          Account verification
+        </h2>
         {pending.length === 0 ? <EmptyState message="No accounts are waiting for review." /> : null}
         {pending.map((organisation) => (
           <section
@@ -66,7 +95,9 @@ export default async function AdminPage() {
           </section>
         ))}
 
-        <h2 className="pt-4 text-2xl font-bold">Product review</h2>
+        <h2 id="products" className="pt-4 text-2xl font-bold">
+          Product review
+        </h2>
         {products.length === 0 ? (
           <EmptyState message="No products are waiting for review." />
         ) : null}

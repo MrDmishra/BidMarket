@@ -53,6 +53,15 @@ export async function requireOrganisation(kind: OrgKind) {
   return { ...account, organisation: account.organisation };
 }
 
+/** Any buyer or seller account. Support pages serve both. */
+export async function requireMember() {
+  const account = await getAccount();
+  if (!account) redirect("/login");
+  if (account.role === "admin") redirect("/admin");
+  if (!account.organisation) redirect("/onboarding");
+  return { ...account, organisation: account.organisation };
+}
+
 /** Admin role without the second factor. Only the security page may use this. */
 export async function requireAdminRole() {
   const account = await getAccount();

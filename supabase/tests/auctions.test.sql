@@ -1,11 +1,12 @@
 begin;
-select plan(28);
+select plan(33);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000a1', 'buyer@example.com'),
   ('00000000-0000-0000-0000-0000000000a2', 'one@example.com'),
   ('00000000-0000-0000-0000-0000000000a3', 'two@example.com'),
-  ('00000000-0000-0000-0000-0000000000a4', 'outsider@example.com');
+  ('00000000-0000-0000-0000-0000000000a4', 'outsider@example.com'),
+  ('00000000-0000-0000-0000-0000000000a5', 'admin@example.com');
 insert into organisations (id, kind, entity_type, legal_name, pan_enc, pan_hmac, gstin, status) values
   ('a0000000-0000-0000-0000-000000000001', 'buyer', 'company', 'Buying Co', 'x', 'a1', '08AABCN1234F1Z5', 'active'),
   ('a0000000-0000-0000-0000-000000000002', 'seller', 'company', 'Seller One', 'x', 'a2', '08AABCN1235F1Z5', 'active'),
@@ -18,6 +19,7 @@ update profiles set org_id = 'a0000000-0000-0000-0000-000000000001' where email 
 update profiles set org_id = 'a0000000-0000-0000-0000-000000000002' where email = 'one@example.com';
 update profiles set org_id = 'a0000000-0000-0000-0000-000000000003' where email = 'two@example.com';
 update profiles set org_id = 'a0000000-0000-0000-0000-000000000004' where email = 'outsider@example.com';
+update profiles set role = 'admin' where email = 'admin@example.com';
 insert into products (id, seller_org_id, category_id, title, mrp_paise, discount_bps, unit, stock_qty, status)
 select v.id::uuid, v.seller::uuid, c.id, 'Brass valve', 100000, 1000, 'pc', 10, 'published'
 from categories c, (values
@@ -28,9 +30,9 @@ insert into product_states (product_id, state_code) values
   ('a2000000-0000-0000-0000-000000000001', '08'), ('a2000000-0000-0000-0000-000000000002', '08');
 
 create schema test_helpers;
-create function test_helpers.act_as(p_id text) returns void language sql as $$
+create function test_helpers.act_as(p_id text, p_aal text default 'aal1') returns void language sql as $$
   select set_config('request.jwt.claim.sub', p_id, true);
-  select set_config('request.jwt.claims', json_build_object('aal', 'aal1')::text, true);
+  select set_config('request.jwt.claims', json_build_object('aal', p_aal)::text, true);
 $$;
 create function test_helpers.new_auction(p_min integer, p_starts interval, p_ends interval) returns uuid language sql as $$
   select public.create_tender('regular', 'a2000000-0000-0000-0000-000000000001', null, '', '', 100, null, '[]',
@@ -116,6 +118,22 @@ set local role authenticated;
 select test_helpers.act_as('00000000-0000-0000-0000-0000000000a3');
 select lives_ok(format($$select place_ra_bid(%L, 88000, 'k6')$$, current_setting('test.t')), 'bidding continues after the last extension');
 select ok((test_helpers.tender(current_setting('test.t')::uuid)).ra_ends_at < now() + interval '3 minutes', 'six extensions are the limit');
+reset role;
+
+-- Pause and resume
+select test_helpers.open_now(current_setting('test.t')::uuid, interval '10 minutes');
+set local role authenticated;
+select test_helpers.act_as('00000000-0000-0000-0000-0000000000a5', 'aal2');
+select lives_ok(format($$select admin_pause_auction(%L, 'Payment provider outage')$$, current_setting('test.t')), 'support pauses a live auction');
+select test_helpers.act_as('00000000-0000-0000-0000-0000000000a2');
+select throws_ok(format($$select place_ra_bid(%L, 80000, 'kp')$$, current_setting('test.t')), 'P0001', 'AUCTION_PAUSED', 'a paused auction refuses bids');
+select is((seller_auction(current_setting('test.t')::uuid) ->> 'paused')::boolean, true, 'sellers see the pause');
+reset role;
+update tenders set paused_at = now() - interval '20 minutes', ra_starts_at = now() - interval '30 minutes' where id = current_setting('test.t')::uuid;
+set local role authenticated;
+select test_helpers.act_as('00000000-0000-0000-0000-0000000000a5', 'aal2');
+select lives_ok(format($$select admin_resume_auction(%L, 'Provider back')$$, current_setting('test.t')), 'support resumes the auction');
+select ok((test_helpers.tender(current_setting('test.t')::uuid)).ra_ends_at > now() + interval '9 minutes', 'resuming gives back the time lost');
 reset role;
 
 -- Closing

@@ -24,12 +24,19 @@ export type Database = Omit<GeneratedDatabase, "public"> & {
       | "finish_outbox"
       | "create_order"
       | "create_tender"
+      | "raise_incident"
+      | "admin_block_org"
     > & {
       save_product: WithNullableArgs<"save_product", "p_id">;
       admin_save_category: WithNullableArgs<"admin_save_category", "p_id" | "p_parent_id">;
       apply_payment_event: WithNullableArgs<"apply_payment_event", "p_event_id">;
       finish_outbox: WithNullableArgs<"finish_outbox", "p_error">;
       create_order: WithNullableArgs<"create_order", "p_credit_days">;
+      raise_incident: WithNullableArgs<
+        "raise_incident",
+        "p_order_id" | "p_tender_id" | "p_product_id"
+      >;
+      admin_block_org: WithNullableArgs<"admin_block_org", "p_days">;
       create_tender: WithNullableArgs<
         "create_tender",
         "p_product_id" | "p_category_id" | "p_estimate_unit_paise" | "p_credit_days"
