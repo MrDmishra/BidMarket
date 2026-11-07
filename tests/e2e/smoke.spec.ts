@@ -53,7 +53,13 @@ test("health endpoint uses the API envelope", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.status()).toBe(200);
   const body = await response.json();
-  expect(body.data).toEqual({ status: "ok", app: "ok", supabase: "not_configured" });
+  expect(body.data).toEqual({
+    status: "ok",
+    app: "ok",
+    supabase: "not_configured",
+    jobs: "unknown",
+    outbox: "unknown",
+  });
   expect(body.meta.requestId).toMatch(/^req_/);
 });
 
