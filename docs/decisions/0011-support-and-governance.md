@@ -1,7 +1,7 @@
 # 0011: Support and governance rules
 
 **Date:** 8 November 2026
-**Status:** Accepted, pending owner review
+**Status:** Accepted by the owner on 8 November 2026
 
 ## Context
 
