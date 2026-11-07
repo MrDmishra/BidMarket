@@ -146,6 +146,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** Index tuning only, driven by measurement.
 - **Tests:** Full end-to-end suite, load tests, security audit, restore drill.
 - **Done when:** PRD section 4 targets are measured and met.
+- **Status:** Partly done on 8 November 2026. Security headers and a content security policy, health checks for jobs and email, job history trimming, loading states for every signed-in page, and accessibility scans of the new components are live. Decision 0012 records the choices. Still open: the load test with 500 sellers, a 4G page speed measurement, the restore drill (`docs/runbooks/backup-restore.md`), an uptime monitor and Sentry alerts (`docs/runbooks/monitoring.md`), and an edge rate limit. These need real accounts, a paid Supabase plan or owner approval.
 
 ## Phase 11: Launch readiness
 

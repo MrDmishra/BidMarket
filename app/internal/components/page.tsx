@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ActionForm } from "@/components/ui/action-form";
 import { ActionPanel } from "@/components/ui/action-panel";
 import { Banner } from "@/components/ui/banner";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -152,6 +153,33 @@ export default function ComponentsPage() {
             <ActionPanel title="Next step">
               <MoneySummary valuePaise={4_500_000} feePaise={4_500} gstPaise={810} />
               <Button>Pay ₹53.10 and place order</Button>
+            </ActionPanel>
+            <ActionPanel title="Record a decision">
+              <ActionForm
+                id="sample-decision"
+                endpoint="/api/v1/admin/incidents/sample/decide"
+                buttonLabel="Save decision"
+                fields={[
+                  { kind: "textarea", name: "decision", label: "Decision, shown to both parties" },
+                  {
+                    kind: "select",
+                    name: "topic",
+                    label: "Topic",
+                    options: [
+                      { value: "order", label: "Orders and delivery" },
+                      { value: "payment", label: "Payments and invoices" },
+                    ],
+                  },
+                  {
+                    kind: "text",
+                    name: "days",
+                    label: "Days",
+                    hint: "Leave empty to block permanently.",
+                  },
+                  { kind: "checkbox", name: "close", label: "Close the incident" },
+                ]}
+                note="The reason is saved in the audit log."
+              />
             </ActionPanel>
             <ProductCard
               href="/products"

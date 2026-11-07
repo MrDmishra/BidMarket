@@ -10,6 +10,8 @@ describe("checkHealth", () => {
       status: "ok",
       app: "ok",
       supabase: "not_configured",
+      jobs: "unknown",
+      outbox: "unknown",
     });
     expect(fetchImpl).not.toHaveBeenCalled();
   });
@@ -30,5 +32,29 @@ describe("checkHealth", () => {
     const fetchImpl = vi.fn<typeof fetch>().mockRejectedValue(new Error("timeout"));
     const report = await checkHealth({ ...configured, fetchImpl });
     expect(report).toMatchObject({ status: "degraded", supabase: "unavailable" });
+  });
+
+  it("degrades when the deadline job has stopped", async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async (url) =>
+        String(url).endsWith("system_health")
+          ? new Response(JSON.stringify({ jobs: "stale", outbox: "ok" }))
+          : new Response("true"),
+      );
+    const report = await checkHealth({ ...configured, fetchImpl });
+    expect(report).toMatchObject({ status: "degraded", supabase: "ok", jobs: "stale" });
+  });
+
+  it("reports an email backlog without failing", async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async (url) =>
+        String(url).endsWith("system_health")
+          ? new Response(JSON.stringify({ jobs: "ok", outbox: "backlog" }))
+          : new Response("true"),
+      );
+    const report = await checkHealth({ ...configured, fetchImpl });
+    expect(report).toMatchObject({ status: "ok", outbox: "backlog" });
   });
 });

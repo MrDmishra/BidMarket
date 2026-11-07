@@ -227,6 +227,11 @@ Environments: local, preview, production, selected with `APP_ENV`. Production re
 | Browser hardening | Strict CSP, HSTS, frame denial. CSRF is covered by SameSite cookies plus Origin checks on writes. |
 | Admin | MFA, reason required for actions, full audit log. |
 
+### Headers and monitoring
+
+- `next.config.ts` sends a content security policy and the standard security headers on every page (decision 0012). Allowed hosts are this site, Supabase, Razorpay and Sentry.
+- `/api/health` reports the database, the minute deadline job and the email outbox. `docs/runbooks/monitoring.md` covers alerts, and `docs/runbooks/backup-restore.md` covers the restore drill.
+
 ### Testing
 
 | Level | Tool | Focus |
