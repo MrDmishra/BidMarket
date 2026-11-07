@@ -123,6 +123,7 @@ Sandbox accounts let development continue while live approvals are pending.
 - **Database/API:** `shortlist` route, tender tick update.
 - **Tests:** Elimination rules, excluded sellers denied, missed shortlist handling.
 - **Done when:** A Bid to RA tender runs from sealed bids through to an order.
+- **Status:** Live on `main` and in the database since 8 November 2026. The database test runs a Bid to RA tender from sealed bids through shortlisting and the auction to an order. Decision 0010 sets the open rules. Live use waits for the payment keys.
 
 ## Phase 9: Support and governance
 

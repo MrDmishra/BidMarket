@@ -51,6 +51,9 @@ export default async function BuyerTenderPage({ params }: TenderPageProps) {
                   numeric: true,
                 },
                 { label: "Bidding closes", value: closingText(tender.bidEndsAt) },
+                ...(tender.raStartsAt
+                  ? [{ label: "Auction starts", value: closingText(tender.raStartsAt) }]
+                  : []),
                 { label: "Minimum bids", value: String(tender.minBids), numeric: true },
                 {
                   label: "Extensions used",
@@ -101,6 +104,33 @@ export default async function BuyerTenderPage({ params }: TenderPageProps) {
             ) : null}
           </div>
           <div className="flex min-w-0 flex-col gap-4">
+            {tender.status === "shortlisting" ? (
+              <ActionPanel title="Shortlist sellers for the auction">
+                <p>
+                  <b className="font-mono tabular-nums">{tender.sealedBidCount ?? 0}</b> sealed bids
+                  arrived. Prices stay hidden until the auction closes.
+                </p>
+                {tender.raStartsAt ? (
+                  <p className="text-sm text-muted">
+                    Choose before {closingText(tender.raStartsAt)}. If you do not choose, every
+                    seller who bid joins the auction.
+                  </p>
+                ) : null}
+                <TenderAction
+                  endpoint={`${endpoint}/shortlist`}
+                  body={{ mode: "highest" }}
+                  buttonLabel="Remove the highest bidder"
+                  variant="secondary"
+                  note="Sellers tied at the highest price all leave."
+                />
+                <TenderAction
+                  endpoint={`${endpoint}/shortlist`}
+                  body={{ mode: "highest50" }}
+                  buttonLabel="Remove the highest half"
+                  variant="secondary"
+                />
+              </ActionPanel>
+            ) : null}
             {tender.status === "draft" ? (
               <ActionPanel title="Publish">
                 <TenderAction endpoint={`${endpoint}/publish`} buttonLabel="Review the fee" />

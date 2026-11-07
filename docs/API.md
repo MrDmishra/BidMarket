@@ -195,11 +195,13 @@ Built for reverse auctions:
 | POST | `/seller/tenders/{id}/auction/bids` | Seller | Place an auction bid |
 | GET | `/buyer/tenders/{id}/auction` | Buyer | Bid count and deadline only while live |
 
-Planned for Phase 8:
+Built for Bid to RA:
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | POST | `/buyer/tenders/{id}/shortlist` | Buyer | Remove `highest` or `highest50` in Bid to RA |
+
+Request: `{ "mode": "highest" }` or `{ "mode": "highest50" }`. Response: `{ "data": { "sellersRemaining": 2 } }`. It fails with `INVALID_STATE` outside shortlisting, after the auction start, or when the choice would remove nobody or everybody. Decision 0010 has the rules. During shortlisting, `get_buyer_tender` adds `sealedBidCount` and never prices. `get_seller_tender` adds `status`, `eliminated` and `raStartsAt`, and `seller_auction` adds `eliminated`.
 
 **Example:** `POST /seller/tenders/{id}/auction/bids`
 

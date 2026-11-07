@@ -1435,6 +1435,7 @@ export type Database = {
         Row: {
           attempts_used: number;
           declined_at: string | null;
+          eliminated_at: string | null;
           last_bid_at: string | null;
           last_bid_paise: number | null;
           seller_org_id: string;
@@ -1444,6 +1445,7 @@ export type Database = {
         Insert: {
           attempts_used?: number;
           declined_at?: string | null;
+          eliminated_at?: string | null;
           last_bid_at?: string | null;
           last_bid_paise?: number | null;
           seller_org_id: string;
@@ -1453,6 +1455,7 @@ export type Database = {
         Update: {
           attempts_used?: number;
           declined_at?: string | null;
+          eliminated_at?: string | null;
           last_bid_at?: string | null;
           last_bid_paise?: number | null;
           seller_org_id?: string;
@@ -2268,6 +2271,10 @@ export type Database = {
       set_product_visibility: {
         Args: { p_id: string; p_visible: boolean };
         Returns: undefined;
+      };
+      shortlist_tender: {
+        Args: { p_id: string; p_mode: string };
+        Returns: number;
       };
       start_subscription: { Args: never; Returns: string };
       submit_bid: {

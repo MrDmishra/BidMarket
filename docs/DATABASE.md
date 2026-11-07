@@ -163,7 +163,7 @@ Admin rows are created only by invitation.
 | cancel_reason | text | |
 | settings_id | uuid | FK platform_settings |
 
-Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_starts_at`, `bid_ends_at`, `extensions_used` and the shared fields. Phase 7 adds `ra_starts_at`, `ra_ends_at`, `snipe_extensions_used`, `l1_paise`, `bid_count` and `seq`. For an auction, `bid_ends_at` mirrors `ra_ends_at`, so one column drives lists and closing. `terms_file_id` waits for later file work. Buyers see bids once `bid_ends_at` passes and the tender is `evaluating`.
+Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_starts_at`, `bid_ends_at`, `extensions_used` and the shared fields. Phase 7 adds `ra_starts_at`, `ra_ends_at`, `snipe_extensions_used`, `l1_paise`, `bid_count` and `seq`. For an auction, `bid_ends_at` mirrors `ra_ends_at`, so one column drives lists and closing. In Bid to RA, `bid_ends_at` is the sealed deadline until shortlisting, then mirrors `ra_ends_at`. The flow is `bidding`, `shortlisting`, `auction_scheduled`, `auction`, `evaluating`. Tender numbers use `BID`, `RA` or `BRA`. `terms_file_id` waits for later file work. Buyers see bids once `bid_ends_at` passes and the tender is `evaluating`.
 
 **tender_specs:** `id`, `tender_id` FK, `spec_definition_id` FK nullable, `label`, `value`, `unit`, `is_key`. Snapshot of required specifications.
 
@@ -177,7 +177,7 @@ Check constraints ensure the terms and tender kind fit. Phase 6 builds `bid_star
 | last_bid_paise | bigint | Nullable. Latest active bid |
 | last_bid_at | timestamptz | Breaks ties, with the earlier bid ranked first |
 | withdrawn | boolean | Default false |
-| eliminated_at | timestamptz | Set in Bid to RA |
+| eliminated_at | timestamptz | Set when the buyer's shortlist removes the seller in Bid to RA. Removed sellers leave the ranking, results and award chain |
 | declined_at | timestamptz | Set when an award is rejected |
 
 **bids:** append-only.
@@ -412,7 +412,9 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 Production categories follow D-6: all 16 main categories and their sub-categories are live.
 
-**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied. `20261106000100_launch_offer` and `20261106000200_reverse_auctions` were applied through the Supabase migration tool on 6 and 7 November 2026, so they appear in the list under the names `launch_offer` and `reverse_auctions`.
+**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied. `20261106000100_launch_offer` and `20261106000200_reverse_auctions` were applied through the Supabase migration tool on 6 and 7 November 2026, so they appear in the list under the names `launch_offer` and `reverse_auctions`. `20261108000100_job_schedule` and `20261108000200_bid_to_ra` were applied the same way on 8 November 2026.
+
+**Job schedule.** `20261108000100_job_schedule` enables pg_cron and pg_net and schedules two jobs: `tender-deadlines` runs `tick_tenders()` every minute, and `billing-jobs` calls the web job runner every 15 minutes. The runner job reads `job_runner_url` and `internal_job_secret` from the vault and does nothing until both exist. Test databases lack pg_cron, so the migration skips the schedule there.
 
 ## 10. Backup and recovery
 

@@ -47,9 +47,10 @@ export function TenderForm({ product, categories, addresses, earliestClose }: Te
       consigneeAddressId: text("consigneeAddressId"),
       contractMonths: text("contractMonths"),
       type: tenderType,
-      ...(tenderType === "ra"
-        ? { raStartsAt: text("raStartsAt"), raEndsAt: text("raEndsAt") }
-        : { bidEndsAt: text("bidEndsAt") }),
+      ...(tenderType === "ra" ? {} : { bidEndsAt: text("bidEndsAt") }),
+      ...(tenderType === "bid"
+        ? {}
+        : { raStartsAt: text("raStartsAt"), raEndsAt: text("raEndsAt") }),
       minBids: text("minBids"),
       extensionsAllowed: text("extensionsAllowed"),
       extensionHours: text("extensionHours"),
@@ -181,17 +182,41 @@ export function TenderForm({ product, categories, addresses, earliestClose }: Te
       >
         <option value="bid">Sealed bid</option>
         <option value="ra">Reverse auction</option>
+        <option value="bid_to_ra">Sealed bid, then reverse auction</option>
       </SelectField>
-      {tenderType === "ra" ? (
+      {tenderType === "bid_to_ra" ? (
+        <p className="text-sm text-muted">
+          After sealed bidding closes, you remove the highest bidder or the highest half. The
+          sellers left then compete in the auction.
+        </p>
+      ) : null}
+      {tenderType === "ra" ? null : (
+        <TextField
+          id="bid-ends"
+          name="bidEndsAt"
+          type="datetime-local"
+          label={
+            tenderType === "bid" ? "Bidding ends (India time)" : "Sealed bidding ends (India time)"
+          }
+          min={earliestClose}
+          defaultValue={earliestClose}
+          error={fields.bidEndsAt}
+        />
+      )}
+      {tenderType === "bid" ? null : (
         <>
           <TextField
             id="ra-starts"
             name="raStartsAt"
             type="datetime-local"
             label="Auction starts (India time)"
-            hint="At least 1 hour from now, so sellers get notice."
+            hint={
+              tenderType === "ra"
+                ? "At least 1 hour from now, so sellers get notice."
+                : "At least 1 hour after sealed bidding ends, so you have time to shortlist."
+            }
             min={earliestClose}
-            defaultValue={earliestClose}
+            defaultValue={tenderType === "ra" ? earliestClose : undefined}
             error={fields.raStartsAt}
           />
           <TextField
@@ -204,16 +229,6 @@ export function TenderForm({ product, categories, addresses, earliestClose }: Te
             error={fields.raEndsAt}
           />
         </>
-      ) : (
-        <TextField
-          id="bid-ends"
-          name="bidEndsAt"
-          type="datetime-local"
-          label="Bidding ends (India time)"
-          min={earliestClose}
-          defaultValue={earliestClose}
-          error={fields.bidEndsAt}
-        />
       )}
       <TextField
         id="min-bids"
