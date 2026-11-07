@@ -1,5 +1,6 @@
 import "server-only";
 
+import { AppError } from "@/lib/errors/app-error";
 import { toAppError } from "@/lib/errors/database";
 import type { Enums } from "@/lib/supabase/database.types";
 import { createUserClient } from "@/lib/supabase/server";
@@ -154,4 +155,41 @@ export async function searchAuditLog(filters: {
   });
   if (error) throw toAppError(error);
   return data;
+}
+
+const DOCUMENT_BUCKET = "order-documents";
+const SIGNED_LINK_SECONDS = 300;
+
+export async function listPendingFiles() {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("admin_pending_files");
+  if (error) throw toAppError(error);
+  return data;
+}
+
+export async function reviewFile(id: string, clean: boolean, reason: string) {
+  const supabase = await createUserClient();
+  const { error } = await supabase.rpc("admin_review_file", {
+    p_id: id,
+    p_clean: clean,
+    p_reason: reason,
+  });
+  if (error) throw toAppError(error);
+}
+
+/** Row-level security lets only the owner and admins read the file row, and storage checks the same. */
+export async function getFileLinkForReview(id: string) {
+  const supabase = await createUserClient();
+  const { data: file, error } = await supabase
+    .from("files")
+    .select("bucket, path")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw toAppError(error);
+  if (!file || file.bucket !== DOCUMENT_BUCKET) throw new AppError("NOT_FOUND");
+  const { data, error: linkError } = await supabase.storage
+    .from(DOCUMENT_BUCKET)
+    .createSignedUrl(file.path, SIGNED_LINK_SECONDS);
+  if (linkError) throw new AppError("NOT_FOUND", { cause: linkError });
+  return data.signedUrl;
 }
