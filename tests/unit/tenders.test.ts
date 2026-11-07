@@ -86,6 +86,7 @@ describe("reverse auction inputs", () => {
       startsAt: "2026-11-10T11:00:00Z",
       endsAt: "2026-11-10T12:00:00Z",
       seq: 2,
+      paused: false,
       serverNow: "2026-11-10T11:30:00Z",
       l1Paise: 89550,
     });

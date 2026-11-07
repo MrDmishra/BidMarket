@@ -223,6 +223,7 @@ export const buyerAuctionSchema = z.object({
   startsAt: z.string(),
   endsAt: z.string(),
   seq: z.number().int(),
+  paused: z.boolean(),
   serverNow: z.string(),
 });
 export type BuyerAuction = z.infer<typeof buyerAuctionSchema>;
@@ -231,6 +232,7 @@ export const sellerAuctionSchema = z.object({
   status: z.string(),
   eligible: z.boolean(),
   eliminated: z.boolean(),
+  paused: z.boolean(),
   startsAt: z.string(),
   endsAt: z.string(),
   serverNow: z.string(),

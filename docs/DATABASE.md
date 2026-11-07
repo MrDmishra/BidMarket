@@ -265,6 +265,8 @@ Seed values: 10, 50, 1800, 0, ₹20,000, ₹50,000, ₹1,000, 1000, ₹25,000, 2
 
 **files:** `id`, `bucket`, `path` unique, `owner_org_id` FK, `uploaded_by` FK, `mime_type`, `size_bytes`, `sha256`, `scan_status`. Re-encoded images start clean. PDFs start pending and stay hidden from the other party until scanned.
 
+Built in Phase 9 (`20261108000300_support_governance`): `incidents`, `tickets`, `messages` and `penalties`, plus `tenders.paused_at`. Reference numbers use `BM/yy/INC/nnnnn` and `BM/yy/TKT/nnnnn`. Incidents also store `raised_by`. Tickets also store `org_id`, `resolved_by` and `resolved_at`. Messages carry `from_support` and have no file yet. Penalties allow a null `strike_no` for blocks by support. Decision 0011 has the rules.
+
 **incidents:** `id`, `ref_no` unique, `raised_by_org_id` FK, `against_org_id` FK nullable, `product_id`, `tender_id`, `order_id` FK (at least one required), `description`, `status`, `decision`, `decided_by` FK, `decided_at`.
 
 **tickets:** `id`, `ref_no` unique, `user_id` FK, `type`, `subcategory`, `description`, `status`, `resolution`, `assigned_to` FK.
@@ -412,7 +414,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 Production categories follow D-6: all 16 main categories and their sub-categories are live.
 
-**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied. `20261106000100_launch_offer` and `20261106000200_reverse_auctions` were applied through the Supabase migration tool on 6 and 7 November 2026, so they appear in the list under the names `launch_offer` and `reverse_auctions`. `20261108000100_job_schedule` and `20261108000200_bid_to_ra` were applied the same way on 8 November 2026.
+**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied. `20261106000100_launch_offer` and `20261106000200_reverse_auctions` were applied through the Supabase migration tool on 6 and 7 November 2026, so they appear in the list under the names `launch_offer` and `reverse_auctions`. `20261108000100_job_schedule` and `20261108000200_bid_to_ra` were applied the same way on 8 November 2026. `20261108000300_support_governance` was applied the same way on 8 November 2026.
 
 **Job schedule.** `20261108000100_job_schedule` enables pg_cron and pg_net and schedules two jobs: `tender-deadlines` runs `tick_tenders()` every minute, and `billing-jobs` calls the web job runner every 15 minutes. The runner job reads `job_runner_url` and `internal_job_secret` from the vault and does nothing until both exist. Test databases lack pg_cron, so the migration skips the schedule there.
 

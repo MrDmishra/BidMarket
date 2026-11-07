@@ -62,7 +62,7 @@ Source of truth: PRD.md, ARCHITECTURE.md and DATABASE.md.
 | 401 | `UNAUTHENTICATED` |
 | 403 | `FORBIDDEN`, `ACCOUNT_BLOCKED`, `ACCOUNT_NOT_ACTIVE` |
 | 404 | `NOT_FOUND`. Also used when the caller may not know a record exists |
-| 409 | `INVALID_STATE`, `IDEMPOTENCY_CONFLICT`, `AUCTION_CLOSED`, `BID_TOO_HIGH`, `ATTEMPTS_EXCEEDED` |
+| 409 | `INVALID_STATE`, `IDEMPOTENCY_CONFLICT`, `AUCTION_CLOSED`, `AUCTION_PAUSED`, `BID_TOO_HIGH`, `ATTEMPTS_EXCEEDED` |
 | 422 | `LIMIT_EXCEEDED`, `VERIFICATION_FAILED`, `NOT_ELIGIBLE` |
 | 429 | `RATE_LIMITED`, with `Retry-After` |
 | 502, 503 | `PROVIDER_UNAVAILABLE`, `SERVICE_UNAVAILABLE` |
@@ -251,11 +251,13 @@ Wallet totals, charges, invoices and the subscription fee quote are read directl
 | GET, POST | `/tickets` | User | List own, or raise one |
 | GET | `/tickets/{id}` | User | Detail and messages |
 | POST | `/tickets/{id}/messages` | User | Add message |
-| POST | `/contact` | Public | Visitor message, with Turnstile |
+| POST | `/contact` | Public | Visitor message, with Turnstile. Not built: waits for Turnstile keys |
+
+Built in Phase 9, except `/contact`. `POST /incidents` takes `{ orderId | tenderId | productId, description }` with exactly one reference and returns `{ incidentId }`. `POST /tickets` takes `{ type, subcategory?, description }`. Message routes take `{ body }`. Support replies through the same message routes. Decision 0011 sets the rules.
 
 ## 9. Admin
 
-All routes require Admin with MFA. Every write requires a `reason` and is audit logged.
+All routes require Admin with MFA. Every write requires a `reason` and is audit logged. Phase 9 built the overview, organisation search and detail, suspend, reinstate, block (`{ days: number | null, reason }`, null is permanent), lift-block, waive, tender pause, resume and cancel, the order list, the incident and ticket queues, decide (`{ decision, close, reason }`), resolve (`{ resolution, reason }`) and the audit search (`?entityType=&entityId=&action=&before=`, 50 at a time).
 
 | Method | Path | Purpose |
 |---|---|---|

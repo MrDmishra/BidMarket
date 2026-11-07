@@ -1,7 +1,7 @@
 # 0010: Bid to RA rules and the job schedule
 
 **Date:** 8 November 2026
-**Status:** Accepted, pending owner review
+**Status:** Accepted by the owner on 8 November 2026
 
 ## Context
 

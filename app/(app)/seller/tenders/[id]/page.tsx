@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/layout/app-header";
 import { ActionPanel } from "@/components/ui/action-panel";
@@ -40,7 +41,17 @@ export default async function SellerTenderPage({ params }: TenderPageProps) {
       <AppHeader name={organisation.legalName} />
       <main className="page-wrap flex flex-col gap-5 py-8">
         <h1 className="text-2xl font-bold">{tender.title}</h1>
-        <p className="font-mono text-sm text-muted">{tender.tenderNo}</p>
+        <p className="flex flex-wrap gap-3 font-mono text-sm text-muted">
+          {tender.tenderNo}
+          {tender.myBidPaise !== null || tender.award ? (
+            <Link
+              className="font-sans underline"
+              href={`/support?tenderId=${tender.id}&ref=${encodeURIComponent(tender.tenderNo)}`}
+            >
+              Report a problem
+            </Link>
+          ) : null}
+        </p>
         <div className="grid items-start gap-5 md:grid-cols-[1fr_22rem]">
           <FactList
             facts={[

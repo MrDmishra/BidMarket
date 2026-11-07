@@ -19,6 +19,11 @@ export function BuyerAuctionStatus({ tenderId }: { tenderId: string }) {
   return (
     <ActionPanel title="Reverse auction">
       {connected ? null : <Banner tone="warn">Reconnecting to the auction.</Banner>}
+      {state.paused ? (
+        <Banner tone="warn">
+          Paused by Bid Market because of a platform problem. The time lost is added back.
+        </Banner>
+      ) : null}
       {started ? (
         <p>
           Time left{" "}

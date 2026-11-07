@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/layout/app-header";
 import { ActionPanel } from "@/components/ui/action-panel";
@@ -37,6 +38,12 @@ export default async function BuyerTenderPage({ params }: TenderPageProps) {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold">{tender.title}</h1>
           <StatusPill {...(TENDER_STATUS[tender.status] ?? TENDER_STATUS.draft!)} />
+          <Link
+            className="ml-auto text-sm underline"
+            href={`/support?tenderId=${tender.id}&ref=${encodeURIComponent(tender.tenderNo)}`}
+          >
+            Report a problem
+          </Link>
         </div>
         <p className="font-mono text-sm text-muted">{tender.tenderNo}</p>
         {tender.cancelReason ? <Banner tone="warn">{tender.cancelReason}</Banner> : null}

@@ -458,6 +458,138 @@ export type Database = {
         };
         Relationships: [];
       };
+      incidents: {
+        Row: {
+          against_org_id: string | null;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          decision: string | null;
+          description: string;
+          id: string;
+          order_id: string | null;
+          product_id: string | null;
+          raised_by: string;
+          raised_by_org_id: string;
+          ref_no: string;
+          status: Database["public"]["Enums"]["incident_status"];
+          tender_id: string | null;
+        };
+        Insert: {
+          against_org_id?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision?: string | null;
+          description: string;
+          id?: string;
+          order_id?: string | null;
+          product_id?: string | null;
+          raised_by: string;
+          raised_by_org_id: string;
+          ref_no: string;
+          status?: Database["public"]["Enums"]["incident_status"];
+          tender_id?: string | null;
+        };
+        Update: {
+          against_org_id?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision?: string | null;
+          description?: string;
+          id?: string;
+          order_id?: string | null;
+          product_id?: string | null;
+          raised_by?: string;
+          raised_by_org_id?: string;
+          ref_no?: string;
+          status?: Database["public"]["Enums"]["incident_status"];
+          tender_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "incidents_against_org_id_fkey";
+            columns: ["against_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "incidents_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "incidents_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "incidents_raised_by_org_id_fkey";
+            columns: ["raised_by_org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "incidents_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      messages: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          from_support: boolean;
+          id: string;
+          incident_id: string | null;
+          ticket_id: string | null;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          from_support?: boolean;
+          id?: string;
+          incident_id?: string | null;
+          ticket_id?: string | null;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          from_support?: boolean;
+          id?: string;
+          incident_id?: string | null;
+          ticket_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_incident_id_fkey";
+            columns: ["incident_id"];
+            isOneToOne: false;
+            referencedRelation: "incidents";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_ticket_id_fkey";
+            columns: ["ticket_id"];
+            isOneToOne: false;
+            referencedRelation: "tickets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       number_sequences: {
         Row: {
           financial_year: string;
@@ -901,6 +1033,66 @@ export type Database = {
             columns: ["org_id"];
             isOneToOne: false;
             referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      penalties: {
+        Row: {
+          applied_by: string | null;
+          created_at: string;
+          days: number | null;
+          ends_at: string;
+          id: string;
+          org_id: string;
+          reason: string;
+          strike_no: number | null;
+          tender_id: string | null;
+          waived_at: string | null;
+          waived_by: string | null;
+          waived_reason: string | null;
+        };
+        Insert: {
+          applied_by?: string | null;
+          created_at?: string;
+          days?: number | null;
+          ends_at: string;
+          id?: string;
+          org_id: string;
+          reason: string;
+          strike_no?: number | null;
+          tender_id?: string | null;
+          waived_at?: string | null;
+          waived_by?: string | null;
+          waived_reason?: string | null;
+        };
+        Update: {
+          applied_by?: string | null;
+          created_at?: string;
+          days?: number | null;
+          ends_at?: string;
+          id?: string;
+          org_id?: string;
+          reason?: string;
+          strike_no?: number | null;
+          tender_id?: string | null;
+          waived_at?: string | null;
+          waived_by?: string | null;
+          waived_reason?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "penalties_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "penalties_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
             referencedColumns: ["id"];
           },
         ];
@@ -1547,6 +1739,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["tender_kind"];
           l1_paise: number | null;
           min_bids: number;
+          paused_at: string | null;
           payment_terms: Database["public"]["Enums"]["payment_terms"];
           product_id: string | null;
           quantity: number;
@@ -1583,6 +1776,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["tender_kind"];
           l1_paise?: number | null;
           min_bids?: number;
+          paused_at?: string | null;
           payment_terms: Database["public"]["Enums"]["payment_terms"];
           product_id?: string | null;
           quantity: number;
@@ -1619,6 +1813,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["tender_kind"];
           l1_paise?: number | null;
           min_bids?: number;
+          paused_at?: string | null;
           payment_terms?: Database["public"]["Enums"]["payment_terms"];
           product_id?: string | null;
           quantity?: number;
@@ -1667,6 +1862,59 @@ export type Database = {
             columns: ["settings_id"];
             isOneToOne: false;
             referencedRelation: "platform_settings";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tickets: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          org_id: string | null;
+          ref_no: string;
+          resolution: string | null;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          status: Database["public"]["Enums"]["ticket_status"];
+          subcategory: string | null;
+          type: Database["public"]["Enums"]["ticket_type"];
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          id?: string;
+          org_id?: string | null;
+          ref_no: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: Database["public"]["Enums"]["ticket_status"];
+          subcategory?: string | null;
+          type: Database["public"]["Enums"]["ticket_type"];
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          org_id?: string | null;
+          ref_no?: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: Database["public"]["Enums"]["ticket_status"];
+          subcategory?: string | null;
+          type?: Database["public"]["Enums"]["ticket_type"];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tickets_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organisations";
             referencedColumns: ["id"];
           },
         ];
@@ -1846,6 +2094,10 @@ export type Database = {
         Args: { p_account_no: string; p_holder_name: string; p_ifsc: string };
         Returns: string;
       };
+      add_incident_message: {
+        Args: { p_body: string; p_id: string };
+        Returns: string;
+      };
       add_product_image: {
         Args: { p_id: string; p_path: string };
         Returns: string;
@@ -1860,6 +2112,10 @@ export type Database = {
         };
         Returns: string;
       };
+      add_ticket_message: {
+        Args: { p_body: string; p_id: string };
+        Returns: string;
+      };
       admin_add_spec: {
         Args: {
           p_category_id: string;
@@ -1870,6 +2126,32 @@ export type Database = {
           p_unit: string;
         };
         Returns: string;
+      };
+      admin_audit_log: {
+        Args: {
+          p_action?: string;
+          p_before?: number;
+          p_entity_id?: string;
+          p_entity_type?: string;
+        };
+        Returns: {
+          action: string;
+          actor: string;
+          actor_role: string;
+          created_at: string;
+          entity_id: string;
+          entity_type: string;
+          id: number;
+          reason: string;
+        }[];
+      };
+      admin_block_org: {
+        Args: { p_days: number; p_id: string; p_reason: string };
+        Returns: string;
+      };
+      admin_cancel_tender: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
       };
       admin_categories: {
         Args: never;
@@ -1882,6 +2164,66 @@ export type Database = {
           slug: string;
           sort_order: number;
         }[];
+      };
+      admin_decide_incident: {
+        Args: {
+          p_close: boolean;
+          p_decision: string;
+          p_id: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
+      admin_incidents: {
+        Args: { p_status?: Database["public"]["Enums"]["incident_status"] };
+        Returns: {
+          against: string;
+          created_at: string;
+          id: string;
+          raised_by: string;
+          ref_no: string;
+          reference: string;
+          status: Database["public"]["Enums"]["incident_status"];
+        }[];
+      };
+      admin_lift_block: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      admin_orders: {
+        Args: { p_status?: Database["public"]["Enums"]["order_status"] };
+        Returns: {
+          buyer: string;
+          created_at: string;
+          id: string;
+          order_no: string;
+          seller: string;
+          status: Database["public"]["Enums"]["order_status"];
+          title: string;
+          total_paise: number;
+        }[];
+      };
+      admin_organisation: { Args: { p_id: string }; Returns: Json };
+      admin_organisations: {
+        Args: {
+          p_search?: string;
+          p_status?: Database["public"]["Enums"]["org_status"];
+        };
+        Returns: {
+          blocked_until: string;
+          created_at: string;
+          gstin: string;
+          id: string;
+          kind: Database["public"]["Enums"]["org_kind"];
+          legal_name: string;
+          status: Database["public"]["Enums"]["org_status"];
+          strike_count: number;
+        }[];
+      };
+      admin_overview: { Args: never; Returns: Json };
+      admin_pause_auction: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
       };
       admin_payment_pending_sellers: {
         Args: never;
@@ -1929,6 +2271,14 @@ export type Database = {
           unit: string;
         }[];
       };
+      admin_resolve_ticket: {
+        Args: { p_id: string; p_reason: string; p_resolution: string };
+        Returns: undefined;
+      };
+      admin_resume_auction: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
+      };
       admin_review_category_request: {
         Args: { p_approve: boolean; p_id: string; p_note: string };
         Returns: undefined;
@@ -1967,8 +2317,41 @@ export type Database = {
         };
         Returns: string;
       };
+      admin_set_org_status: {
+        Args: { p_action: string; p_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      admin_tenders: {
+        Args: { p_status?: Database["public"]["Enums"]["tender_status"] };
+        Returns: {
+          bid_count: number;
+          bid_ends_at: string;
+          buyer: string;
+          id: string;
+          paused_at: string;
+          status: Database["public"]["Enums"]["tender_status"];
+          tender_no: string;
+          title: string;
+          type: Database["public"]["Enums"]["tender_type"];
+        }[];
+      };
       admin_test_activate_seller: {
         Args: { p_org_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      admin_tickets: {
+        Args: { p_status?: Database["public"]["Enums"]["ticket_status"] };
+        Returns: {
+          created_at: string;
+          email: string;
+          id: string;
+          ref_no: string;
+          status: Database["public"]["Enums"]["ticket_status"];
+          type: Database["public"]["Enums"]["ticket_type"];
+        }[];
+      };
+      admin_waive_penalty: {
+        Args: { p_id: string; p_reason: string };
         Returns: undefined;
       };
       api_begin: {
@@ -2090,9 +2473,11 @@ export type Database = {
         Returns: undefined;
       };
       get_buyer_tender: { Args: { p_id: string }; Returns: Json };
+      get_incident: { Args: { p_id: string }; Returns: Json };
       get_order: { Args: { p_id: string }; Returns: Json };
       get_order_contacts: { Args: { p_id: string }; Returns: Json };
       get_seller_tender: { Args: { p_id: string }; Returns: Json };
+      get_ticket: { Args: { p_id: string }; Returns: Json };
       health_check: { Args: never; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
       list_orders: {
@@ -2106,6 +2491,36 @@ export type Database = {
           title: string;
           total_paise: number;
           unit: string;
+        }[];
+      };
+      my_attention: {
+        Args: never;
+        Returns: {
+          due_at: string;
+          id: string;
+          kind: string;
+          label: string;
+        }[];
+      };
+      my_incidents: {
+        Args: never;
+        Returns: {
+          created_at: string;
+          id: string;
+          raised_by_me: boolean;
+          ref_no: string;
+          reference: string;
+          status: Database["public"]["Enums"]["incident_status"];
+        }[];
+      };
+      my_tickets: {
+        Args: never;
+        Returns: {
+          created_at: string;
+          id: string;
+          ref_no: string;
+          status: Database["public"]["Enums"]["ticket_status"];
+          type: Database["public"]["Enums"]["ticket_type"];
         }[];
       };
       place_ra_bid: {
@@ -2154,6 +2569,23 @@ export type Database = {
         Returns: Json;
       };
       quote_subscription: { Args: never; Returns: Json };
+      raise_incident: {
+        Args: {
+          p_description: string;
+          p_order_id: string;
+          p_product_id: string;
+          p_tender_id: string;
+        };
+        Returns: string;
+      };
+      raise_ticket: {
+        Args: {
+          p_description: string;
+          p_subcategory: string;
+          p_type: Database["public"]["Enums"]["ticket_type"];
+        };
+        Returns: string;
+      };
       receive_order: {
         Args: { p_file_id: string; p_id: string };
         Returns: undefined;
@@ -2336,6 +2768,7 @@ export type Database = {
       entity_type:
         "individual" | "proprietorship" | "partnership" | "trust_society" | "llp" | "company";
       file_scan_status: "pending" | "clean" | "infected";
+      incident_status: "open" | "decided" | "closed";
       order_source: "direct" | "tender";
       order_status:
         "unpaid" | "awaiting_seller" | "accepted" | "dispatched" | "completed" | "cancelled";
@@ -2359,6 +2792,8 @@ export type Database = {
         | "ordered"
         | "cancelled";
       tender_type: "bid" | "ra" | "bid_to_ra";
+      ticket_status: "open" | "resolved";
+      ticket_type: "account" | "payment" | "tender" | "order" | "technical" | "other";
       user_role: "org_user" | "admin";
       verification_kind: "pan" | "gstin" | "bank" | "cin" | "identity";
       verification_status: "pending" | "verified" | "failed" | "manual_review";
@@ -2504,6 +2939,7 @@ export const Constants = {
         "company",
       ],
       file_scan_status: ["pending", "clean", "infected"],
+      incident_status: ["open", "decided", "closed"],
       order_source: ["direct", "tender"],
       order_status: [
         "unpaid",
@@ -2533,6 +2969,8 @@ export const Constants = {
         "cancelled",
       ],
       tender_type: ["bid", "ra", "bid_to_ra"],
+      ticket_status: ["open", "resolved"],
+      ticket_type: ["account", "payment", "tender", "order", "technical", "other"],
       user_role: ["org_user", "admin"],
       verification_kind: ["pan", "gstin", "bank", "cin", "identity"],
       verification_status: ["pending", "verified", "failed", "manual_review"],

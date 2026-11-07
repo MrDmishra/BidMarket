@@ -9,6 +9,10 @@ export const ERROR_CATALOGUE = {
   INVALID_STATE: { status: 409, message: "This record has changed. Refresh and try again." },
   IDEMPOTENCY_CONFLICT: { status: 409, message: "This request was already used with other data." },
   AUCTION_CLOSED: { status: 409, message: "This auction has closed." },
+  AUCTION_PAUSED: {
+    status: 409,
+    message: "This auction is paused. Bidding resumes when Bid Market restarts it.",
+  },
   BID_TOO_HIGH: { status: 409, message: "Your bid is above the allowed price." },
   ATTEMPTS_EXCEEDED: { status: 409, message: "You have used all your attempts." },
   LIMIT_EXCEEDED: { status: 422, message: "This is above the allowed limit." },
