@@ -412,7 +412,7 @@ RLS is enabled on every table in `public`. Helper functions `current_org_id()` a
 
 Production categories follow D-6: all 16 main categories and their sub-categories are live.
 
-**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied.
+**Migration history note.** `20261104001200_direct_orders` and `20261104001300_sealed_tenders` were run by the owner in the Supabase SQL editor, so they are live but missing from the Supabase migration list. Treat them as applied. `20261106000100_launch_offer` and `20261106000200_reverse_auctions` were applied through the Supabase migration tool on 6 and 7 November 2026, so they appear in the list under the names `launch_offer` and `reverse_auctions`.
 
 ## 10. Backup and recovery
 

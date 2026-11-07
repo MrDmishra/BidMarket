@@ -1,7 +1,7 @@
 # 0009: Auction updates and closing
 
 **Date:** 6 November 2026
-**Status:** Accepted, pending owner review
+**Status:** Accepted by the owner on 7 November 2026
 
 ## Context
 
