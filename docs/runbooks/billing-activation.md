@@ -17,21 +17,13 @@ Billing code and tables are live. Payments stay off until these values exist. En
 
 ## 3. Job schedule
 
-Run this once in the Supabase SQL editor, after enabling the `pg_cron` and `pg_net` extensions. Replace the two placeholders. The job calls the runner every 15 minutes for reconciliation, email and subscription expiry.
+The schedule is already set up (decision 0010). `tender-deadlines` runs every minute and needs nothing more. `billing-jobs` runs every 15 minutes and starts working once the job secret is in the vault. Run this once in the Supabase SQL editor, using the same value as `INTERNAL_JOB_SECRET` in Vercel:
 
 ```sql
 select vault.create_secret('<same INTERNAL_JOB_SECRET value>', 'internal_job_secret');
-
-select cron.schedule('billing-jobs', '*/15 * * * *', $$
-  select net.http_post(
-    url := 'https://<site>/api/internal/jobs/run',
-    headers := jsonb_build_object(
-      'Authorization',
-      'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'internal_job_secret')
-    )
-  );
-$$);
 ```
+
+To check the jobs: `select jobname, schedule, active from cron.job;`. To see recent runs: `select * from cron.job_run_details order by start_time desc limit 10;`.
 
 ## 4. Email
 
