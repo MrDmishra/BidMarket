@@ -32,6 +32,8 @@ export default async function SellerTenderPage({ params }: TenderPageProps) {
   const offered = tender.award?.status === "offered" ? tender.award : null;
   const payable = tender.charge?.status === "pending" ? tender.charge : null;
   const attemptsLeft = MAX_ATTEMPTS - tender.attemptsUsed;
+  const inBidToRaAuction =
+    !tender.eliminated && (tender.status === "auction_scheduled" || tender.status === "auction");
 
   return (
     <>
@@ -53,8 +55,19 @@ export default async function SellerTenderPage({ params }: TenderPageProps) {
             ]}
           />
           <div className="flex min-w-0 flex-col gap-4">
-            {tender.type === "ra" ? (
+            {tender.type === "ra" || (tender.type === "bid_to_ra" && inBidToRaAuction) ? (
               <SellerAuctionPanel tenderId={tender.id} unit={tender.unit} />
+            ) : null}
+            {tender.type === "bid_to_ra" && tender.status === "shortlisting" ? (
+              <Banner>
+                Sealed bidding has closed. The buyer is choosing which sellers go to the auction
+                {tender.raStartsAt ? ` starting ${closingText(tender.raStartsAt)}` : ""}.
+              </Banner>
+            ) : null}
+            {tender.eliminated ? (
+              <Banner tone="warn">
+                Your sealed bid was not shortlisted, so you cannot bid in the auction.
+              </Banner>
             ) : null}
             {tender.open ? (
               <ActionPanel title="Your bid">

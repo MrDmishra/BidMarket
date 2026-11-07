@@ -125,9 +125,9 @@ The row lock gives one strict order per tender. The bid's commit under lock is t
 
 ### 6.3 Closing and awarding
 
-Every minute, or more often where pg_cron supports it, `tick_tenders` finds tenders past their deadline. Bid acceptance never relies on this job. `place_ra_bid` checks `ends_at` itself, so a delayed job cannot admit a late bid. Between the deadline and finalisation, the page shows "Closed, confirming the result".
+Every minute, pg_cron calls `tick_tenders` directly in the database (the `tender-deadlines` job), so deadlines do not depend on the web job runner or its secret. It finds tenders past their deadline. Bid acceptance never relies on this job. `place_ra_bid` checks `ends_at` itself, so a delayed job cannot admit a late bid. Between the deadline and finalisation, the page shows "Closed, confirming the result".
 
-`tick_tenders` also applies extensions or cancellations, moves Bid to RA tenders to their auction at the set time, and expires unanswered awards after the configured window.
+`tick_tenders` also applies extensions or cancellations, moves Bid to RA tenders from sealed bidding to shortlisting, starts their auction at the set time (keeping every sealed bidder if the buyer did not shortlist), and expires unanswered awards after the configured window. Decision 0010 has the Bid to RA rules.
 
 ## 7. Real-time design
 

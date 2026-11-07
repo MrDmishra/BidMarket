@@ -17,7 +17,7 @@ const amount = z
 
 export const createTenderSchema = z
   .strictObject({
-    type: z.enum(["bid", "ra"]),
+    type: z.enum(["bid", "ra", "bid_to_ra"]),
     kind: z.enum(["regular", "custom"]),
     productId: z.string().optional(),
     categoryId: z.string().optional(),
@@ -49,21 +49,21 @@ export const createTenderSchema = z
     extensionHours: wholeNumber(1, 168, "Enter 1 to 168 hours."),
   })
   .superRefine((value, context) => {
-    if (value.type === "bid" && !value.bidEndsAt) {
+    if (value.type !== "ra" && !value.bidEndsAt) {
       context.addIssue({
         code: "custom",
         path: ["bidEndsAt"],
         message: "Choose when bidding ends.",
       });
     }
-    if (value.type === "ra" && !value.raStartsAt) {
+    if (value.type !== "bid" && !value.raStartsAt) {
       context.addIssue({
         code: "custom",
         path: ["raStartsAt"],
         message: "Choose when the auction starts.",
       });
     }
-    if (value.type === "ra" && !value.raEndsAt) {
+    if (value.type !== "bid" && !value.raEndsAt) {
       context.addIssue({
         code: "custom",
         path: ["raEndsAt"],
@@ -105,6 +105,8 @@ export const auctionBidSchema = z.strictObject({
   bidKey: z.uuid(),
 });
 export const awardSchema = z.strictObject({ rank: z.number().int().min(1) });
+/** `highest` removes every seller tied at the highest sealed bid. `highest50` removes the highest half. */
+export const shortlistSchema = z.strictObject({ mode: z.enum(["highest", "highest50"]) });
 
 /** Tender times are entered in India time. */
 export const toIndiaTimestamp = (localDateTime: string) =>
@@ -150,6 +152,7 @@ export const buyerTenderSchema = z.object({
   kind: z.enum(["regular", "custom"]),
   type: tenderType,
   raStartsAt: z.string().nullable(),
+  raEndsAt: z.string().nullable(),
   status: z.enum([
     "draft",
     "unpaid",
@@ -173,6 +176,7 @@ export const buyerTenderSchema = z.object({
   cancelReason: z.string().nullable(),
   consigneeName: z.string(),
   contractMonths: z.number().int(),
+  sealedBidCount: z.number().int().nullable(),
   specs,
   charge: charge.extend({ kind: z.string() }).nullable(),
   orderId: z.string().nullable(),
@@ -185,7 +189,10 @@ export const sellerTenderSchema = z.object({
   tenderNo: z.string(),
   type: tenderType,
   title: z.string(),
+  status: z.enum(["bidding", "shortlisting", "auction_scheduled", "auction", "closed"]),
   open: z.boolean(),
+  eliminated: z.boolean(),
+  raStartsAt: z.string().nullable(),
   quantity: z.number(),
   unit: z.string(),
   deliveryStateCode: z.string(),
@@ -223,6 +230,7 @@ export type BuyerAuction = z.infer<typeof buyerAuctionSchema>;
 export const sellerAuctionSchema = z.object({
   status: z.string(),
   eligible: z.boolean(),
+  eliminated: z.boolean(),
   startsAt: z.string(),
   endsAt: z.string(),
   serverNow: z.string(),

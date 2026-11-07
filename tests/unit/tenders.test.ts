@@ -5,6 +5,7 @@ import {
   buyerAuctionSchema,
   createTenderSchema,
   sellerTenderSchema,
+  shortlistSchema,
   toIndiaTimestamp,
 } from "@/modules/tenders/schemas";
 
@@ -89,6 +90,31 @@ describe("reverse auction inputs", () => {
       l1Paise: 89550,
     });
     expect(view).not.toHaveProperty("l1Paise");
+  });
+});
+
+describe("Bid to RA inputs", () => {
+  const combined = {
+    ...regular,
+    type: "bid_to_ra",
+    raStartsAt: "2026-11-10T20:00",
+    raEndsAt: "2026-11-10T21:00",
+  };
+
+  it("needs the sealed deadline and both auction times", () => {
+    expect(createTenderSchema.safeParse(combined).success).toBe(true);
+    expect(createTenderSchema.safeParse({ ...combined, bidEndsAt: undefined }).success).toBe(false);
+    expect(createTenderSchema.safeParse({ ...combined, raStartsAt: undefined }).success).toBe(
+      false,
+    );
+    expect(createTenderSchema.safeParse({ ...combined, raEndsAt: undefined }).success).toBe(false);
+  });
+
+  it("accepts only the two shortlist choices", () => {
+    expect(shortlistSchema.safeParse({ mode: "highest" }).success).toBe(true);
+    expect(shortlistSchema.safeParse({ mode: "highest50" }).success).toBe(true);
+    expect(shortlistSchema.safeParse({ mode: "lowest" }).success).toBe(false);
+    expect(shortlistSchema.safeParse({ mode: "highest", sellerIds: ["x"] }).success).toBe(false);
   });
 });
 

@@ -4,6 +4,7 @@ export {
   bidSchema,
   createTenderSchema,
   reasonSchema,
+  shortlistSchema,
 } from "@/modules/tenders/schemas";
 export type {
   BuyerAuction,
@@ -28,6 +29,7 @@ export {
   placeAuctionBid,
   publishTender,
   rejectAward,
+  shortlistTender,
   submitBid,
   withdrawBid,
 } from "@/modules/tenders/service";

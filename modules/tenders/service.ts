@@ -106,6 +106,13 @@ export async function awardTender(id: string, rank: number) {
   return { chargeId: data };
 }
 
+export async function shortlistTender(id: string, mode: "highest" | "highest50") {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("shortlist_tender", { p_id: id, p_mode: mode });
+  if (error) throw toAppError(error);
+  return { sellersRemaining: data };
+}
+
 export async function listSellerTenders() {
   const supabase = await createUserClient();
   const { data, error } = await supabase.rpc("seller_tenders");
