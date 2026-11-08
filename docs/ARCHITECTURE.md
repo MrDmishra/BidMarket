@@ -163,6 +163,7 @@ Two private channels exist for each live auction.
 **Authentication**
 
 - Log in with email and password until MSG91 and Turnstile accounts exist. The target is phone and password, plus Turnstile.
+- Confirmation and reset emails link to `/auth/confirm?token_hash=…&type=…`, which works in any browser, including the Gmail app. The older `/auth/callback?code=…` link works only in the browser that asked for the email, so the Supabase email templates use the token hash (`docs/runbooks/auth-emails.md`).
 - Phone OTP goes through the Supabase Send SMS hook to MSG91. Email OTP and password reset go through Resend.
 - OTP rules from F-2 are enforced in the hook and in `otp_attempts`.
 - Sessions use secure, HttpOnly, SameSite cookies through the Supabase SSR helper.

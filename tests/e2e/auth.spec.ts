@@ -52,3 +52,8 @@ test("organisation API refuses a visitor", async ({ request }) => {
   expect(response.status()).toBeGreaterThanOrEqual(400);
   expect(await response.text()).not.toContain("organisation_id");
 });
+
+test("a broken email link explains that it has expired", async ({ page }) => {
+  await page.goto("/auth/confirm?token_hash=not-real&type=recovery");
+  await expect(page).toHaveURL(/\/login\?link=expired/);
+});
