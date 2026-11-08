@@ -1,14 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { linkDestination } from "@/lib/supabase/email-links";
 import { createUserClient } from "@/lib/supabase/server";
 
-const ALLOWED_NEXT = new Set(["/onboarding", "/reset-password"]);
-
-/** Limits the destination, so a crafted link cannot send users to another site. */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
-  const requestedNext = searchParams.get("next") ?? "";
-  const next = ALLOWED_NEXT.has(requestedNext) ? requestedNext : "/onboarding";
+  const next = linkDestination(searchParams.get("next"));
 
   if (code) {
     const supabase = await createUserClient();
