@@ -9,8 +9,9 @@ import type { AuthFormState } from "@/modules/accounts/auth-actions";
 export type AuthField = {
   name: string;
   label: string;
-  type: "email" | "password";
+  type: "email" | "password" | "text";
   autoComplete: string;
+  inputMode?: "numeric";
   hint?: string;
 };
 
@@ -35,6 +36,7 @@ export function AuthForm({ action, fields, submitLabel }: AuthFormProps) {
           label={field.label}
           type={field.type}
           autoComplete={field.autoComplete}
+          inputMode={field.inputMode}
           hint={field.hint}
           error={state.fields?.[field.name]}
         />
