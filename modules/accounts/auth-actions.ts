@@ -19,6 +19,8 @@ export type AuthFormState = {
 };
 
 const UNAVAILABLE = "Accounts are not available right now. Try again shortly.";
+const EXPIRED_LINK = "This reset link has expired. Request a new one.";
+const CODE_NEEDED = "Enter the 6-digit code from your authenticator app.";
 
 function callbackUrl(next: string) {
   const base = publicEnv.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -91,8 +93,21 @@ export async function resetPassword(_state: AuthFormState, form: FormData): Prom
 
   try {
     const supabase = await createUserClient();
+    // Supabase refuses a new password for a two-factor account until the code is checked.
+    const { data: level } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (level?.currentLevel === "aal1" && level.nextLevel === "aal2") {
+      if (!input.data.code) return { fields: { code: CODE_NEEDED } };
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const factor = factors?.totp.find((item) => item.status === "verified");
+      if (!factor) return { error: EXPIRED_LINK };
+      const { error } = await supabase.auth.mfa.challengeAndVerify({
+        factorId: factor.id,
+        code: input.data.code,
+      });
+      if (error) return { fields: { code: "That code did not work. Enter the latest code." } };
+    }
     const { error } = await supabase.auth.updateUser({ password: input.data.password });
-    if (error) return { error: "This reset link has expired. Request a new one." };
+    if (error) return { error: EXPIRED_LINK };
   } catch (error) {
     logger.error("Password reset failed", { error });
     return { error: UNAVAILABLE };

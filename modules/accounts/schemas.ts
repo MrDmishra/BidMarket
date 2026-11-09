@@ -23,7 +23,18 @@ export const signUpSchema = z
 export const forgotPasswordSchema = z.object({ email });
 
 export const resetPasswordSchema = z
-  .object({ password: newPassword, confirmPassword: z.string() })
+  .object({
+    password: newPassword,
+    confirmPassword: z.string(),
+    // Only accounts with two-factor sign-in send this. An empty field means no code.
+    code: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z
+        .string()
+        .regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app.")
+        .optional(),
+    ),
+  })
   .refine((value) => value.password === value.confirmPassword, {
     path: ["confirmPassword"],
     message: "The passwords do not match.",
