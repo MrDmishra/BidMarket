@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/layout/content-page";
+import { CategoryIcon } from "@/components/ui/category-icon";
 import { EmptyState } from "@/components/ui/empty-state";
 import { groupCategories, listCategories } from "@/modules/catalogue";
 
@@ -24,8 +25,9 @@ export default async function CategoriesPage() {
               key={category.id}
               className="group rounded-panel border border-line bg-surface open:border-accent"
             >
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
-                <span className="flex min-w-0 flex-col gap-1">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+                <CategoryIcon slug={category.slug} />
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
                   <span className="text-lg font-bold">{category.name}</span>
                   <span className="text-sm text-muted">
                     {category.subCategories.length} sub-categories

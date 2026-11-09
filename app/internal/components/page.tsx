@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/ui/action-form";
+import { CategoryIcon } from "@/components/ui/category-icon";
 import { ActionPanel } from "@/components/ui/action-panel";
 import { Banner } from "@/components/ui/banner";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -154,6 +155,31 @@ export default function ComponentsPage() {
               <MoneySummary valuePaise={4_500_000} feePaise={4_500} gstPaise={810} />
               <Button>Pay ₹53.10 and place order</Button>
             </ActionPanel>
+            <section aria-label="Category icons" className="flex flex-wrap gap-3">
+              {[
+                "machinery",
+                "electrical",
+                "furniture",
+                "office",
+                "hardware",
+                "safety",
+                "agriculture",
+                "raw-materials",
+                "automobile",
+                "cleaning",
+                "musical-instruments",
+                "garments",
+                "food",
+                "education",
+                "hospital",
+                "sports",
+              ].map((slug) => (
+                <span key={slug} className="flex flex-col items-center gap-1 text-xs text-muted">
+                  <CategoryIcon slug={slug} size="lg" />
+                  {slug}
+                </span>
+              ))}
+            </section>
             <ActionPanel title="Record a decision">
               <ActionForm
                 id="sample-decision"

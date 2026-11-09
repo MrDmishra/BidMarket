@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CategoryIcon } from "@/components/ui/category-icon";
 import { AuctionStair } from "@/components/ui/auction-stair";
 import { ButtonLink } from "@/components/ui/button";
 import { formatInr } from "@/lib/money";
@@ -110,8 +111,9 @@ export default async function HomePage() {
                 <Link
                   key={category.id}
                   href={`/products?category=${category.slug}`}
-                  className="rounded-panel border border-line bg-surface p-4 font-semibold text-ink no-underline hover:border-accent"
+                  className="flex items-center gap-3 rounded-panel border border-line bg-surface p-4 font-semibold text-ink no-underline hover:border-accent"
                 >
+                  <CategoryIcon slug={category.slug} />
                   {category.name}
                 </Link>
               ))}
