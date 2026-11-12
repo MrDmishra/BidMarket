@@ -4,8 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentPage } from "@/components/layout/content-page";
 import { ActionPanel } from "@/components/ui/action-panel";
+import { Banner } from "@/components/ui/banner";
 import { FactList } from "@/components/ui/fact-list";
 import { StatusPill } from "@/components/ui/status-pill";
+import { findAccountKind } from "@/lib/auth/account";
 import { productImageUrl } from "@/lib/files/public-url";
 import { stateName } from "@/lib/india/states";
 import { formatInr } from "@/lib/money";
@@ -20,6 +22,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const product = UUID.test(id) ? await getProduct(id) : null;
   if (!product) notFound();
+  const kind = await findAccountKind();
 
   return (
     <ContentPage title={product.title}>
@@ -75,14 +78,22 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             {product.delivery_states.map(stateName).filter(Boolean).join(", ") || "selected states"}
             .
           </p>
-          <div className="flex flex-wrap gap-2">
-            <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
-              Order this product
-            </ButtonLink>
-            <ButtonLink href={`/buyer/tenders/new?product=${product.id}`} variant="secondary">
-              Create a tender
-            </ButtonLink>
-          </div>
+          {kind === "seller" || kind === "admin" ? (
+            <Banner>
+              {kind === "seller"
+                ? "You are signed in as a seller. Only buyer accounts can order or create tenders."
+                : "Admin accounts cannot order. Log in with a buyer account to test buying."}
+            </Banner>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
+                Order this product
+              </ButtonLink>
+              <ButtonLink href={`/buyer/tenders/new?product=${product.id}`} variant="secondary">
+                Create a tender
+              </ButtonLink>
+            </div>
+          )}
         </ActionPanel>
       </div>
     </ContentPage>

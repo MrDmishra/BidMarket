@@ -6,6 +6,7 @@ import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { SelectField, TextareaField, TextField } from "@/components/ui/field";
 import { apiWrite } from "@/lib/api/client";
+import { fillPath } from "@/lib/fill-path";
 
 export type ActionField =
   | { kind: "text"; name: string; label: string; hint?: string; inputMode?: "numeric" }
@@ -24,8 +25,12 @@ type ActionFormProps = {
   numberFields?: string[];
   variant?: "primary" | "secondary" | "danger";
   note?: string;
-  /** Opens this path with the new record's id after a successful create. */
-  redirectTo?: (data: unknown) => string | null;
+  /**
+   * Opens this path after a successful create. ":name" is replaced with that field of the reply,
+   * for example "/support/tickets/:ticketId". It is a string because server pages cannot pass
+   * functions to this client component.
+   */
+  redirectTo?: string;
 };
 
 /** One form for every server action that sends a few fields and then refreshes the page. */
@@ -73,7 +78,7 @@ export function ActionForm({
     setPending(false);
     if (response?.ok) {
       form.reset();
-      const next = redirectTo?.(result?.data);
+      const next = redirectTo ? fillPath(redirectTo, result?.data) : null;
       if (next) router.push(next);
       else router.refresh();
       return;
