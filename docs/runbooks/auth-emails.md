@@ -9,7 +9,11 @@ Supabase → Authentication → URL Configuration:
 - **Site URL:** `https://bid-market-zeta.vercel.app` (the custom domain after launch)
 - **Redirect URLs:** add `https://bid-market-zeta.vercel.app/**`
 
-## 2. Email templates
+## Password reset works without template changes
+
+Reset emails are sent with a link that carries the sign-in after a `#`, landing on `/reset-link`. It works in any browser, including the Gmail app, with Supabase's default template. If Supabase does not allow `/reset-link` as a return address, it sends the link to the home page, which passes it on to `/reset-link`.
+
+## 2. Email templates (optional, recommended for sign-up)
 
 Supabase → Authentication → Emails. In each template, replace the link's `href` and keep the rest of the text.
 

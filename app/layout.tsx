@@ -6,6 +6,7 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/600.css";
 import "./globals.css";
+import { RecoveryForwarder } from "@/components/layout/recovery-forwarder";
 
 export const metadata: Metadata = {
   title: { default: "Bid Market", template: "%s | Bid Market" },
@@ -25,7 +26,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: APPLY_SAVED_THEME }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <RecoveryForwarder />
+        {children}
+      </body>
     </html>
   );
 }

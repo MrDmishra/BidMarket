@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { publicEnv } from "@/lib/env/public";
 import { logger } from "@/lib/logger";
+import { createRecoveryClient } from "@/lib/supabase/recovery";
 import { createUserClient } from "@/lib/supabase/server";
 import {
   fieldErrors,
@@ -75,10 +76,12 @@ export async function requestPasswordReset(
   if (!input.success) return { fields: fieldErrors(input.error) };
 
   try {
-    const supabase = await createUserClient();
-    await supabase.auth.resetPasswordForEmail(input.data.email, {
-      redirectTo: callbackUrl("/reset-password"),
+    const base = publicEnv.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const { error } = await createRecoveryClient().auth.resetPasswordForEmail(input.data.email, {
+      redirectTo: `${base}/reset-link`,
     });
+    // Rate limits and unknown addresses get the same reply, so this form reveals nothing.
+    if (error) logger.warn("Password reset not sent", { code: error.code });
   } catch (error) {
     logger.error("Password reset request failed", { error });
     return { error: UNAVAILABLE };
