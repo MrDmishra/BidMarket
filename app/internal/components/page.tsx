@@ -205,6 +205,7 @@ export default function ComponentsPage() {
                   { kind: "checkbox", name: "close", label: "Close the incident" },
                 ]}
                 note="The reason is saved in the audit log."
+                redirectTo="/support/incidents/:incidentId"
               />
             </ActionPanel>
             <ProductCard

@@ -129,10 +129,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                   buttonLabel="Raise incident"
                   fields={[{ kind: "textarea", name: "description", label: "What went wrong?" }]}
                   note="The other side is told, but never sees your name."
-                  redirectTo={(data) => {
-                    const id = (data as { incidentId?: string } | null)?.incidentId;
-                    return id ? `/support/incidents/${id}` : null;
-                  }}
+                  redirectTo="/support/incidents/:incidentId"
                 />
               </ActionPanel>
             ) : null}
@@ -154,10 +151,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                   { kind: "text", name: "subcategory", label: "Subject (optional)" },
                   { kind: "textarea", name: "description", label: "How can we help?" },
                 ]}
-                redirectTo={(data) => {
-                  const id = (data as { ticketId?: string } | null)?.ticketId;
-                  return id ? `/support/tickets/${id}` : null;
-                }}
+                redirectTo="/support/tickets/:ticketId"
               />
             </ActionPanel>
           </div>

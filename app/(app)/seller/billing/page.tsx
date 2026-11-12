@@ -58,6 +58,12 @@ export default async function SellerBillingPage() {
           {overview.subscription?.status === "active" && overview.subscription.ends_on ? (
             <p>Active until {dateText(overview.subscription.ends_on)}.</p>
           ) : null}
+          {organisation.status === "active" && overview.subscription?.status !== "active" ? (
+            <Banner>
+              This account was activated for testing, so no subscription is due. Paying below is
+              optional and tests the payment flow.
+            </Banner>
+          ) : null}
           {showPayment ? (
             <>
               <FactList
