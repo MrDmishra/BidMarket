@@ -57,3 +57,9 @@ test("a broken email link explains that it has expired", async ({ page }) => {
   await page.goto("/auth/confirm?token_hash=not-real&type=recovery");
   await expect(page).toHaveURL(/\/login\?link=expired/);
 });
+
+test("a reset link without a sign-in offers a new link", async ({ page }) => {
+  await page.goto("/reset-link");
+  await expect(page.getByText("This reset link has expired or was already used.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Request a new link" })).toBeVisible();
+});
