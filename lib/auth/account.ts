@@ -1,6 +1,8 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { cache } from "react";
+import { AppError } from "@/lib/errors/app-error";
 import { createUserClient } from "@/lib/supabase/server";
 import type { OrgKind, OrgStatus, UserRole } from "@/lib/supabase/domain-types";
 
@@ -10,6 +12,18 @@ export type Account = {
   role: UserRole;
   organisation: { id: string; kind: OrgKind; legalName: string; status: OrgStatus } | null;
 };
+
+/** Which area the visitor belongs to, for headers. A missing database means a signed-out header. */
+export const findAccountKind = cache(async (): Promise<"admin" | "buyer" | "seller" | null> => {
+  try {
+    const account = await getAccount();
+    if (!account) return null;
+    return account.role === "admin" ? "admin" : (account.organisation?.kind ?? null);
+  } catch (error) {
+    if (error instanceof AppError && error.code === "SERVICE_UNAVAILABLE") return null;
+    throw error;
+  }
+});
 
 export async function getAccount(): Promise<Account | null> {
   const supabase = await createUserClient();
