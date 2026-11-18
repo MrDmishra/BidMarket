@@ -4,7 +4,11 @@ import { AppError } from "@/lib/errors/app-error";
 import { toAppError } from "@/lib/errors/database";
 import type { Enums } from "@/lib/supabase/database.types";
 import { createUserClient } from "@/lib/supabase/server";
-import { organisationDetailSchema, overviewSchema } from "@/modules/admin/schemas";
+import {
+  adminProductSchema,
+  organisationDetailSchema,
+  overviewSchema,
+} from "@/modules/admin/schemas";
 
 // Every write below needs an admin with the second factor. The database checks both and logs the reason.
 
@@ -192,4 +196,37 @@ export async function getFileLinkForReview(id: string) {
     .createSignedUrl(file.path, SIGNED_LINK_SECONDS);
   if (linkError) throw new AppError("NOT_FOUND", { cause: linkError });
   return data.signedUrl;
+}
+
+export async function getAdminProduct(id: string) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("admin_product", { p_id: id });
+  if (error) throw toAppError(error);
+  return adminProductSchema.parse(data);
+}
+
+export async function takeDownProduct(id: string, reason: string) {
+  const supabase = await createUserClient();
+  const { error } = await supabase.rpc("admin_take_down_product", { p_id: id, p_reason: reason });
+  if (error) throw toAppError(error);
+}
+
+export const AUDIT_PAGE_SIZE = 25;
+
+export async function searchAuditLogPage(filters: {
+  entityType?: string;
+  entityId?: string;
+  action?: string;
+  page: number;
+}) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("admin_audit_log_page", {
+    p_entity_type: filters.entityType ?? "",
+    p_entity_id: filters.entityId ?? "",
+    p_action: filters.action ?? "",
+    p_page: filters.page,
+    p_page_size: AUDIT_PAGE_SIZE,
+  });
+  if (error) throw toAppError(error);
+  return { rows: data, total: Number(data[0]?.total_count ?? 0) };
 }

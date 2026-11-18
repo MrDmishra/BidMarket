@@ -6,9 +6,11 @@ export {
   orgStatusFilter,
   resolveSchema,
 } from "@/modules/admin/schemas";
-export type { OrganisationDetail, Overview } from "@/modules/admin/schemas";
+export type { AdminProduct, OrganisationDetail, Overview } from "@/modules/admin/schemas";
 export {
+  AUDIT_PAGE_SIZE,
   blockOrganisation,
+  getAdminProduct,
   cancelTenderAsAdmin,
   decideIncident,
   getFileLinkForReview,
@@ -26,7 +28,8 @@ export {
   reviewFile,
   resumeAuction,
   searchAuditLog,
+  searchAuditLogPage,
   setOrganisationStatus,
+  takeDownProduct,
   waivePenalty,
 } from "@/modules/admin/service";
-export { AdminNav } from "@/modules/admin/admin-nav";

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Pagination } from "@/components/ui/pagination";
 import { TextField } from "@/components/ui/field";
 import { requireAdmin } from "@/lib/auth/account";
-import { AdminNav, searchAuditLog } from "@/modules/admin";
+import { AUDIT_PAGE_SIZE, searchAuditLogPage } from "@/modules/admin";
 import { shortDateTime } from "@/modules/support";
 
 export const metadata: Metadata = { title: "Audit log" };
@@ -16,32 +16,34 @@ type PageProps = {
     entityType?: string;
     entityId?: string;
     action?: string;
-    before?: string;
+    page?: string;
   }>;
 };
 
 export default async function AdminAuditPage({ searchParams }: PageProps) {
   const account = await requireAdmin();
   const query = await searchParams;
-  const rows = await searchAuditLog({
+  const page = Math.max(1, Math.floor(Number(query.page)) || 1);
+  const { rows, total } = await searchAuditLogPage({
     entityType: query.entityType,
     entityId: query.entityId,
     action: query.action,
-    before: Number(query.before) || undefined,
+    page,
   });
-  const last = rows.at(-1);
-  const next = new URLSearchParams({
-    entityType: query.entityType ?? "",
-    entityId: query.entityId ?? "",
-    action: query.action ?? "",
-    before: String(last?.id ?? ""),
-  });
+  const totalPages = Math.max(1, Math.ceil(total / AUDIT_PAGE_SIZE));
+  const hrefFor = (number: number) => {
+    const params = new URLSearchParams();
+    for (const key of ["entityType", "entityId", "action"] as const) {
+      if (query[key]) params.set(key, query[key]);
+    }
+    params.set("page", String(number));
+    return `/admin/audit?${params.toString()}`;
+  };
 
   return (
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <AdminNav current="/admin/audit" />
         <h1 className="text-3xl font-bold">Audit log</h1>
         <form className="flex flex-wrap items-end gap-3" method="get">
           <TextField
@@ -68,7 +70,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
           </Button>
         </form>
         <DataTable
-          caption="Newest first, 50 at a time"
+          caption={`${total} entries, newest first`}
           rows={rows}
           rowKey={(row) => String(row.id)}
           empty={<EmptyState message="Nothing matches." />}
@@ -92,11 +94,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
             { key: "reason", header: "Reason", render: (row) => row.reason ?? "" },
           ]}
         />
-        {rows.length === 50 ? (
-          <Link className="underline" href={`/admin/audit?${next.toString()}`}>
-            Older entries
-          </Link>
-        ) : null}
+        <Pagination page={page} totalPages={totalPages} hrefFor={hrefFor} label="Audit log pages" />
       </main>
     </>
   );

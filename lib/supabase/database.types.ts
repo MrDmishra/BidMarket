@@ -2145,6 +2145,26 @@ export type Database = {
           reason: string;
         }[];
       };
+      admin_audit_log_page: {
+        Args: {
+          p_action?: string;
+          p_entity_id?: string;
+          p_entity_type?: string;
+          p_page?: number;
+          p_page_size?: number;
+        };
+        Returns: {
+          action: string;
+          actor: string;
+          actor_role: string;
+          created_at: string;
+          entity_id: string;
+          entity_type: string;
+          id: number;
+          reason: string;
+          total_count: number;
+        }[];
+      };
       admin_block_org: {
         Args: { p_days: number; p_id: string; p_reason: string };
         Returns: string;
@@ -2285,6 +2305,7 @@ export type Database = {
           unit: string;
         }[];
       };
+      admin_product: { Args: { p_id: string }; Returns: Json };
       admin_resolve_ticket: {
         Args: { p_id: string; p_reason: string; p_resolution: string };
         Returns: undefined;
@@ -2337,6 +2358,10 @@ export type Database = {
       };
       admin_set_org_status: {
         Args: { p_action: string; p_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      admin_take_down_product: {
+        Args: { p_id: string; p_reason: string };
         Returns: undefined;
       };
       admin_tenders: {

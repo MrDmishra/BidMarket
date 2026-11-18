@@ -7,7 +7,6 @@ import { Banner } from "@/components/ui/banner";
 import { FactList } from "@/components/ui/fact-list";
 import { MessageThread } from "@/components/ui/message-thread";
 import { requireAdmin } from "@/lib/auth/account";
-import { AdminNav } from "@/modules/admin";
 import { getIncident, shortDateTime } from "@/modules/support";
 
 export const metadata: Metadata = { title: "Incident" };
@@ -26,7 +25,6 @@ export default async function AdminIncidentPage({ params }: PageProps) {
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-5 py-8">
-        <AdminNav current="/admin/incidents" />
         <h1 className="font-mono text-2xl font-bold">{incident.refNo}</h1>
         <div className="grid items-start gap-5 md:grid-cols-[1fr_22rem]">
           <div className="flex min-w-0 flex-col gap-5">

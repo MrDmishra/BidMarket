@@ -5,7 +5,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { ActionPanel } from "@/components/ui/action-panel";
 import { FactList } from "@/components/ui/fact-list";
 import { requireAdmin } from "@/lib/auth/account";
-import { AdminNav, getOrganisation } from "@/modules/admin";
+import { getOrganisation } from "@/modules/admin";
 import { shortDateTime } from "@/modules/support";
 
 export const metadata: Metadata = { title: "Organisation" };
@@ -31,7 +31,6 @@ export default async function AdminOrganisationPage({ params }: PageProps) {
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-5 py-8">
-        <AdminNav current="/admin/organisations" />
         <h1 className="text-3xl font-bold">{organisation.legalName}</h1>
         <p className="text-sm text-muted">Opening this page is recorded in the audit log.</p>
         <div className="grid items-start gap-5 md:grid-cols-[1fr_22rem]">

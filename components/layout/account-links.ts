@@ -22,9 +22,16 @@ export const ACCOUNT_LINKS: Record<AccountKind, NavLink[]> = {
     { href: "/support", label: "Support" },
   ],
   admin: [
-    { href: "/admin", label: "Admin" },
+    { href: "/admin", label: "Overview" },
+    { href: "/admin/organisations", label: "Organisations" },
+    { href: "/admin/incidents", label: "Incidents" },
+    { href: "/admin/tickets", label: "Tickets" },
+    { href: "/admin/tenders", label: "Tenders" },
+    { href: "/admin/orders", label: "Orders" },
+    { href: "/admin/audit", label: "Audit log" },
+    { href: "/admin/categories", label: "Categories" },
+    { href: "/admin/settings", label: "Fees and settings" },
     { href: "/products", label: "Marketplace" },
-    { href: "/tenders", label: "Public tenders" },
   ],
 };
 

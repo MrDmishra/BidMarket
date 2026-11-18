@@ -72,3 +72,12 @@ export const orgStatusFilter = z
   .enum(["draft", "pending_payment", "pending_review", "active", "suspended", "rejected"])
   .optional()
   .catch(undefined);
+
+export const adminProductSchema = z.object({
+  status: z.string(),
+  reviewNote: z.string().nullable(),
+  sellerOrgId: z.string(),
+  sellerName: z.string(),
+  sellerStatus: z.string(),
+});
+export type AdminProduct = z.infer<typeof adminProductSchema>;
