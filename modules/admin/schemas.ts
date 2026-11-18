@@ -81,3 +81,33 @@ export const adminProductSchema = z.object({
   sellerStatus: z.string(),
 });
 export type AdminProduct = z.infer<typeof adminProductSchema>;
+
+export const updateUserSchema = z.strictObject({
+  fullName: z.string().trim().max(120, "Keep the name under 120 characters."),
+  designation: z.string().trim().max(120, "Keep the job title under 120 characters."),
+  reason,
+});
+export const userAccessSchema = z.strictObject({ disable: z.boolean(), reason });
+
+export const adminUserSchema = z.object({
+  userId: z.string(),
+  email: z.string().nullable(),
+  fullName: z.string().nullable(),
+  designation: z.string().nullable(),
+  phone: z.string().nullable(),
+  role: z.enum(["org_user", "admin"]),
+  createdAt: z.string(),
+  lastSignInAt: z.string().nullable(),
+  emailConfirmed: z.boolean(),
+  disabled: z.boolean(),
+  isSelf: z.boolean(),
+  sessions: z.number(),
+  organisation: z
+    .object({ id: z.string(), legalName: z.string(), kind: z.string(), status: z.string() })
+    .nullable(),
+});
+export type AdminUser = z.infer<typeof adminUserSchema>;
+
+export const USER_ROLE_FILTERS = ["admin", "buyer", "seller", "none"] as const;
+export const userRoleFilter = z.enum(USER_ROLE_FILTERS).optional().catch(undefined);
+export const userAccessFilter = z.enum(["active", "disabled"]).optional().catch(undefined);

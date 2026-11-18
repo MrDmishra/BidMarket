@@ -5,8 +5,18 @@ export {
   fileReviewSchema,
   orgStatusFilter,
   resolveSchema,
+  updateUserSchema,
+  USER_ROLE_FILTERS,
+  userAccessFilter,
+  userAccessSchema,
+  userRoleFilter,
 } from "@/modules/admin/schemas";
-export type { AdminProduct, OrganisationDetail, Overview } from "@/modules/admin/schemas";
+export type {
+  AdminProduct,
+  AdminUser,
+  OrganisationDetail,
+  Overview,
+} from "@/modules/admin/schemas";
 export {
   AUDIT_PAGE_SIZE,
   blockOrganisation,
@@ -15,6 +25,7 @@ export {
   decideIncident,
   getFileLinkForReview,
   getOrganisation,
+  getUser,
   getOverview,
   liftBlock,
   listIncidents,
@@ -23,13 +34,18 @@ export {
   listPendingFiles,
   listTenders,
   listTickets,
+  listUsers,
   pauseAuction,
   resolveTicket,
   reviewFile,
   resumeAuction,
   searchAuditLog,
   searchAuditLogPage,
+  sendPasswordReset,
+  setUserAccess,
   setOrganisationStatus,
   takeDownProduct,
+  updateUser,
+  USER_PAGE_SIZE,
   waivePenalty,
 } from "@/modules/admin/service";

@@ -1,11 +1,15 @@
 import "server-only";
 
+import { getServerEnv } from "@/lib/env/server";
 import { AppError } from "@/lib/errors/app-error";
 import { toAppError } from "@/lib/errors/database";
+import { logger } from "@/lib/logger";
 import type { Enums } from "@/lib/supabase/database.types";
+import { createRecoveryClient } from "@/lib/supabase/recovery";
 import { createUserClient } from "@/lib/supabase/server";
 import {
   adminProductSchema,
+  adminUserSchema,
   organisationDetailSchema,
   overviewSchema,
 } from "@/modules/admin/schemas";
@@ -229,4 +233,79 @@ export async function searchAuditLogPage(filters: {
   });
   if (error) throw toAppError(error);
   return { rows: data, total: Number(data[0]?.total_count ?? 0) };
+}
+
+export const USER_PAGE_SIZE = 25;
+
+export async function listUsers(filters: {
+  search?: string;
+  role?: string;
+  access?: string;
+  page: number;
+}) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("admin_users", {
+    p_search: filters.search ?? "",
+    p_role: filters.role ?? "",
+    p_access: filters.access ?? "",
+    p_page: filters.page,
+    p_page_size: USER_PAGE_SIZE,
+  });
+  if (error) throw toAppError(error);
+  return { rows: data, total: Number(data[0]?.total_count ?? 0) };
+}
+
+export async function getUser(id: string) {
+  const supabase = await createUserClient();
+  const { data, error } = await supabase.rpc("admin_user", { p_id: id });
+  if (error) {
+    const appError = toAppError(error);
+    if (appError.code === "NOT_FOUND") return null;
+    throw appError;
+  }
+  return adminUserSchema.parse(data);
+}
+
+export async function updateUser(
+  id: string,
+  fullName: string,
+  designation: string,
+  reason: string,
+) {
+  const supabase = await createUserClient();
+  const { error } = await supabase.rpc("admin_update_user", {
+    p_id: id,
+    p_full_name: fullName,
+    p_designation: designation,
+    p_reason: reason,
+  });
+  if (error) throw toAppError(error);
+}
+
+export async function setUserAccess(id: string, disable: boolean, reason: string) {
+  const supabase = await createUserClient();
+  const { error } = await supabase.rpc("admin_set_user_access", {
+    p_id: id,
+    p_disable: disable,
+    p_reason: reason,
+  });
+  if (error) throw toAppError(error);
+}
+
+/** The user chooses the new password themselves, so support never sees or sets one. */
+export async function sendPasswordReset(id: string, reason: string) {
+  const supabase = await createUserClient();
+  const { data: email, error } = await supabase.rpc("admin_prepare_password_reset", {
+    p_id: id,
+    p_reason: reason,
+  });
+  if (error) throw toAppError(error);
+  const base = getServerEnv().NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const { error: sendError } = await createRecoveryClient().auth.resetPasswordForEmail(email, {
+    redirectTo: `${base}/reset-link`,
+  });
+  if (sendError) {
+    logger.warn("Admin password reset not sent", { code: sendError.code });
+    throw new AppError("RATE_LIMITED", { cause: sendError });
+  }
 }
