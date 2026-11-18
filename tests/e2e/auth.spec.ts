@@ -11,6 +11,7 @@ for (const path of [
   "/onboarding/verify",
   "/support",
   "/admin/organisations",
+  "/admin/users",
   "/admin/incidents",
   "/admin/tickets",
   "/admin/tenders",

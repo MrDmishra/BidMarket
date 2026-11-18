@@ -269,6 +269,10 @@ All routes require Admin with MFA. Every write requires a `reason` and is audit 
 | GET | `/admin/files/{id}` | Opens a pending document for review, through a 5-minute signed link |
 | POST | `/admin/files/{id}/review` | `{ clean, reason }`. Marks a document clean or unsafe |
 | POST | `/admin/products/{id}/take-down` | `{ reason }`. Hides a live product and sends it back to the seller for changes |
+| GET | `/admin/users` | Logins, filtered by `q`, `role` (admin, buyer, seller, none) and `access` (active, disabled), 25 a page |
+| GET, PATCH | `/admin/users/{id}` | Detail, logged. PATCH takes `{ fullName, designation, reason }` |
+| POST | `/admin/users/{id}/access` | `{ disable, reason }`. Turning off ends every session. An admin cannot turn off their own login |
+| POST | `/admin/users/{id}/reset-password` | `{ reason }`. Emails a reset link. The user picks the password |
 | POST | `/admin/organisations/{id}/suspend` | Suspend |
 | POST | `/admin/organisations/{id}/reinstate` | Reinstate |
 | POST | `/admin/organisations/{id}/block` | Apply block |

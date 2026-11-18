@@ -13,7 +13,12 @@ grant usage on schema public to anon, authenticated, service_role;
 
 create schema auth;
 grant usage on schema auth to anon, authenticated, service_role;
-create table auth.users (id uuid primary key, phone text, email text, raw_user_meta_data jsonb);
+create table auth.users (
+  id uuid primary key, phone text, email text, raw_user_meta_data jsonb,
+  created_at timestamptz default now(), last_sign_in_at timestamptz, email_confirmed_at timestamptz,
+  banned_until timestamptz
+);
+create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid references auth.users (id));
 
 create function auth.uid() returns uuid language sql stable as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;

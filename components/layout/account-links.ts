@@ -23,6 +23,7 @@ export const ACCOUNT_LINKS: Record<AccountKind, NavLink[]> = {
   ],
   admin: [
     { href: "/admin", label: "Overview" },
+    { href: "/admin/users", label: "Users" },
     { href: "/admin/organisations", label: "Organisations" },
     { href: "/admin/incidents", label: "Incidents" },
     { href: "/admin/tickets", label: "Tickets" },

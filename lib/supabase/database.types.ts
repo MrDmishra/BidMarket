@@ -2305,6 +2305,10 @@ export type Database = {
           unit: string;
         }[];
       };
+      admin_prepare_password_reset: {
+        Args: { p_id: string; p_reason: string };
+        Returns: string;
+      };
       admin_product: { Args: { p_id: string }; Returns: Json };
       admin_resolve_ticket: {
         Args: { p_id: string; p_reason: string; p_resolution: string };
@@ -2360,6 +2364,10 @@ export type Database = {
         Args: { p_action: string; p_id: string; p_reason: string };
         Returns: undefined;
       };
+      admin_set_user_access: {
+        Args: { p_disable: boolean; p_id: string; p_reason: string };
+        Returns: undefined;
+      };
       admin_take_down_product: {
         Args: { p_id: string; p_reason: string };
         Returns: undefined;
@@ -2391,6 +2399,39 @@ export type Database = {
           ref_no: string;
           status: Database["public"]["Enums"]["ticket_status"];
           type: Database["public"]["Enums"]["ticket_type"];
+        }[];
+      };
+      admin_update_user: {
+        Args: {
+          p_designation: string;
+          p_full_name: string;
+          p_id: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
+      admin_user: { Args: { p_id: string }; Returns: Json };
+      admin_users: {
+        Args: {
+          p_access?: string;
+          p_page?: number;
+          p_page_size?: number;
+          p_role?: string;
+          p_search?: string;
+        };
+        Returns: {
+          created_at: string;
+          disabled: boolean;
+          email: string;
+          full_name: string;
+          last_sign_in_at: string;
+          org_id: string;
+          org_kind: Database["public"]["Enums"]["org_kind"];
+          org_name: string;
+          org_status: Database["public"]["Enums"]["org_status"];
+          role: Database["public"]["Enums"]["user_role"];
+          total_count: number;
+          user_id: string;
         }[];
       };
       admin_waive_penalty: {
