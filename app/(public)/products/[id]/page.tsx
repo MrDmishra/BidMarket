@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentPage } from "@/components/layout/content-page";
+import { ActionForm } from "@/components/ui/action-form";
 import { ActionPanel } from "@/components/ui/action-panel";
 import { Banner } from "@/components/ui/banner";
 import { FactList } from "@/components/ui/fact-list";
@@ -11,6 +12,7 @@ import { findAccountKind } from "@/lib/auth/account";
 import { productImageUrl } from "@/lib/files/public-url";
 import { stateName } from "@/lib/india/states";
 import { formatInr } from "@/lib/money";
+import { getAdminProduct } from "@/modules/admin";
 import { getProduct } from "@/modules/catalogue";
 
 export const metadata: Metadata = { title: "Product" };
@@ -23,6 +25,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const product = UUID.test(id) ? await getProduct(id) : null;
   if (!product) notFound();
   const kind = await findAccountKind();
+  const adminView = kind === "admin" ? await getAdminProduct(product.id) : null;
 
   return (
     <ContentPage title={product.title}>
@@ -53,48 +56,88 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             }))}
           />
         </div>
-        <ActionPanel title="Price">
-          <p className="flex flex-wrap items-baseline gap-2">
-            <span className="font-mono text-2xl font-semibold tabular-nums">
-              {formatInr(product.net_paise)}
-            </span>
-            <span className="font-mono text-sm text-muted tabular-nums line-through">
-              {formatInr(product.mrp_paise)}
-            </span>
-            <StatusPill tone="ok" label={`${Math.round(product.discount_bps / 100)}% off MRP`} />
-          </p>
-          <p className="text-sm text-muted">Per {product.unit}, all-inclusive.</p>
-          <FactList
-            facts={[
-              { label: "Stock", value: `${product.stock_qty} ${product.unit}`, numeric: true },
-              {
-                label: "Seller location",
-                value: [product.city, stateName(product.state_code)].filter(Boolean).join(", "),
-              },
-            ]}
-          />
-          <p className="text-sm">
-            Delivers to{" "}
-            {product.delivery_states.map(stateName).filter(Boolean).join(", ") || "selected states"}
-            .
-          </p>
-          {kind === "seller" || kind === "admin" ? (
-            <Banner>
-              {kind === "seller"
-                ? "You are signed in as a seller. Only buyer accounts can order or create tenders."
-                : "Admin accounts cannot order. Log in with a buyer account to test buying."}
-            </Banner>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
-                Order this product
-              </ButtonLink>
-              <ButtonLink href={`/buyer/tenders/new?product=${product.id}`} variant="secondary">
-                Create a tender
-              </ButtonLink>
-            </div>
-          )}
-        </ActionPanel>
+        <div className="flex min-w-0 flex-col gap-4">
+          <ActionPanel title="Price">
+            <p className="flex flex-wrap items-baseline gap-2">
+              <span className="font-mono text-2xl font-semibold tabular-nums">
+                {formatInr(product.net_paise)}
+              </span>
+              <span className="font-mono text-sm text-muted tabular-nums line-through">
+                {formatInr(product.mrp_paise)}
+              </span>
+              <StatusPill tone="ok" label={`${Math.round(product.discount_bps / 100)}% off MRP`} />
+            </p>
+            <p className="text-sm text-muted">Per {product.unit}, all-inclusive.</p>
+            <FactList
+              facts={[
+                { label: "Stock", value: `${product.stock_qty} ${product.unit}`, numeric: true },
+                {
+                  label: "Seller location",
+                  value: [product.city, stateName(product.state_code)].filter(Boolean).join(", "),
+                },
+              ]}
+            />
+            <p className="text-sm">
+              Delivers to{" "}
+              {product.delivery_states.map(stateName).filter(Boolean).join(", ") ||
+                "selected states"}
+              .
+            </p>
+            {kind === "seller" ? (
+              <Banner>
+                You are signed in as a seller. Only buyer accounts can order or create tenders.
+              </Banner>
+            ) : kind === "admin" ? null : (
+              <div className="flex flex-wrap gap-2">
+                <ButtonLink href={`/buyer/orders/new?product=${product.id}`}>
+                  Order this product
+                </ButtonLink>
+                <ButtonLink href={`/buyer/tenders/new?product=${product.id}`} variant="secondary">
+                  Create a tender
+                </ButtonLink>
+              </div>
+            )}
+          </ActionPanel>
+          {adminView ? (
+            <ActionPanel title="Admin">
+              <FactList
+                facts={[
+                  { label: "Seller", value: adminView.sellerName },
+                  { label: "Listing status", value: adminView.status },
+                ]}
+              />
+              <div className="flex flex-wrap gap-2">
+                <ButtonLink
+                  href={`/admin/organisations/${adminView.sellerOrgId}`}
+                  variant="secondary"
+                >
+                  Open seller
+                </ButtonLink>
+                <ButtonLink
+                  href={`/admin/audit?entityType=product&entityId=${product.id}`}
+                  variant="secondary"
+                >
+                  History
+                </ButtonLink>
+              </div>
+              <details className="rounded-panel border border-line px-3 py-2">
+                <summary className="cursor-pointer font-semibold">Take down this product</summary>
+                <div className="mt-3">
+                  <ActionForm
+                    id="take-down"
+                    endpoint={`/api/v1/admin/products/${product.id}/take-down`}
+                    buttonLabel="Take down"
+                    variant="danger"
+                    fields={[
+                      { kind: "textarea", name: "reason", label: "Reason, shown to the seller" },
+                    ]}
+                    note="It leaves the marketplace and goes back to the seller for changes. The seller can edit it, add photos and submit it again."
+                  />
+                </div>
+              </details>
+            </ActionPanel>
+          ) : null}
+        </div>
       </div>
     </ContentPage>
   );

@@ -4,7 +4,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
 import { requireAdmin } from "@/lib/auth/account";
-import { AdminNav, listTenders } from "@/modules/admin";
+import { listTenders } from "@/modules/admin";
 import { shortDateTime } from "@/modules/support";
 
 export const metadata: Metadata = { title: "Tenders" };
@@ -19,7 +19,6 @@ export default async function AdminTendersPage() {
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <AdminNav current="/admin/tenders" />
         <h1 className="text-3xl font-bold">Tenders</h1>
         {rows.length === 0 ? <EmptyState message="No tenders yet." /> : null}
         <ul className="flex flex-col gap-3">

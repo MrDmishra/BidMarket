@@ -1,13 +1,13 @@
-import { dashboardHref } from "@/components/layout/account-links";
+import { AccountBadge } from "@/components/layout/account-badge";
 import { MainNav } from "@/components/layout/main-nav";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Wordmark } from "@/components/ui/wordmark";
-import { findAccountKind } from "@/lib/auth/account";
+import { findAccountSummary } from "@/lib/auth/account";
 import { logOut } from "@/modules/accounts/auth-actions";
 
 export async function PublicHeader() {
-  const kind = await findAccountKind();
+  const account = await findAccountSummary();
 
   return (
     <header className="border-b border-line bg-surface">
@@ -30,11 +30,9 @@ export async function PublicHeader() {
           </Button>
         </form>
         <div className="ml-auto flex gap-2 sm:ml-0">
-          {kind ? (
+          {account ? (
             <>
-              <ButtonLink href={dashboardHref(kind)} size="small">
-                {kind === "admin" ? "Admin" : "My dashboard"}
-              </ButtonLink>
+              <AccountBadge account={account} />
               <form action={logOut}>
                 <Button type="submit" variant="secondary" size="small">
                   Log out

@@ -9,7 +9,7 @@ import { formatInr } from "@/lib/money";
 import { listPaymentPendingSellers, listPendingOrganisations } from "@/modules/accounts";
 import { ActionForm } from "@/components/ui/action-form";
 import { getServerEnv } from "@/lib/env/server";
-import { AdminNav, getOverview, listPendingFiles } from "@/modules/admin";
+import { getOverview, listPendingFiles } from "@/modules/admin";
 import { ReviewActions } from "@/modules/accounts/review-queue";
 import { TestActivation } from "@/modules/accounts/test-activation";
 import { listPendingCategoryRequests, listPendingProducts } from "@/modules/catalogue";
@@ -34,7 +34,6 @@ export default async function AdminPage() {
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <AdminNav current="/admin" />
         <h1 className="text-3xl font-bold">Overview</h1>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {[

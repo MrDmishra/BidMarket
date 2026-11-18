@@ -268,6 +268,7 @@ All routes require Admin with MFA. Every write requires a `reason` and is audit 
 | POST | `/admin/organisations/{id}/test-activate` | Temporary. Activates a seller without payment for testing. Refused when `APP_ENV` is production |
 | GET | `/admin/files/{id}` | Opens a pending document for review, through a 5-minute signed link |
 | POST | `/admin/files/{id}/review` | `{ clean, reason }`. Marks a document clean or unsafe |
+| POST | `/admin/products/{id}/take-down` | `{ reason }`. Hides a live product and sends it back to the seller for changes |
 | POST | `/admin/organisations/{id}/suspend` | Suspend |
 | POST | `/admin/organisations/{id}/reinstate` | Reinstate |
 | POST | `/admin/organisations/{id}/block` | Apply block |

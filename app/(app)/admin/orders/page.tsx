@@ -4,7 +4,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireAdmin } from "@/lib/auth/account";
 import { formatInr } from "@/lib/money";
-import { AdminNav, listOrders } from "@/modules/admin";
+import { listOrders } from "@/modules/admin";
 import { shortDateTime } from "@/modules/support";
 
 export const metadata: Metadata = { title: "Orders" };
@@ -16,7 +16,6 @@ export default async function AdminOrdersPage() {
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <AdminNav current="/admin/orders" />
         <h1 className="text-3xl font-bold">Orders</h1>
         <DataTable
           caption="Latest 100 orders"

@@ -9,21 +9,42 @@ import type { OrgKind, OrgStatus, UserRole } from "@/lib/supabase/domain-types";
 export type Account = {
   userId: string;
   email: string | null;
+  fullName: string | null;
   role: UserRole;
   organisation: { id: string; kind: OrgKind; legalName: string; status: OrgStatus } | null;
 };
 
-/** Which area the visitor belongs to, for headers. A missing database means a signed-out header. */
-export const findAccountKind = cache(async (): Promise<"admin" | "buyer" | "seller" | null> => {
+export type AccountSummary = {
+  kind: "admin" | "buyer" | "seller" | null;
+  displayName: string;
+  email: string | null;
+  roleLabel: string;
+};
+
+const ROLE_LABEL = { admin: "Admin", buyer: "Buyer", seller: "Seller" } as const;
+
+/** Who is signed in, for headers. A missing database means a signed-out header. */
+export const findAccountSummary = cache(async (): Promise<AccountSummary | null> => {
   try {
     const account = await getAccount();
     if (!account) return null;
-    return account.role === "admin" ? "admin" : (account.organisation?.kind ?? null);
+    const kind = account.role === "admin" ? "admin" : (account.organisation?.kind ?? null);
+    return {
+      kind,
+      displayName:
+        account.organisation?.legalName ?? account.fullName ?? account.email ?? "Your account",
+      email: account.email,
+      roleLabel: kind ? ROLE_LABEL[kind] : "New account",
+    };
   } catch (error) {
     if (error instanceof AppError && error.code === "SERVICE_UNAVAILABLE") return null;
     throw error;
   }
 });
+
+export async function findAccountKind() {
+  return (await findAccountSummary())?.kind ?? null;
+}
 
 export async function getAccount(): Promise<Account | null> {
   const supabase = await createUserClient();
@@ -32,7 +53,7 @@ export async function getAccount(): Promise<Account | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("user_id, org_id, role, email")
+    .select("user_id, org_id, role, email, full_name")
     .eq("user_id", authData.user.id)
     .single();
   if (!profile) return null;
@@ -48,6 +69,7 @@ export async function getAccount(): Promise<Account | null> {
   return {
     userId: profile.user_id,
     email: profile.email,
+    fullName: profile.full_name,
     role: profile.role,
     organisation: organisation && {
       id: organisation.id,

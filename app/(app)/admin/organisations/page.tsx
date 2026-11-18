@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SelectField, TextField } from "@/components/ui/field";
 import { StatusPill } from "@/components/ui/status-pill";
 import { requireAdmin } from "@/lib/auth/account";
-import { AdminNav, listOrganisations, orgStatusFilter } from "@/modules/admin";
+import { listOrganisations, orgStatusFilter } from "@/modules/admin";
 
 export const metadata: Metadata = { title: "Organisations" };
 
@@ -25,7 +25,6 @@ export default async function AdminOrganisationsPage({ searchParams }: PageProps
     <>
       <AppHeader name={account.email ?? "Admin"} />
       <main className="page-wrap flex flex-col gap-4 py-8">
-        <AdminNav current="/admin/organisations" />
         <h1 className="text-3xl font-bold">Organisations</h1>
         <form className="flex flex-wrap items-end gap-3" method="get">
           <TextField id="org-search" name="q" label="Name or GSTIN" defaultValue={query.q ?? ""} />
