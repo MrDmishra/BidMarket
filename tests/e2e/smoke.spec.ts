@@ -83,3 +83,8 @@ test("the day and night button shows on the login page", async ({ page }) => {
   await page.goto("/login");
   await expect(page.getByRole("button", { name: /Switch to (night|day) mode/ })).toBeVisible();
 });
+
+test("the home page lists top products, or says when there are none", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Top products" })).toBeVisible();
+});

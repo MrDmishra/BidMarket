@@ -1,9 +1,10 @@
-export { groupCategories } from "@/modules/catalogue/category-tree";
+export { groupCategories, rankPopularCategories } from "@/modules/catalogue/category-tree";
 export {
   getProduct,
   listCategories,
   listCategorySpecValues,
   listSpecDefinitions,
+  listTopProducts,
   PAGE_SIZE,
   searchProducts,
 } from "@/modules/catalogue/queries";

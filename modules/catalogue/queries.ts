@@ -73,6 +73,18 @@ export async function searchProducts({
   return data;
 }
 
+/** The most-ordered published products, at the largest page the search function allows. */
+export async function listTopProducts() {
+  const supabase = createPublicClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("search_products", {
+    p_sort: "popular",
+    p_limit: 48,
+  });
+  if (error) throw new AppError("SERVICE_UNAVAILABLE", { cause: error });
+  return data;
+}
+
 export async function getProduct(id: string) {
   const supabase = createPublicClient();
   if (!supabase) return null;

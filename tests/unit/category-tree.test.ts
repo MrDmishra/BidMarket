@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { groupCategories, specCategoryIds } from "@/modules/catalogue/category-tree";
+import {
+  groupCategories,
+  rankPopularCategories,
+  specCategoryIds,
+} from "@/modules/catalogue/category-tree";
 
 const categories = [
   { id: "furniture", parent_id: null },
@@ -27,5 +31,32 @@ describe("specCategoryIds", () => {
 
   it("returns only the category itself for a main category", () => {
     expect(specCategoryIds(categories, "food")).toEqual(["food"]);
+  });
+});
+
+describe("rankPopularCategories", () => {
+  const subCategories = [
+    { slug: "cables", name: "Cables" },
+    { slug: "chairs", name: "Chairs" },
+    { slug: "almirah", name: "Almirah" },
+    { slug: "empty", name: "Empty" },
+  ];
+  const products = [
+    { category_slug: "chairs" },
+    { category_slug: "cables" },
+    { category_slug: "chairs" },
+    { category_slug: "almirah" },
+  ];
+
+  it("puts the category with the most products first and leaves out empty ones", () => {
+    expect(rankPopularCategories(subCategories, products, 10)).toEqual([
+      { slug: "chairs", name: "Chairs", productCount: 2 },
+      { slug: "almirah", name: "Almirah", productCount: 1 },
+      { slug: "cables", name: "Cables", productCount: 1 },
+    ]);
+  });
+
+  it("stops at the limit", () => {
+    expect(rankPopularCategories(subCategories, products, 1)).toHaveLength(1);
   });
 });
